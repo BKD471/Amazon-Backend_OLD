@@ -2,4 +2,4 @@
 
 # it will be a monolith for sure,
 
-# there will be another amazon backend  project in future but with micoservices
+# there will be another amazon backend  project in future but with microservices architecture
