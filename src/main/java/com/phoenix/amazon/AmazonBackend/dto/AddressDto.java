@@ -1,64 +1,44 @@
-package com.phoenix.amazon.AmazonBackend.entity;
+package com.phoenix.amazon.AmazonBackend.dto;
 
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.Id;
-import jakarta.persistence.Column;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.EnumType;
+import com.phoenix.amazon.AmazonBackend.entity.Address;
 
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.COUNTRY;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.STATE;
 
-@Entity
-@Table(name = "user_address")
-public class Address {
-    @Id
-    private String addressId;
+public record AddressDto(String addressId,
+                         String firstName,
+                         String lastName,
+                         String mobileNumber,
+                         String pinCode,
+                         String addressLine1,
+                         String addressLine2,
+                         String houseOrApartmentNumber,
+                         String townOrCity,
+                         COUNTRY country,
+                         STATE state) {
 
-    @Column(name = "first_name", nullable = false)
-    private String firstName;
-
-    @Column(name = "last_name", nullable = false)
-    private String lastName;
-
-    @Column(name = "user_mobile", nullable = false, unique = true)
-    private String mobileNumber;
-
-    @Column(name = "pin_code", nullable = false)
-    private String pinCode;
-
-    @Column(name = "address1", nullable = false)
-    private String addressLine1;
-    private String addressLine2;
-    @Column(name = "house_apartment_no", nullable = false)
-    private String houseOrApartmentNumber;
-
-    @Column(name = "town", nullable = false)
-    private String townOrCity;
-
-    @Enumerated(value = EnumType.STRING)
-    private COUNTRY country;
-
-    @Enumerated(value = EnumType.STRING)
-    private STATE state;
-
-    public Address() {
-    }
-
-    public Address(builder builder) {
-        this.addressId = builder.addressId;
-        this.firstName = builder.firstName;
-        this.lastName = builder.lastName;
-        this.mobileNumber = builder.mobileNumber;
-        this.pinCode = builder.pinCode;
-        this.addressLine1 = builder.addressLine1;
-        this.addressLine2 = builder.addressLine2;
-        this.houseOrApartmentNumber = builder.houseOrApartmentNumber;
-        this.townOrCity = builder.townOrCity;
-        this.country = builder.country;
-        this.state = builder.state;
+    public AddressDto(String addressId,
+                      String firstName,
+                      String lastName,
+                      String mobileNumber,
+                      String pinCode,
+                      String addressLine1,
+                      String addressLine2,
+                      String houseOrApartmentNumber,
+                      String townOrCity,
+                      COUNTRY country,
+                      STATE state) {
+        this.addressId = addressId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.mobileNumber = mobileNumber;
+        this.pinCode = pinCode;
+        this.addressLine1 = addressLine1;
+        this.addressLine2 = addressLine2;
+        this.houseOrApartmentNumber = houseOrApartmentNumber;
+        this.townOrCity = townOrCity;
+        this.country = country;
+        this.state = state;
     }
 
     public static final class builder {
@@ -132,8 +112,19 @@ public class Address {
             return this;
         }
 
-        public Address build() {
-            return new Address(this);
+
+        public AddressDto build() {
+            return new AddressDto(addressId,
+                    firstName,
+                    lastName,
+                    mobileNumber,
+                    pinCode,
+                    addressLine1,
+                    addressLine2,
+                    houseOrApartmentNumber,
+                    townOrCity,
+                    country,
+                    state);
         }
     }
 }

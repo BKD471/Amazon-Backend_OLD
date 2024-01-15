@@ -1,12 +1,18 @@
 package com.phoenix.amazon.AmazonBackend.entity;
 
-import com.phoenix.amazon.AmazonBackend.helpers.GENDER;
-import jakarta.persistence.*;
 
-import java.time.LocalDate;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.Id;
+import jakarta.persistence.Column;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
+import lombok.Getter;
 import java.time.LocalDateTime;
 
+import static  com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.GENDER;
 
+@Getter
 @Entity
 @Table(name = "users")
 public class Users {
@@ -27,7 +33,7 @@ public class Users {
     private String about;
 
     public Users(){}
-    public Users(Builder builder) {
+    public Users(builder builder) {
         this.userId = builder.userId;
         this.name = builder.name;
         this.email = builder.email;
@@ -37,8 +43,7 @@ public class Users {
         this.lastSeen=builder.lastSeen;
         this.about = builder.about;
     }
-
-    public static final class Builder {
+    public static final class builder {
         private String userId;
         private String name;
         private String email;
@@ -48,45 +53,45 @@ public class Users {
         private LocalDateTime lastSeen;
         private String about;
 
-        public Builder() {
+        public builder() {
         }
 
-        public Builder userId(String userId) {
+        public builder userId(String userId) {
             this.userId = userId;
             return this;
         }
 
-        public Builder name(String name) {
+        public builder name(String name) {
             this.name = name;
             return this;
         }
 
-        public Builder email(String email) {
+        public builder email(String email) {
             this.email = email;
             return this;
         }
 
-        public Builder password(String password) {
+        public builder password(String password) {
             this.password = password;
             return this;
         }
 
-        public Builder gender(GENDER gender) {
+        public builder gender(GENDER gender) {
             this.gender = gender;
             return this;
         }
 
-        public Builder imageName(String imageName) {
+        public builder imageName(String imageName) {
             this.imageName = imageName;
             return this;
         }
 
-        public Builder about(String about) {
+        public builder about(String about) {
             this.about = about;
             return this;
         }
 
-        public Builder lastSeen(LocalDateTime lastSeen){
+        public builder lastSeen(LocalDateTime lastSeen){
             this.lastSeen=lastSeen;
             return this;
         }
