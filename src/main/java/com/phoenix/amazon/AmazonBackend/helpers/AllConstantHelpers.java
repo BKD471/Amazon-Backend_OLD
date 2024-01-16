@@ -1,11 +1,11 @@
 package com.phoenix.amazon.AmazonBackend.helpers;
 
 public class AllConstantHelpers {
-    public static enum COUNTRY {
+    public enum COUNTRY {
         USA,UNITED_KINGDOM,INDIA,AUSTRALIA,JAPAN,CHINA,MALAYSIA,ITALY,CANADA,GERMANY
     }
 
-    public static enum STATE {
+    public enum STATE {
         WEST_BENGAL,MICHIGAN,TEXAS,LOS_ANGELES,NEW_YORK
     }
 
@@ -13,5 +13,8 @@ public class AllConstantHelpers {
         MALE,FEMALE,NON_BINARY,LGBTQ
     }
 
+    public enum UserFields {
+        NAME,EMAIL,GENDER,LAST_SEEN,ABOUT
+    }
 
 }

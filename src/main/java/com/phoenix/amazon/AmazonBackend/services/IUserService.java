@@ -1,7 +1,7 @@
 package com.phoenix.amazon.AmazonBackend.services;
 
 import com.phoenix.amazon.AmazonBackend.dto.UserDto;
-import com.phoenix.amazon.AmazonBackend.helpers.UserFields;
+import static  com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.UserFields;
 
 import java.util.List;
 

@@ -1,12 +1,11 @@
 package com.phoenix.amazon.AmazonBackend.services.impls;
 
 import com.phoenix.amazon.AmazonBackend.dto.UserDto;
-import com.phoenix.amazon.AmazonBackend.entity.Users;
-import com.phoenix.amazon.AmazonBackend.helpers.UserFields;
 import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
 import com.phoenix.amazon.AmazonBackend.services.IUserService;
-
 import java.util.List;
+
+import static  com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.UserFields;
 
 public class UserServiceImpl implements IUserService {
     private final IUserRepository userRepository;

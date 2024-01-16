@@ -1,6 +1,5 @@
 package com.phoenix.amazon.AmazonBackend.dto;
 
-import com.phoenix.amazon.AmazonBackend.entity.Address;
 
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.COUNTRY;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.STATE;
