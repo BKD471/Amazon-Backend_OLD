@@ -1,6 +1,7 @@
 package com.phoenix.amazon.AmazonBackend.controllers.impl;
 
 import com.phoenix.amazon.AmazonBackend.controllers.IUserController;
+import com.phoenix.amazon.AmazonBackend.dto.ApiResponse;
 import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers;
 import com.phoenix.amazon.AmazonBackend.services.IUserService;
@@ -34,8 +35,8 @@ public class UserControllerImpl implements IUserController {
      * @return
      */
     @Override
-    public ResponseEntity<UserDto> updateUserByUserIdOrUserName(final UserDto user,final String userIdOrUserName) {
-        UserDto userDto = userService.updateUserByUserIdOrUserName(user,userIdOrUserName);
+    public ResponseEntity<UserDto> updateUserByUserIdOrUserName(final UserDto user, final String userIdOrUserName) {
+        UserDto userDto = userService.updateUserByUserIdOrUserName(user, userIdOrUserName);
         return new ResponseEntity<>(userDto, HttpStatus.ACCEPTED);
     }
 
@@ -44,9 +45,15 @@ public class UserControllerImpl implements IUserController {
      * @return
      */
     @Override
-    public ResponseEntity<Object> deleteUserByUserIdOrUserName(final String userIdOrUserName) {
+    public ResponseEntity<ApiResponse> deleteUserByUserIdOrUserName(final String userIdOrUserName) {
         userService.deleteUserByUserIdOrUserName(userIdOrUserName);
-        return new ResponseEntity<>(null, HttpStatus.ACCEPTED);
+
+        ApiResponse responseMessage = new ApiResponse.builder()
+                .message(String.format(" User with userName %s deleted successfully!", userIdOrUserName))
+                .success(true)
+                .status(HttpStatus.OK)
+                .build();
+        return new ResponseEntity<>(responseMessage, HttpStatus.ACCEPTED);
     }
 
     /**
@@ -75,7 +82,7 @@ public class UserControllerImpl implements IUserController {
      */
     @Override
     public ResponseEntity<List<UserDto>> searchUserByFieldAndValue(AllConstantHelpers.USER_FIELDS field, String value) {
-        List<UserDto> userDtoList = userService.searchUserByFieldAndValue(field,value);
+        List<UserDto> userDtoList = userService.searchUserByFieldAndValue(field, value);
         return new ResponseEntity<>(userDtoList, HttpStatus.OK);
     }
 

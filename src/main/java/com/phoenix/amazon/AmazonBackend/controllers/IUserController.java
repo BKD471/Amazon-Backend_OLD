@@ -1,5 +1,6 @@
 package com.phoenix.amazon.AmazonBackend.controllers;
 
+import com.phoenix.amazon.AmazonBackend.dto.ApiResponse;
 import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +16,7 @@ public interface IUserController {
     @PutMapping("/update/{userIdOrUserName}")
     ResponseEntity<UserDto> updateUserByUserIdOrUserName(@RequestBody final UserDto user,@PathVariable final String userIdOrUserName);
     @DeleteMapping("/delete/{userIdOrUserName}")
-    ResponseEntity<Object> deleteUserByUserIdOrUserName(@PathVariable final String userIdOrUserName);
+    ResponseEntity<ApiResponse> deleteUserByUserIdOrUserName(@PathVariable final String userIdOrUserName);
     @GetMapping
     ResponseEntity<List<UserDto>> getALlUsers();
     @GetMapping("/{emailOrUserName}")
