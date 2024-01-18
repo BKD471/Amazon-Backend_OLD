@@ -7,18 +7,23 @@ public class MappingHelpers {
     public static UserDto UsersToUsersDto(final Users users) {
         return new UserDto.builder()
                 .userId(users.getUserId())
-                .name(users.getName())
+                .userName(users.getUserName())
+                .firstName(users.getFirstName())
+                .lastName(users.getLastName())
                 .email(users.getEmail())
                 .gender(users.getGender())
                 .imageName(users.getImageName())
                 .about(users.getAbout())
+                .lastSeen(users.getLastSeen())
                 .build();
     }
 
     public static Users UserDtoToUsers(final UserDto userDto) {
         return new Users.builder()
                 .userId(userDto.userId())
-                .name(userDto.name())
+                .userName(userDto.userName())
+                .firstName(userDto.firstName())
+                .lastName(userDto.lastName())
                 .email(userDto.email())
                 .password(userDto.password())
                 .gender(userDto.gender())

@@ -5,8 +5,6 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.COUNTR
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.STATE;
 
 public record AddressDto(String addressId,
-                         String firstName,
-                         String lastName,
                          String mobileNumber,
                          String pinCode,
                          String addressLine1,
@@ -17,8 +15,6 @@ public record AddressDto(String addressId,
                          STATE state) {
 
     public AddressDto(String addressId,
-                      String firstName,
-                      String lastName,
                       String mobileNumber,
                       String pinCode,
                       String addressLine1,
@@ -28,8 +24,6 @@ public record AddressDto(String addressId,
                       COUNTRY country,
                       STATE state) {
         this.addressId = addressId;
-        this.firstName = firstName;
-        this.lastName = lastName;
         this.mobileNumber = mobileNumber;
         this.pinCode = pinCode;
         this.addressLine1 = addressLine1;
@@ -42,8 +36,6 @@ public record AddressDto(String addressId,
 
     public static final class builder {
         private String addressId;
-        private String firstName;
-        private String lastName;
         private String mobileNumber;
         private String pinCode;
         private String addressLine1;
@@ -58,16 +50,6 @@ public record AddressDto(String addressId,
 
         public builder addressId(final String addressId) {
             this.addressId = addressId;
-            return this;
-        }
-
-        public builder firstName(final String firstName) {
-            this.firstName = firstName;
-            return this;
-        }
-
-        public builder lastName(final String lastName) {
-            this.lastName = lastName;
             return this;
         }
 
@@ -114,8 +96,6 @@ public record AddressDto(String addressId,
 
         public AddressDto build() {
             return new AddressDto(addressId,
-                    firstName,
-                    lastName,
                     mobileNumber,
                     pinCode,
                     addressLine1,

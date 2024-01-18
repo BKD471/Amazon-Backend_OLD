@@ -30,7 +30,9 @@ public class UserServiceImpl implements IUserService {
         final String userIdUUID=UUID.randomUUID().toString();
         return new UserDto.builder()
                 .userId(userIdUUID)
-                .name(userDto.name())
+                .userName(userDto.userName())
+                .firstName(userDto.firstName())
+                .lastName(userDto.lastName())
                 .email(userDto.email())
                 .gender(userDto.gender())
                 .imageName(userDto.imageName())
