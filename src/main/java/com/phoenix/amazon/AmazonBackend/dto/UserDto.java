@@ -29,37 +29,37 @@ public record UserDto(String userId, String name, String email, String password,
         public builder() {
         }
 
-        public builder userId(String userId) {
+        public builder userId(final String userId) {
             this.userId = userId;
             return this;
         }
 
-        public builder name(String name) {
+        public builder name(final String name) {
             this.name = name;
             return this;
         }
 
-        public builder email(String email) {
+        public builder email(final String email) {
             this.email = email;
             return this;
         }
 
-        public builder password(String password) {
+        public builder password(final String password) {
             this.password = password;
             return this;
         }
 
-        public builder gender(GENDER gender) {
+        public builder gender(final GENDER gender) {
             this.gender = gender;
             return this;
         }
 
-        public builder imageName(String imageName) {
+        public builder imageName(final String imageName) {
             this.imageName = imageName;
             return this;
         }
 
-        public builder about(String about) {
+        public builder about(final String about) {
             this.about = about;
             return this;
         }

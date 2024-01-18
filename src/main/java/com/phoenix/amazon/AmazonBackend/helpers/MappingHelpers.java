@@ -4,7 +4,7 @@ import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 import com.phoenix.amazon.AmazonBackend.entity.Users;
 
 public class MappingHelpers {
-    public static UserDto UsersToUsersDto(Users users) {
+    public static UserDto UsersToUsersDto(final Users users) {
         return new UserDto.builder()
                 .userId(users.getUserId())
                 .name(users.getName())
@@ -15,7 +15,7 @@ public class MappingHelpers {
                 .build();
     }
 
-    public static Users UserDtoToUsers(UserDto userDto) {
+    public static Users UserDtoToUsers(final UserDto userDto) {
         return new Users.builder()
                 .userId(userDto.userId())
                 .name(userDto.name())
