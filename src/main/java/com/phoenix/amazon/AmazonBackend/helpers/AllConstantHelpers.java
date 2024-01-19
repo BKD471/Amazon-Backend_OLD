@@ -18,7 +18,7 @@ public class AllConstantHelpers {
     }
 
     public enum USER_FIELDS {
-        NAME,EMAIL,GENDER,LAST_SEEN,ABOUT
+        USER_NAME,FIRST_NAME,LAST_NAME,EMAIL,GENDER,LAST_SEEN,ABOUT
     }
 
     public enum USER_VALIDATION{
@@ -27,7 +27,12 @@ public class AllConstantHelpers {
         DELETE_USER_BY_USER_ID_OR_USER_NAME,
         GET_ALL_USERS,
         GET_USER_INFO_BY_EMAIL_USER_NAME,
-        SEARCH_USER_BY_FIELD_AND_VALUE
+        SEARCH_USER_BY_FIELD_AND_VALUE,
+        SEARCH_ALL_USERS_BY_USER_NAME
+    }
+
+    public enum EXCEPTION_CODES{
+        USER_EXEC,BAD_API_EXEC
     }
 
 }
