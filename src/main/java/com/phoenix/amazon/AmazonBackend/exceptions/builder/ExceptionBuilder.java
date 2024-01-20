@@ -17,8 +17,8 @@ public class ExceptionBuilder implements IClassNameBuilder, IDescriptionBuilder,
     }
 
     /**
-     * @param className
-     * @return
+     * @param className - Exception class type
+     * @return IDescriptionBuilder
      */
     @Override
     public IDescriptionBuilder className(final Object className) {
@@ -27,8 +27,8 @@ public class ExceptionBuilder implements IClassNameBuilder, IDescriptionBuilder,
     }
 
     /**
-     * @param description
-     * @return
+     * @param description - Description of exception
+     * @return IMethodNameBuilder
      */
     @Override
     public IMethodNameBuilder description(String description) {
@@ -37,8 +37,8 @@ public class ExceptionBuilder implements IClassNameBuilder, IDescriptionBuilder,
     }
 
     /**
-     * @param methodName
-     * @return
+     * @param methodName - Origin of exception
+     * @return IBuild
      */
     @Override
     public IBuild methodName(String methodName) {
@@ -47,8 +47,8 @@ public class ExceptionBuilder implements IClassNameBuilder, IDescriptionBuilder,
     }
 
     /**
-     * @param exceptionCodes
-     * @return
+     * @param exceptionCodes - exception code
+     * @return Exception
      */
     @Override
     public Exception build(EXCEPTION_CODES exceptionCodes) {
@@ -62,5 +62,4 @@ public class ExceptionBuilder implements IClassNameBuilder, IDescriptionBuilder,
             default -> throw new RuntimeException("Invalid Exception Code");
         }
     }
-
 }

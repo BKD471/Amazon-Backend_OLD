@@ -3,33 +3,41 @@ package com.phoenix.amazon.AmazonBackend.services.impls;
 import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 import com.phoenix.amazon.AmazonBackend.entity.Users;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
-import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers;
 import com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers;
 import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
+import com.phoenix.amazon.AmazonBackend.services.AbstractService;
 import com.phoenix.amazon.AmazonBackend.services.IUserService;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import java.util.Objects;
+import java.util.HashSet;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.GENDER;
 
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.*;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.CREATE_USER;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.UPDATE_USER_BY_USER_ID_OR_USER_NAME;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.DELETE_USER_BY_USER_ID_OR_USER_NAME;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_ALL_USERS;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_USER_INFO_BY_EMAIL_USER_NAME;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_ALL_USERS_BY_USER_NAME;
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UserDtoToUsers;
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UsersToUsersDto;
 
 @Service("UserServiceMain")
-public class UserServiceImpl implements IUserService {
+public class UserServiceImpl extends AbstractService implements IUserService {
     private final IUserRepository userRepository;
     private final IUserValidationService userValidationService;
 
     public UserServiceImpl(IUserRepository userRepository, IUserValidationService userValidationService) {
+        super(userRepository, userValidationService);
         this.userRepository = userRepository;
         this.userValidationService = userValidationService;
     }
@@ -50,8 +58,8 @@ public class UserServiceImpl implements IUserService {
     }
 
     /**
-     * @param userDto
-     * @return
+     * @param userDto - Incoming User Object
+     * @return UserDTo
      */
     @Override
     public UserDto createUser(final UserDto userDto) {
@@ -64,100 +72,19 @@ public class UserServiceImpl implements IUserService {
         return UsersToUsersDto(savedUser);
     }
 
-    /**no setter in entity class to stop partial initialization
-     *
-     * so we need constructUser
-     *
-     * */
-    private Users constructUser(Users oldUser, Users newUser, USER_FIELDS fields) {
-        switch (fields) {
-            case FIRST_NAME -> {
-                return new Users.builder()
-                        .firstName(newUser.getFirstName())
-                        .userId(oldUser.getUserId())
-                        .userName(oldUser.getUserName())
-                        .lastName(oldUser.getLastName())
-                        .email(oldUser.getEmail())
-                        .gender(oldUser.getGender())
-                        .password(oldUser.getPassword())
-                        .about(oldUser.getAbout())
-                        .imageName(oldUser.getImageName())
-                        .lastSeen(oldUser.getLastSeen())
-                        .build();
-            }
-            case LAST_NAME -> {
-                return new Users.builder()
-                        .lastName(newUser.getLastName())
-                        .firstName(oldUser.getFirstName())
-                        .userId(oldUser.getUserId())
-                        .userName(oldUser.getUserName())
-                        .email(oldUser.getEmail())
-                        .gender(oldUser.getGender())
-                        .password(oldUser.getPassword())
-                        .about(oldUser.getAbout())
-                        .imageName(oldUser.getImageName())
-                        .lastSeen(oldUser.getLastSeen())
-                        .build();
-
-            }
-            case ABOUT -> {
-                return new Users.builder()
-                        .about(newUser.getAbout())
-                        .lastName(oldUser.getLastName())
-                        .firstName(oldUser.getFirstName())
-                        .userId(oldUser.getUserId())
-                        .userName(oldUser.getUserName())
-                        .email(oldUser.getEmail())
-                        .gender(oldUser.getGender())
-                        .password(oldUser.getPassword())
-                        .imageName(oldUser.getImageName())
-                        .lastSeen(oldUser.getLastSeen())
-                        .build();
-
-            }
-            case EMAIL -> {
-                return new Users.builder()
-                        .lastName(newUser.getLastName())
-                        .firstName(oldUser.getFirstName())
-                        .userId(oldUser.getUserId())
-                        .userName(oldUser.getUserName())
-                        .email(oldUser.getEmail())
-                        .gender(oldUser.getGender())
-                        .password(oldUser.getPassword())
-                        .about(oldUser.getAbout())
-                        .lastSeen(oldUser.getLastSeen())
-                        .build();
-            }
-            case GENDER -> {
-                return new Users.builder()
-                        .gender(newUser.getGender())
-                        .lastName(oldUser.getLastName())
-                        .firstName(oldUser.getFirstName())
-                        .userId(oldUser.getUserId())
-                        .userName(oldUser.getUserName())
-                        .email(oldUser.getEmail())
-                        .password(oldUser.getPassword())
-                        .about(oldUser.getAbout())
-                        .lastSeen(oldUser.getLastSeen())
-                        .build();
-            }
-        }
-        return oldUser;
-    }
-
     /**
-     * @param user
-     * @param userIdOrUserName
-     * @return
+     * @param user     - Incoming User Object from client
+     * @param userId   - User Id
+     * @param userName - userName of user
+     * @return UserDto
      */
     @Override
-    public UserDto updateUserByUserIdOrUserName(final UserDto user, final String userIdOrUserName) {
+    public UserDto updateUserByUserIdOrUserName(final UserDto user, final String userId, final String userName) {
         final String methodName = "updateUserByUserIdOrUserName(UserDto,String) in UserServiceImpl";
 
         Users userDetails = UserDtoToUsers(user);
-        Users fetchedUser = userRepository.findByUserIdOrUserName(userIdOrUserName).get();
+        Users fetchedUser = loadUserByUserIdOrUserName(userId, userName, methodName);
         userValidationService.validateUser(fetchedUser, methodName, UPDATE_USER_BY_USER_ID_OR_USER_NAME);
-
 
         Predicate<String> isBlankField = StringUtils::isBlank;
         BiPredicate<String, String> checkFieldEquality = String::equalsIgnoreCase;
@@ -189,60 +116,65 @@ public class UserServiceImpl implements IUserService {
     }
 
     /**
-     * @param userIdOrUserName
+     * @param userId   - User Id
+     * @param userName - userName of user
      */
     @Override
-    public void deleteUserByUserIdOrUserName(final String userIdOrUserName) {
-        final String methodName="deleteUserByUserIdOrUserName(string) in UserServiceImpl";
-        Users fetchedUser=userRepository.findByUserIdOrUserName(userIdOrUserName).get();
-        userValidationService.validateUser(fetchedUser,methodName,DELETE_USER_BY_USER_ID_OR_USER_NAME);
-        userRepository.deleteByUserIdOrUserName(userIdOrUserName);
+    public void deleteUserByUserIdOrUserName(final String userId, final String userName) {
+        final String methodName = "deleteUserByUserIdOrUserName(string) in UserServiceImpl";
+
+        Users fetchedUser = loadUserByUserIdOrUserName(userId, userName, methodName);
+        userValidationService.validateUser(fetchedUser, methodName, DELETE_USER_BY_USER_ID_OR_USER_NAME);
+        userRepository.deleteByUserIdOrUserName(userId, userName);
     }
 
     /**
-     * @return
+     * @return Set<UserDto> - List Of all Users
      */
     @Override
-    public List<UserDto> getALlUsers() {
-        final String methodName="getALlUsers() in UserServiceImpl";
-        List<Users> usersList=userRepository.findAll();
-        userValidationService.validateUserList(usersList,methodName,GET_ALL_USERS);
-        return usersList.stream().map(MappingHelpers::UsersToUsersDto).toList();
+    public Set<UserDto> getALlUsers() {
+        final String methodName = "getALlUsers() in UserServiceImpl";
+
+        Set<Users> usersSet = new HashSet<>(userRepository.findAll());
+        userValidationService.validateUserList(usersSet, methodName, GET_ALL_USERS);
+        return usersSet.stream().map(MappingHelpers::UsersToUsersDto).collect(Collectors.toSet());
     }
 
     /**
-     * @param emailOrUserName
-     * @return
+     * @param email    - email of User
+     * @param userName - userName of user
+     * @return UserDTo
      */
     @Override
-    public UserDto getUserInformationByEmailOrUserName(final String emailOrUserName) throws UserExceptions {
+    public UserDto getUserInformationByEmailOrUserName(final String email, final String userName) throws UserExceptions {
         final String methodName = "getUserInformationByEmailOrUserName(String) in UserServiceImpl";
 
-        Users users = userRepository.findByEmailOrUserName(emailOrUserName).get();
+        Users users = loadUserByEmailOrUserName(email, userName, methodName);
         userValidationService.validateUser(users, methodName, GET_USER_INFO_BY_EMAIL_USER_NAME);
         return UsersToUsersDto(users);
     }
 
     /**
-     * @param field
-     * @param value
-     * @return
+     * @param field - field of User Entity
+     * @param value - value of field
+     * @return List<UserDTo>
      */
     @Override
-    public List<UserDto> searchUserByFieldAndValue(final USER_FIELDS field, final String value) {
+    public Set<UserDto> searchUserByFieldAndValue(final USER_FIELDS field, final String value) {
 
         return null;
     }
 
     /**
-     * @param userNameWord
-     * @return
+     * @param userNameWord - Keyword to get multiple users with almost same name initials
+     * @return Set<UserDto>
      */
     @Override
-    public List<UserDto> searchAllUsersByUserName(final String userNameWord) {
-        final String methodName="searchAllUsersByUserName(string) in UsersServiceImpl";
-        List<Users> usersList=userRepository.findAllByUserNameContaining(userNameWord).get();
-        userValidationService.validateUserList(usersList,methodName,SEARCH_ALL_USERS_BY_USER_NAME);
-        return usersList.stream().map(MappingHelpers::UsersToUsersDto).toList();
+    public Set<UserDto> searchAllUsersByUserName(final String userNameWord) {
+        final String methodName = "searchAllUsersByUserName(string) in UsersServiceImpl";
+
+        Set<Users> usersSet = loadAllUserByUserNameMatched(userNameWord, methodName);
+        userValidationService.validateUserList(usersSet, methodName, SEARCH_ALL_USERS_BY_USER_NAME);
+        return usersSet.stream().map(MappingHelpers::UsersToUsersDto).collect(Collectors.toSet());
     }
 }

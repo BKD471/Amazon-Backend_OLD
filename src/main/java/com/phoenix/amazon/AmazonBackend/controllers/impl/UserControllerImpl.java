@@ -3,13 +3,13 @@ package com.phoenix.amazon.AmazonBackend.controllers.impl;
 import com.phoenix.amazon.AmazonBackend.controllers.IUserController;
 import com.phoenix.amazon.AmazonBackend.dto.ApiResponse;
 import com.phoenix.amazon.AmazonBackend.dto.UserDto;
-import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers;
 import com.phoenix.amazon.AmazonBackend.services.IUserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
+import java.util.Set;
 
 @RestController
 public class UserControllerImpl implements IUserController {
@@ -20,8 +20,8 @@ public class UserControllerImpl implements IUserController {
     }
 
     /**
-     * @param user
-     * @return
+     * @param user - Incoming User Object
+     * @return ResponseEntity<UserDto>
      */
     @Override
     public ResponseEntity<UserDto> createUser(final UserDto user) {
@@ -30,26 +30,28 @@ public class UserControllerImpl implements IUserController {
     }
 
     /**
-     * @param user
-     * @param userIdOrUserName
-     * @return
+     * @param user - Incoming User Object
+     * @param userId - User Id
+     * @param userName - userName of user
+     * @return ResponseEntity<UserDto>
      */
     @Override
-    public ResponseEntity<UserDto> updateUserByUserIdOrUserName(final UserDto user, final String userIdOrUserName) {
-        UserDto userDto = userService.updateUserByUserIdOrUserName(user, userIdOrUserName);
+    public ResponseEntity<UserDto> updateUserByUserIdOrUserName(final UserDto user, final String userId,final String userName) {
+        UserDto userDto = userService.updateUserByUserIdOrUserName(user, userId, userName);
         return new ResponseEntity<>(userDto, HttpStatus.ACCEPTED);
     }
 
     /**
-     * @param userIdOrUserName
-     * @return
+     * @param userId - User Id
+     * @param userName - userName of user
+     * @return ResponseEntity<ApiResponse>
      */
     @Override
-    public ResponseEntity<ApiResponse> deleteUserByUserIdOrUserName(final String userIdOrUserName) {
-        userService.deleteUserByUserIdOrUserName(userIdOrUserName);
+    public ResponseEntity<ApiResponse> deleteUserByUserIdOrUserName(final String userId,final String userName) {
+        userService.deleteUserByUserIdOrUserName(userId,userName);
 
         ApiResponse responseMessage = new ApiResponse.builder()
-                .message(String.format(" User with userName %s deleted successfully!", userIdOrUserName))
+                .message(String.format(" User with userName %s deleted successfully!", userName))
                 .success(true)
                 .status(HttpStatus.OK)
                 .build();
@@ -57,42 +59,43 @@ public class UserControllerImpl implements IUserController {
     }
 
     /**
-     * @return
+     * @return ResponseEntity<List<UserDTo>>
      */
     @Override
-    public ResponseEntity<List<UserDto>> getALlUsers() {
-        List<UserDto> userDtoList = userService.getALlUsers();
-        return new ResponseEntity<>(userDtoList, HttpStatus.OK);
+    public ResponseEntity<Set<UserDto>> getALlUsers() {
+        Set<UserDto> userDtoSet = userService.getALlUsers();
+        return new ResponseEntity<>(userDtoSet, HttpStatus.OK);
     }
 
     /**
-     * @param emailOrUserName
-     * @return
+     * @param email - email of user
+     * @param userName - username of user
+     * @return ResponseEntity<UserDto>
      */
     @Override
-    public ResponseEntity<UserDto> getUserInformationByEmailOrUserName(final String emailOrUserName) {
-        UserDto userDto = userService.getUserInformationByEmailOrUserName(emailOrUserName);
+    public ResponseEntity<UserDto> getUserInformationByEmailOrUserName(final String email,final String userName) {
+        UserDto userDto = userService.getUserInformationByEmailOrUserName(email,userName);
         return new ResponseEntity<>(userDto, HttpStatus.OK);
     }
 
     /**
-     * @param field
-     * @param value
-     * @return
+     * @param field - field of User Entity
+     * @param value - value of field
+     * @return ResponseEntity<List<UserDto>>
      */
     @Override
-    public ResponseEntity<List<UserDto>> searchUserByFieldAndValue(AllConstantHelpers.USER_FIELDS field, String value) {
-        List<UserDto> userDtoList = userService.searchUserByFieldAndValue(field, value);
-        return new ResponseEntity<>(userDtoList, HttpStatus.OK);
+    public ResponseEntity<Set<UserDto>> searchUserByFieldAndValue(final USER_FIELDS field,final String value) {
+        Set<UserDto> userDtoSet = userService.searchUserByFieldAndValue(field, value);
+        return new ResponseEntity<>(userDtoSet, HttpStatus.OK);
     }
 
     /**
-     * @param userNameWord
-     * @return
+     * @param userNameWord - Keyword to get multiple users with almost same name initials
+     * @return ResponseEntity<List<UserDto>>
      */
     @Override
-    public ResponseEntity<List<UserDto>> searchAllUsersByUserName(String userNameWord) {
-        List<UserDto> userDtoList = userService.searchAllUsersByUserName(userNameWord);
-        return new ResponseEntity<>(userDtoList, HttpStatus.OK);
+    public ResponseEntity<Set<UserDto>> searchAllUsersByUserName(final String userNameWord) {
+        Set<UserDto> userDtoSet = userService.searchAllUsersByUserName(userNameWord);
+        return new ResponseEntity<>(userDtoSet, HttpStatus.OK);
     }
 }
