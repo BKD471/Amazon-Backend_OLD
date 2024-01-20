@@ -22,12 +22,7 @@ import java.util.stream.Collectors;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.GENDER;
 
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.CREATE_USER;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.UPDATE_USER_BY_USER_ID_OR_USER_NAME;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.DELETE_USER_BY_USER_ID_OR_USER_NAME;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_ALL_USERS;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_USER_INFO_BY_EMAIL_USER_NAME;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_ALL_USERS_BY_USER_NAME;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.*;
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UserDtoToUsers;
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UsersToUsersDto;
 
@@ -58,7 +53,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
     }
 
     /**
-     * @param userDto - Incoming User Object
+     * @param userDto - User Object
      * @return UserDTo
      */
     @Override
@@ -161,8 +156,31 @@ public class UserServiceImpl extends AbstractService implements IUserService {
      */
     @Override
     public Set<UserDto> searchUserByFieldAndValue(final USER_FIELDS field, final String value) {
-
-        return null;
+        final String methodName="searchUserByFieldAndValue(field,String) in UserServiceImpl";
+        Set<Users> users=null;
+        switch (field){
+            case EMAIL -> {
+                users=userRepository.searchUserByFieldAndValue("email",value).get();
+                userValidationService.validateUserList(users,methodName,SEARCH_USER_BY_EMAIL);
+            }
+            case USER_NAME -> {
+                users=userRepository.searchUserByFieldAndValue("userName",value).get();
+                userValidationService.validateUserList(users,methodName,SEARCH_USER_BY_USER_NAME);
+            }
+            case GENDER -> {
+                users=userRepository.searchUserByFieldAndValue("gender",value).get();
+                userValidationService.validateUserList(users,methodName,SEARCH_ALL_USERS_BY_GENDER);
+            }
+            case FIRST_NAME -> {
+                users=userRepository.searchUserByFieldAndValue("firstName",value).get();
+                userValidationService.validateUserList(users,methodName,SEARCH_ALL_USERS_BY_FIRST_NAME);
+            }
+            case LAST_NAME -> {
+                users=userRepository.searchUserByFieldAndValue("lastName",value).get();
+                userValidationService.validateUserList(users,methodName,SEARCH_ALL_USERS_BY_LAST_NAME);
+            }
+        }
+        return users.stream().map(MappingHelpers::UsersToUsersDto).collect(Collectors.toSet());
     }
 
     /**

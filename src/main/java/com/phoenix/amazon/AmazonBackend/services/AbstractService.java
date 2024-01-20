@@ -6,8 +6,13 @@ import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidati
 
 import java.util.Set;
 
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELD_VALIDATION.VALIDATE_USER_NAME_OR_EMAIL;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELD_VALIDATION.VALIDATE_USER_ID_OR_USER_NAME;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_ALL_USER_BY_SIMILAR_USER_NAME;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_USER_INFO_BY_USERID_USER_NAME;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_USER_INFO_BY_EMAIL_USER_NAME;
+
 
 public abstract class AbstractService {
     private final IUserRepository userRepository;
@@ -41,11 +46,11 @@ public abstract class AbstractService {
         switch (loadType) {
             case LU1 -> {
                 users = userRepository.findByUserIdOrUserName(userId, userName).get();
-                userValidationService.validateUser(users, methodName, USER_VALIDATION.GET_USER_INFO_BY_USERID_USER_NAME);
+                userValidationService.validateUser(users, methodName, GET_USER_INFO_BY_USERID_USER_NAME);
             }
             case LU2 -> {
                 users = userRepository.findByEmailOrUserName(email, userName).get();
-                userValidationService.validateUser(users, methodName, USER_VALIDATION.GET_USER_INFO_BY_EMAIL_USER_NAME);
+                userValidationService.validateUser(users, methodName, GET_USER_INFO_BY_EMAIL_USER_NAME);
             }
         }
 
@@ -60,6 +65,7 @@ public abstract class AbstractService {
      * @return Users
      **/
     protected Users loadUserByEmailOrUserName(final String userName, final String email, final String methodName) {
+        userValidationService.validateFields(null, userName, email, methodName, VALIDATE_USER_NAME_OR_EMAIL);
         return loadUserByUserNameOrEmailOrUserId(null, userName, email, methodName, UserLoadType.LU2);
     }
 
@@ -69,6 +75,7 @@ public abstract class AbstractService {
      * @return Users
      **/
     protected Users loadUserByUserIdOrUserName(final String userId, final String userName, final String methodName) {
+        userValidationService.validateFields(userId, userName, null, methodName, VALIDATE_USER_ID_OR_USER_NAME);
         return loadUserByUserNameOrEmailOrUserId(userId, userName, null, methodName, UserLoadType.LU1);
     }
 
@@ -79,7 +86,7 @@ public abstract class AbstractService {
      **/
     protected Set<Users> loadAllUserByUserNameMatched(final String userNameLike, final String methodName) {
         Set<Users> allUsersWithNearlyUserName = userRepository.findAllByUserNameContaining(userNameLike).get();
-        userValidationService.validateUserList(allUsersWithNearlyUserName, methodName, USER_VALIDATION.GET_ALL_USER_BY_SIMILAR_USER_NAME);
+        userValidationService.validateUserList(allUsersWithNearlyUserName, methodName, GET_ALL_USER_BY_SIMILAR_USER_NAME);
         return allUsersWithNearlyUserName;
     }
 
