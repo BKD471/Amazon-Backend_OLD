@@ -113,7 +113,7 @@ public abstract class AbstractService {
                         .gender(oldUser.getGender())
                         .password(oldUser.getPassword())
                         .about(oldUser.getAbout())
-                        .imageName(oldUser.getImageName())
+                        .imageName(oldUser.getProfileImage())
                         .lastSeen(oldUser.getLastSeen())
                         .build();
             }
@@ -127,7 +127,7 @@ public abstract class AbstractService {
                         .gender(oldUser.getGender())
                         .password(oldUser.getPassword())
                         .about(oldUser.getAbout())
-                        .imageName(oldUser.getImageName())
+                        .imageName(oldUser.getProfileImage())
                         .lastSeen(oldUser.getLastSeen())
                         .build();
 
@@ -142,7 +142,7 @@ public abstract class AbstractService {
                         .email(oldUser.getEmail())
                         .gender(oldUser.getGender())
                         .password(oldUser.getPassword())
-                        .imageName(oldUser.getImageName())
+                        .imageName(oldUser.getProfileImage())
                         .lastSeen(oldUser.getLastSeen())
                         .build();
 

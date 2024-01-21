@@ -5,11 +5,11 @@ import java.time.LocalDateTime;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.GENDER;
 
 public record UserDto(String userId, String userName, String firstName, String lastName, String email, String password,
-                      GENDER gender, String imageName, String about, LocalDateTime lastSeen
+                      GENDER gender, String profileImage, String about, LocalDateTime lastSeen
 ) {
 
     public UserDto(String userId, String userName, String firstName, String lastName, String email, String password,
-                   GENDER gender, String imageName, String about, LocalDateTime lastSeen) {
+                   GENDER gender, String profileImage, String about, LocalDateTime lastSeen) {
         this.userId = userId;
         this.userName = userName;
         this.firstName = firstName;
@@ -17,7 +17,7 @@ public record UserDto(String userId, String userName, String firstName, String l
         this.email = email;
         this.password = password;
         this.about = about;
-        this.imageName = imageName;
+        this.profileImage = profileImage;
         this.gender = gender;
         this.lastSeen = lastSeen;
     }
@@ -30,7 +30,7 @@ public record UserDto(String userId, String userName, String firstName, String l
         private String email;
         private String password;
         private GENDER gender;
-        private String imageName;
+        private String profileImage;
         private String about;
         private LocalDateTime lastSeen;
 
@@ -72,8 +72,8 @@ public record UserDto(String userId, String userName, String firstName, String l
             return this;
         }
 
-        public builder imageName(final String imageName) {
-            this.imageName = imageName;
+        public builder profileImage(final String profileImage) {
+            this.profileImage = profileImage;
             return this;
         }
 
@@ -95,7 +95,7 @@ public record UserDto(String userId, String userName, String firstName, String l
                     email,
                     password,
                     gender,
-                    imageName,
+                    profileImage,
                     about,
                     lastSeen);
         }

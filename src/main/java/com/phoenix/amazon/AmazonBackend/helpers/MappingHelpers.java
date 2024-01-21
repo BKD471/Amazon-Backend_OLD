@@ -12,7 +12,7 @@ public class MappingHelpers {
                 .lastName(users.getLastName())
                 .email(users.getEmail())
                 .gender(users.getGender())
-                .imageName(users.getImageName())
+                .profileImage(users.getProfileImage())
                 .about(users.getAbout())
                 .lastSeen(users.getLastSeen())
                 .build();
@@ -27,7 +27,7 @@ public class MappingHelpers {
                 .email(userDto.email())
                 .password(userDto.password())
                 .gender(userDto.gender())
-                .imageName(userDto.imageName())
+                .imageName(userDto.profileImage())
                 .about(userDto.about())
                 .build();
     }

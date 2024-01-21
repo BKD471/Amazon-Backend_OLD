@@ -27,7 +27,7 @@ public class Users extends Audit {
     @Column(name = "last_name", nullable = false)
     private String lastName;
 
-    @Column(name = "user_emal", unique = true)
+    @Column(name = "user_email", unique = true)
     private String email;
 
     @Column(name = "user_password", length = 255, nullable = false)
@@ -37,7 +37,7 @@ public class Users extends Audit {
     private GENDER gender;
 
     @Column(name = "user_image_name")
-    private String imageName;
+    private String profileImage;
 
     @Column(name = "last_seen")
     private LocalDateTime lastSeen;
@@ -55,7 +55,7 @@ public class Users extends Audit {
         this.lastName = builder.lastName;
         this.email = builder.email;
         this.gender = builder.gender;
-        this.imageName = builder.imageName;
+        this.profileImage = builder.profileImage;
         this.password = builder.password;
         this.lastSeen = builder.lastSeen;
         this.about = builder.about;
@@ -69,7 +69,7 @@ public class Users extends Audit {
         private String email;
         private String password;
         private GENDER gender;
-        private String imageName;
+        private String profileImage;
         private LocalDateTime lastSeen;
         private String about;
 
@@ -111,8 +111,8 @@ public class Users extends Audit {
             return this;
         }
 
-        public builder imageName(final String imageName) {
-            this.imageName = imageName;
+        public builder imageName(final String profileImage) {
+            this.profileImage = profileImage;
             return this;
         }
 
@@ -159,8 +159,8 @@ public class Users extends Audit {
         return gender;
     }
 
-    public String getImageName() {
-        return imageName;
+    public String getProfileImage() {
+        return profileImage;
     }
 
     public LocalDateTime getLastSeen() {

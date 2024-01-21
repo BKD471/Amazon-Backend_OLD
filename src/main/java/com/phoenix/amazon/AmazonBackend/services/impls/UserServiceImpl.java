@@ -46,7 +46,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
                 .lastName(userDto.lastName())
                 .email(userDto.email())
                 .gender(userDto.gender())
-                .imageName(userDto.imageName())
+                .profileImage(userDto.profileImage())
                 .password(userDto.password())
                 .about(userDto.about())
                 .build();
