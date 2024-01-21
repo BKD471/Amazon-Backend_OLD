@@ -6,13 +6,12 @@ import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 import com.phoenix.amazon.AmazonBackend.services.IUserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Set;
-
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
 
-@Controller("UserControllerMain")
+@RestController("UserControllerMain")
 public class UserControllerImpl implements IUserController {
     private final IUserService userService;
 
