@@ -7,13 +7,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Column;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.EnumType;
+
 import java.time.LocalDateTime;
 
-import static  com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.GENDER;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.GENDER;
 
 @Entity
 @Table(name = "users")
-public class Users {
+public class Users extends Audit {
     @Id
     private String userId;
 
@@ -44,19 +45,22 @@ public class Users {
     @Column(length = 1000)
     private String about;
 
-    public Users(){}
+    public Users() {
+    }
+
     public Users(builder builder) {
         this.userId = builder.userId;
         this.userName = builder.userName;
-        this.firstName=builder.firstName;
-        this.lastName=builder.lastName;
+        this.firstName = builder.firstName;
+        this.lastName = builder.lastName;
         this.email = builder.email;
         this.gender = builder.gender;
         this.imageName = builder.imageName;
         this.password = builder.password;
-        this.lastSeen=builder.lastSeen;
+        this.lastSeen = builder.lastSeen;
         this.about = builder.about;
     }
+
     public static final class builder {
         private String userId;
         private String userName;
@@ -87,8 +91,8 @@ public class Users {
             return this;
         }
 
-        public builder lastName(final String lastName){
-            this.lastName=lastName;
+        public builder lastName(final String lastName) {
+            this.lastName = lastName;
             return this;
         }
 
@@ -117,8 +121,8 @@ public class Users {
             return this;
         }
 
-        public builder lastSeen(final LocalDateTime lastSeen){
-            this.lastSeen=lastSeen;
+        public builder lastSeen(final LocalDateTime lastSeen) {
+            this.lastSeen = lastSeen;
             return this;
         }
 
