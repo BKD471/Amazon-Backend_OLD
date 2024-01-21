@@ -51,7 +51,7 @@ public class UserControllerImpl implements IUserController {
         userService.deleteUserByUserIdOrUserName(userId, userName);
 
         ApiResponse responseMessage = new ApiResponse.builder()
-                .message(String.format(" User with userName %s deleted successfully!", userName))
+                .message(String.format("User with userName %s deleted successfully!", userName))
                 .success(true)
                 .status(HttpStatus.OK)
                 .build();

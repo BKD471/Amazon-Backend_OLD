@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
+
 import java.util.Set;
 
 @RequestMapping("/api/users")
@@ -60,13 +61,13 @@ public interface IUserController {
      * @param value - value of field
      * @return ResponseEntity<List < UserDto>>
      */
-    @GetMapping("/v1/search_by_field/{field}/{value}")
-    ResponseEntity<Set<UserDto>> searchUserByFieldAndValue(@PathVariable final USER_FIELDS field, @PathVariable final String value);
+    @GetMapping("/v1/search_by_field")
+    ResponseEntity<Set<UserDto>> searchUserByFieldAndValue(@RequestParam final USER_FIELDS field, @RequestParam final String value);
 
     /**
      * @param userNameWord - Keyword to get multiple users with almost same name initials
      * @return ResponseEntity<List < UserDto>>
      */
     @GetMapping("/v1/search_by_username/{userNameWord}")
-    ResponseEntity<Set<UserDto>> searchAllUsersByUserName(final String userNameWord);
+    ResponseEntity<Set<UserDto>> searchAllUsersByUserName(@PathVariable("userNameWord") final String userNameWord);
 }

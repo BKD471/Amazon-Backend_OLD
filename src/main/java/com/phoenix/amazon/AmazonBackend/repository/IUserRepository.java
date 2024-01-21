@@ -1,14 +1,14 @@
 package com.phoenix.amazon.AmazonBackend.repository;
 
-import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 import com.phoenix.amazon.AmazonBackend.entity.Users;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 import java.util.Set;
 
-
+@Transactional
 public interface IUserRepository extends JpaRepository<Users, String> {
     /**
      * @param email    - exception code
@@ -37,10 +37,37 @@ public interface IUserRepository extends JpaRepository<Users, String> {
     Optional<Set<Users>> findAllByUserNameContaining(String userName);
 
     /**
-     * @param userFields - fields of user entity
-     * @param value      - value of user fields
+     * @param value - value of user fields
      * @return Set<Users>
      **/
-    @Query("SELECT user FROM Users user WHERE ?1=?2")
-    Optional<Set<Users>> searchUserByFieldAndValue(final String userFields, final String value);
+    @Query(value = "SELECT * FROM Users WHERE first_name=?1", nativeQuery = true)
+    Optional<Set<Users>> searchUserByFirstName(final String value);
+
+    /**
+     * @param value - value of user fields
+     * @return Set<Users>
+     **/
+    @Query(value = "SELECT * FROM Users WHERE last_name=?1", nativeQuery = true)
+    Optional<Set<Users>> searchUserByLastName(final String value);
+
+    /**
+     * @param value - value of user fields
+     * @return Set<Users>
+     **/
+    @Query(value = "SELECT * FROM Users WHERE gender=?1", nativeQuery = true)
+    Optional<Set<Users>> searchUserByGender(final String value);
+
+    /**
+     * @param value - value of user fields
+     * @return Set<Users>
+     **/
+    @Query(value = "SELECT * FROM Users WHERE user_name=?1", nativeQuery = true)
+    Optional<Set<Users>> searchUserByUserName(final String value);
+
+    /**
+     * @param value - value of user fields
+     * @return Set<Users>
+     **/
+    @Query(value = "SELECT * FROM Users WHERE user_email=?1", nativeQuery = true)
+    Optional<Set<Users>> searchUserByEmail(final String value);
 }

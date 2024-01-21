@@ -59,12 +59,12 @@ public abstract class AbstractService {
 
 
     /**
-     * @param userName   - userName of user
      * @param email      - email of user
+     * @param userName   - userName of user
      * @param methodName - origin of requesting method
      * @return Users
      **/
-    protected Users loadUserByEmailOrUserName(final String userName, final String email, final String methodName) {
+    protected Users loadUserByEmailOrUserName(final String email, final String userName, final String methodName) {
         userValidationService.validateFields(null, userName, email, methodName, VALIDATE_USER_NAME_OR_EMAIL);
         return loadUserByUserNameOrEmailOrUserId(null, userName, email, methodName, UserLoadType.LU2);
     }

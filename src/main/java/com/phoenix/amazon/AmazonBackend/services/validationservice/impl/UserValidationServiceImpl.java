@@ -3,6 +3,7 @@ package com.phoenix.amazon.AmazonBackend.services.validationservice.impl;
 import com.phoenix.amazon.AmazonBackend.entity.Users;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
+import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.builder.ExceptionBuilder;
 import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
@@ -17,8 +18,7 @@ import java.util.Objects;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.EXCEPTION_CODES.BAD_API_EXEC;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.EXCEPTION_CODES.USER_EXEC;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.EXCEPTION_CODES.*;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELD_VALIDATION;
 
@@ -31,7 +31,7 @@ public class UserValidationServiceImpl implements IUserValidationService {
     }
 
     /**
-     * @param users          - user object
+     * @param usersOptional  - user object
      * @param userValidation - user validation field
      */
     @Override
@@ -46,7 +46,7 @@ public class UserValidationServiceImpl implements IUserValidationService {
                         .description("Null Users prohibited")
                         .methodName(methodName).build(BAD_API_EXEC);
 
-                Users users=usersOptional.get();
+                Users users = usersOptional.get();
                 if (StringUtils.isBlank(users.getUserName())) throw (BadApiRequestExceptions) ExceptionBuilder.builder()
                         .className(BadApiRequestExceptions.class)
                         .description("Null UserName prohibited")
@@ -101,25 +101,25 @@ public class UserValidationServiceImpl implements IUserValidationService {
                         .methodName(methodName).build(BAD_API_EXEC);
             }
             case GET_USER_INFO_BY_EMAIL_USER_NAME -> {
-                if (usersOptional.isEmpty()) throw (UserExceptions) ExceptionBuilder.builder()
+                if (usersOptional.isEmpty()) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
                         .className(UserExceptions.class)
                         .description("No User with this email or UserName")
-                        .methodName(methodName).build(USER_EXEC);
+                        .methodName(methodName).build(USER_NOT_FOUND_EXEC);
             }
-            case GET_USER_INFO_BY_USERID_USER_NAME ->{
-                if (usersOptional.isEmpty()) throw (UserExceptions) ExceptionBuilder.builder()
+            case GET_USER_INFO_BY_USERID_USER_NAME -> {
+                if (usersOptional.isEmpty()) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
                         .className(UserExceptions.class)
                         .description("No User with this UserId or UserName")
-                        .methodName(methodName).build(USER_EXEC);
+                        .methodName(methodName).build(USER_NOT_FOUND_EXEC);
             }
             case UPDATE_USER_BY_USER_ID_OR_USER_NAME -> {
                 // Existing email
-                if (usersOptional.isEmpty()) throw (UserExceptions) ExceptionBuilder.builder()
+                if (usersOptional.isEmpty()) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
                         .className(UserExceptions.class)
                         .description("No User")
-                        .methodName(methodName).build(USER_EXEC);
+                        .methodName(methodName).build(USER_NOT_FOUND_EXEC);
 
-                Users users=usersOptional.get();
+                Users users = usersOptional.get();
                 final String EMAIL = users.getEmail();
                 Predicate<Users> checkEmailExist = (Users user) -> user.getEmail().equalsIgnoreCase(EMAIL);
                 boolean isEmailPresent = userDtoList.stream().anyMatch(checkEmailExist);
@@ -130,10 +130,10 @@ public class UserValidationServiceImpl implements IUserValidationService {
                         .methodName(methodName).build(USER_EXEC);
             }
             case DELETE_USER_BY_USER_ID_OR_USER_NAME -> {
-                if (usersOptional.isEmpty()) throw (UserExceptions) ExceptionBuilder.builder()
+                if (usersOptional.isEmpty()) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
                         .className(UserExceptions.class)
                         .description("No User Found")
-                        .methodName(methodName).build(USER_EXEC);
+                        .methodName(methodName).build(USER_NOT_FOUND_EXEC);
             }
         }
     }
@@ -147,49 +147,75 @@ public class UserValidationServiceImpl implements IUserValidationService {
     public void validateUserList(Set<Users> userSet, String methodName, USER_VALIDATION userValidation) {
         switch (userValidation) {
             case GET_ALL_USERS -> {
-                if (CollectionUtils.isEmpty(userSet)) throw (UserExceptions) ExceptionBuilder.builder()
+                if (CollectionUtils.isEmpty(userSet)) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
                         .className(UserExceptions.class)
                         .description("Our Database have no Users")
-                        .methodName(methodName).build(USER_EXEC);
+                        .methodName(methodName).build(USER_NOT_FOUND_EXEC);
             }
             case SEARCH_ALL_USERS_BY_USER_NAME -> {
-                if (CollectionUtils.isEmpty(userSet)) throw (UserExceptions) ExceptionBuilder.builder()
+                if (CollectionUtils.isEmpty(userSet)) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
                         .className(UserExceptions.class)
                         .description("Our Database have no Users With this Username")
-                        .methodName(methodName).build(USER_EXEC);
+                        .methodName(methodName).build(USER_NOT_FOUND_EXEC);
             }
             case SEARCH_USER_BY_EMAIL -> {
-                if (CollectionUtils.isEmpty(userSet)) throw (UserExceptions) ExceptionBuilder.builder()
+                if (CollectionUtils.isEmpty(userSet)) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
                         .className(UserExceptions.class)
                         .description("Our Database have no Users With this email")
-                        .methodName(methodName).build(USER_EXEC);
+                        .methodName(methodName).build(USER_NOT_FOUND_EXEC);
+            }
+            case SEARCH_ALL_USERS_BY_FIRST_NAME -> {
+                if (CollectionUtils.isEmpty(userSet)) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
+                        .className(UserExceptions.class)
+                        .description("Our Database have no Users With this firstName")
+                        .methodName(methodName).build(USER_NOT_FOUND_EXEC);
+            }
+            case SEARCH_ALL_USERS_BY_LAST_NAME -> {
+                if (CollectionUtils.isEmpty(userSet)) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
+                        .className(UserExceptions.class)
+                        .description("Our Database have no Users With this lastName")
+                        .methodName(methodName).build(USER_NOT_FOUND_EXEC);
+            }
+            case SEARCH_USER_BY_USER_NAME -> {
+                if (CollectionUtils.isEmpty(userSet)) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
+                        .className(UserExceptions.class)
+                        .description("Our Database have no Users With this UserName")
+                        .methodName(methodName).build(USER_NOT_FOUND_EXEC);
+            }
+            case SEARCH_ALL_USERS_BY_GENDER -> {
+                if (CollectionUtils.isEmpty(userSet)) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
+                        .className(UserExceptions.class)
+                        .description("Our Database have no Users With this Gender")
+                        .methodName(methodName).build(USER_NOT_FOUND_EXEC);
             }
         }
     }
 
     /**
-     * @param userId - id of user
-     * @param userName - username of user
-     * @param email - email of user
-     * @param methodName - origin method
+     * @param userId              - id of user
+     * @param userName            - username of user
+     * @param email               - email of user
+     * @param methodName          - origin method
      * @param userFieldValidation - user validation field
      */
     @Override
-    public void validateFields(final String userId,final String userName,final String email,final String methodName,
+    public void validateFields(final String userId, final String userName, final String email, final String methodName,
                                final USER_FIELD_VALIDATION userFieldValidation) {
-        final BiPredicate<String,String> checkBothFieldsNull=(String a,String b)->Objects.isNull(a) && Objects.isNull(b);
-        switch (userFieldValidation){
+        final BiPredicate<String, String> checkBothFieldsNull = (String a, String b) -> Objects.isNull(a) && Objects.isNull(b);
+        switch (userFieldValidation) {
             case VALIDATE_USER_ID_OR_USER_NAME -> {
-                if(checkBothFieldsNull.test(userId,userName)) throw (BadApiRequestExceptions) ExceptionBuilder.builder()
-                        .className(BadApiRequestExceptions.class)
-                        .description("Please provide non null username or user Id")
-                        .methodName(methodName).build(BAD_API_EXEC);
+                if (checkBothFieldsNull.test(userId, userName))
+                    throw (BadApiRequestExceptions) ExceptionBuilder.builder()
+                            .className(BadApiRequestExceptions.class)
+                            .description("Please provide non null username or user Id")
+                            .methodName(methodName).build(BAD_API_EXEC);
             }
             case VALIDATE_USER_NAME_OR_EMAIL -> {
-                if(checkBothFieldsNull.test(userName,email)) throw (BadApiRequestExceptions) ExceptionBuilder.builder()
-                        .className(BadApiRequestExceptions.class)
-                        .description("Please provide non null username or email")
-                        .methodName(methodName).build(BAD_API_EXEC);
+                if (checkBothFieldsNull.test(userName, email))
+                    throw (BadApiRequestExceptions) ExceptionBuilder.builder()
+                            .className(BadApiRequestExceptions.class)
+                            .description("Please provide non null username or email")
+                            .methodName(methodName).build(BAD_API_EXEC);
             }
         }
     }

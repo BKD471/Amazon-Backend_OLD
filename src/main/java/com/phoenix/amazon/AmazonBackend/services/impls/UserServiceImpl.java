@@ -96,7 +96,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
         }
         if (isNotBlankField.test(userDetails.getEmail()) &&
                 !checkFieldEquality.test(userDetails.getEmail(), fetchedUser.getEmail())) {
-            userValidationService.validateUser(Optional.of(userDetails),methodName,UPDATE_USER_BY_USER_ID_OR_USER_NAME);
+            userValidationService.validateUser(Optional.of(userDetails), methodName, UPDATE_USER_BY_USER_ID_OR_USER_NAME);
             fetchedUser = constructUser(fetchedUser, userDetails, USER_FIELDS.EMAIL);
         }
         if (isNotBlankFieldEnum.test(userDetails.getGender()) &&
@@ -157,23 +157,23 @@ public class UserServiceImpl extends AbstractService implements IUserService {
         Set<Users> users = null;
         switch (field) {
             case EMAIL -> {
-                users = userRepository.searchUserByFieldAndValue("email", value).get();
+                users = userRepository.searchUserByEmail(value).get();
                 userValidationService.validateUserList(users, methodName, SEARCH_USER_BY_EMAIL);
             }
             case USER_NAME -> {
-                users = userRepository.searchUserByFieldAndValue("userName", value).get();
+                users = userRepository.searchUserByUserName(value).get();
                 userValidationService.validateUserList(users, methodName, SEARCH_USER_BY_USER_NAME);
             }
             case GENDER -> {
-                users = userRepository.searchUserByFieldAndValue("gender", value).get();
+                users = userRepository.searchUserByGender(value).get();
                 userValidationService.validateUserList(users, methodName, SEARCH_ALL_USERS_BY_GENDER);
             }
             case FIRST_NAME -> {
-                users = userRepository.searchUserByFieldAndValue("firstName", value).get();
+                users = userRepository.searchUserByFirstName(value).get();
                 userValidationService.validateUserList(users, methodName, SEARCH_ALL_USERS_BY_FIRST_NAME);
             }
             case LAST_NAME -> {
-                users = userRepository.searchUserByFieldAndValue("lastName", value).get();
+                users = userRepository.searchUserByLastName(value).get();
                 userValidationService.validateUserList(users, methodName, SEARCH_ALL_USERS_BY_LAST_NAME);
             }
         }

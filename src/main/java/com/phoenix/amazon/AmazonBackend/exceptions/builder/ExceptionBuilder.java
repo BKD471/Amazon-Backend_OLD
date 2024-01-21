@@ -2,6 +2,7 @@ package com.phoenix.amazon.AmazonBackend.exceptions.builder;
 
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
+import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
 import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.EXCEPTION_CODES;
 
 public class ExceptionBuilder implements IClassNameBuilder, IDescriptionBuilder, IMethodNameBuilder, IBuild {
@@ -58,6 +59,9 @@ public class ExceptionBuilder implements IClassNameBuilder, IDescriptionBuilder,
             }
             case BAD_API_EXEC -> {
                 return new BadApiRequestExceptions(className, description, methodName);
+            }
+            case USER_NOT_FOUND_EXEC -> {
+                return new UserNotFoundExceptions(className, description, methodName);
             }
             default -> throw new RuntimeException("Invalid Exception Code");
         }
