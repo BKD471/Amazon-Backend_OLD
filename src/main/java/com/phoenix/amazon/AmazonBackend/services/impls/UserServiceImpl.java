@@ -11,10 +11,7 @@ import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidati
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.Set;
-import java.util.UUID;
-import java.util.Objects;
-import java.util.HashSet;
+import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -62,7 +59,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
 
         UserDto userDtoWithId = initializeUserId(userDto);
         Users user = UserDtoToUsers(userDtoWithId);
-        userValidationService.validateUser(user, methodName, CREATE_USER);
+        userValidationService.validateUser(Optional.of(user), methodName, CREATE_USER);
         Users savedUser = userRepository.save(user);
         return UsersToUsersDto(savedUser);
     }
@@ -79,31 +76,31 @@ public class UserServiceImpl extends AbstractService implements IUserService {
 
         Users userDetails = UserDtoToUsers(user);
         Users fetchedUser = loadUserByUserIdOrUserName(userId, userName, methodName);
-        userValidationService.validateUser(fetchedUser, methodName, UPDATE_USER_BY_USER_ID_OR_USER_NAME);
 
-        Predicate<String> isBlankField = StringUtils::isBlank;
+        Predicate<String> isNotBlankField = StringUtils::isNotBlank;
         BiPredicate<String, String> checkFieldEquality = String::equalsIgnoreCase;
 
-        Predicate<GENDER> isBlankFieldEnum = Objects::isNull;
+        Predicate<GENDER> isNotBlankFieldEnum = Objects::nonNull;
         BiPredicate<GENDER, GENDER> checkEqualEnumValues = Objects::equals;
-        if (isBlankField.test(userDetails.getFirstName()) &&
-                checkFieldEquality.test(userDetails.getFirstName(), fetchedUser.getFirstName())) {
+        if (isNotBlankField.test(userDetails.getFirstName()) &&
+                !checkFieldEquality.test(userDetails.getFirstName(), fetchedUser.getFirstName())) {
             fetchedUser = constructUser(fetchedUser, userDetails, USER_FIELDS.FIRST_NAME);
         }
-        if (isBlankField.test(userDetails.getLastName()) &&
-                checkFieldEquality.test(userDetails.getLastName(), fetchedUser.getLastName())) {
+        if (isNotBlankField.test(userDetails.getLastName()) &&
+                !checkFieldEquality.test(userDetails.getLastName(), fetchedUser.getLastName())) {
             fetchedUser = constructUser(fetchedUser, userDetails, USER_FIELDS.LAST_NAME);
         }
-        if (isBlankField.test(userDetails.getAbout()) &&
-                checkFieldEquality.test(userDetails.getAbout(), fetchedUser.getAbout())) {
+        if (isNotBlankField.test(userDetails.getAbout()) &&
+                !checkFieldEquality.test(userDetails.getAbout(), fetchedUser.getAbout())) {
             fetchedUser = constructUser(fetchedUser, userDetails, USER_FIELDS.ABOUT);
         }
-        if (isBlankField.test(userDetails.getEmail()) &&
-                checkFieldEquality.test(userDetails.getEmail(), fetchedUser.getEmail())) {
+        if (isNotBlankField.test(userDetails.getEmail()) &&
+                !checkFieldEquality.test(userDetails.getEmail(), fetchedUser.getEmail())) {
+            userValidationService.validateUser(Optional.of(userDetails),methodName,UPDATE_USER_BY_USER_ID_OR_USER_NAME);
             fetchedUser = constructUser(fetchedUser, userDetails, USER_FIELDS.EMAIL);
         }
-        if (isBlankFieldEnum.test(userDetails.getGender()) &&
-                checkEqualEnumValues.test(userDetails.getGender(), fetchedUser.getGender())) {
+        if (isNotBlankFieldEnum.test(userDetails.getGender()) &&
+                !checkEqualEnumValues.test(userDetails.getGender(), fetchedUser.getGender())) {
             fetchedUser = constructUser(fetchedUser, userDetails, USER_FIELDS.GENDER);
         }
         Users savedUser = userRepository.save(fetchedUser);
@@ -119,7 +116,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
         final String methodName = "deleteUserByUserIdOrUserName(string) in UserServiceImpl";
 
         Users fetchedUser = loadUserByUserIdOrUserName(userId, userName, methodName);
-        userValidationService.validateUser(fetchedUser, methodName, DELETE_USER_BY_USER_ID_OR_USER_NAME);
+        userValidationService.validateUser(Optional.of(fetchedUser), methodName, DELETE_USER_BY_USER_ID_OR_USER_NAME);
         userRepository.deleteByUserIdOrUserName(userId, userName);
     }
 
@@ -145,7 +142,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
         final String methodName = "getUserInformationByEmailOrUserName(String) in UserServiceImpl";
 
         Users users = loadUserByEmailOrUserName(email, userName, methodName);
-        userValidationService.validateUser(users, methodName, GET_USER_INFO_BY_EMAIL_USER_NAME);
+        userValidationService.validateUser(Optional.of(users), methodName, GET_USER_INFO_BY_EMAIL_USER_NAME);
         return UsersToUsersDto(users);
     }
 
@@ -156,28 +153,28 @@ public class UserServiceImpl extends AbstractService implements IUserService {
      */
     @Override
     public Set<UserDto> searchUserByFieldAndValue(final USER_FIELDS field, final String value) {
-        final String methodName="searchUserByFieldAndValue(field,String) in UserServiceImpl";
-        Set<Users> users=null;
-        switch (field){
+        final String methodName = "searchUserByFieldAndValue(field,String) in UserServiceImpl";
+        Set<Users> users = null;
+        switch (field) {
             case EMAIL -> {
-                users=userRepository.searchUserByFieldAndValue("email",value).get();
-                userValidationService.validateUserList(users,methodName,SEARCH_USER_BY_EMAIL);
+                users = userRepository.searchUserByFieldAndValue("email", value).get();
+                userValidationService.validateUserList(users, methodName, SEARCH_USER_BY_EMAIL);
             }
             case USER_NAME -> {
-                users=userRepository.searchUserByFieldAndValue("userName",value).get();
-                userValidationService.validateUserList(users,methodName,SEARCH_USER_BY_USER_NAME);
+                users = userRepository.searchUserByFieldAndValue("userName", value).get();
+                userValidationService.validateUserList(users, methodName, SEARCH_USER_BY_USER_NAME);
             }
             case GENDER -> {
-                users=userRepository.searchUserByFieldAndValue("gender",value).get();
-                userValidationService.validateUserList(users,methodName,SEARCH_ALL_USERS_BY_GENDER);
+                users = userRepository.searchUserByFieldAndValue("gender", value).get();
+                userValidationService.validateUserList(users, methodName, SEARCH_ALL_USERS_BY_GENDER);
             }
             case FIRST_NAME -> {
-                users=userRepository.searchUserByFieldAndValue("firstName",value).get();
-                userValidationService.validateUserList(users,methodName,SEARCH_ALL_USERS_BY_FIRST_NAME);
+                users = userRepository.searchUserByFieldAndValue("firstName", value).get();
+                userValidationService.validateUserList(users, methodName, SEARCH_ALL_USERS_BY_FIRST_NAME);
             }
             case LAST_NAME -> {
-                users=userRepository.searchUserByFieldAndValue("lastName",value).get();
-                userValidationService.validateUserList(users,methodName,SEARCH_ALL_USERS_BY_LAST_NAME);
+                users = userRepository.searchUserByFieldAndValue("lastName", value).get();
+                userValidationService.validateUserList(users, methodName, SEARCH_ALL_USERS_BY_LAST_NAME);
             }
         }
         return users.stream().map(MappingHelpers::UsersToUsersDto).collect(Collectors.toSet());

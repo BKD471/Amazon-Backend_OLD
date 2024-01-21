@@ -1,0 +1,41 @@
+TDD (Test Driven Approach)
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+                             USER SERVICE TDD
+
+########################################################################################################################
+A) @PostMapping("/v1/create")
+   createUser(@RequestBody final UserDto user)                                               ======== ok
+
+   Acceptance Criteria :)
+           1) Create user with all fields                                                 ------- checked
+           2) Duplicate userName, email must throw UserException                          ------- checked
+
+
+B) @PutMapping("/v1/update")
+   updateUserByUserIdOrUserName(UserDto user,userId,userName);                              ========== ok
+
+   Acceptance Criteria :)
+      1) give Invalid userId or userName must throw UserException                         -------- checked
+      2) Dont give any userId and password must throw BadApiException                     -------- checked
+      3) update firstname,lastname,email,about,gender                                     -------- checked
+      4) update to existing email in db must throw UserExceptions                         -------- checked
+
+
+@DeleteMapping("/v1/delete")
+deleteUserByUserIdOrUserName(userId,userName);               ======== todo
+
+@GetMapping("/v1/getAll")
+getALlUsers();                                               ======== todo
+
+@GetMapping("/v1/info")
+getUserInformationByEmailOrUserName(email,userName);         ======== todo
+
+@GetMapping("/v1/search_by_field/{field}/{value}")
+searchUserByFieldAndValue(field,value);                      ======== todo
+
+@GetMapping("/v1/search_by_username/{userNameWord}")
+searchAllUsersByUserName(userNameWord);                      ======== todo
+
+
+

@@ -31,7 +31,7 @@ public interface IUserController {
      * @return ResponseEntity<UserDto>
      */
     @PutMapping("/v1/update")
-    ResponseEntity<UserDto> updateUserByUserIdOrUserName(@RequestBody final UserDto user, @RequestParam final String userId, @RequestParam final String userName);
+    ResponseEntity<UserDto> updateUserByUserIdOrUserName(@RequestBody final UserDto user, @RequestParam(required = false) final String userId, @RequestParam(required = false) final String userName);
 
     /**
      * @param userId   - User Id
@@ -39,7 +39,7 @@ public interface IUserController {
      * @return ResponseEntity<ApiResponse>
      */
     @DeleteMapping("/v1/delete")
-    ResponseEntity<ApiResponse> deleteUserByUserIdOrUserName(@RequestParam final String userId, @RequestParam final String userName);
+    ResponseEntity<ApiResponse> deleteUserByUserIdOrUserName(@RequestParam(required = false) final String userId, @RequestParam(required = false) final String userName);
 
     /**
      * @return ResponseEntity<List < UserDTo>>
@@ -53,7 +53,7 @@ public interface IUserController {
      * @return ResponseEntity<UserDto>
      */
     @GetMapping("/v1/info")
-    ResponseEntity<UserDto> getUserInformationByEmailOrUserName(@RequestParam final String email, @RequestParam final String userName);
+    ResponseEntity<UserDto> getUserInformationByEmailOrUserName(@RequestParam(required = false) final String email, @RequestParam(required = false) final String userName);
 
     /**
      * @param field - field of User Entity

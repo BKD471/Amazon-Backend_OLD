@@ -4,6 +4,7 @@ import com.phoenix.amazon.AmazonBackend.entity.Users;
 import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
 
+import java.util.Optional;
 import java.util.Set;
 
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
@@ -42,19 +43,18 @@ public abstract class AbstractService {
      **/
     private Users loadUserByUserNameOrEmailOrUserId(final String userId, final String userName, final String email,
                                                     final String methodName, UserLoadType loadType) {
-        Users users = null;
+        Optional<Users> users = Optional.empty();
         switch (loadType) {
             case LU1 -> {
-                users = userRepository.findByUserIdOrUserName(userId, userName).get();
+                users= userRepository.findByUserIdOrUserName(userId, userName);
                 userValidationService.validateUser(users, methodName, GET_USER_INFO_BY_USERID_USER_NAME);
             }
             case LU2 -> {
-                users = userRepository.findByEmailOrUserName(email, userName).get();
+                users = userRepository.findByEmailOrUserName(email, userName);
                 userValidationService.validateUser(users, methodName, GET_USER_INFO_BY_EMAIL_USER_NAME);
             }
         }
-
-        return users;
+        return users.get();
     }
 
 

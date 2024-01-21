@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Objects;
 import java.util.function.BiPredicate;
@@ -20,8 +21,6 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.EXCEPT
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.EXCEPTION_CODES.USER_EXEC;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELD_VALIDATION;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELD_VALIDATION.VALIDATE_USER_ID_OR_USER_NAME;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELD_VALIDATION.VALIDATE_USER_NAME_OR_EMAIL;
 
 @Service
 public class UserValidationServiceImpl implements IUserValidationService {
@@ -36,15 +35,18 @@ public class UserValidationServiceImpl implements IUserValidationService {
      * @param userValidation - user validation field
      */
     @Override
-    public void validateUser(Users users, String methodName, USER_VALIDATION userValidation) throws UserExceptions {
+    public void validateUser(Optional<Users> usersOptional, String methodName, USER_VALIDATION userValidation) throws UserExceptions {
+        // Get all users
+        Set<Users> userDtoList = new HashSet<>(userRepository.findAll());
         switch (userValidation) {
             case CREATE_USER -> {
                 //Null checks
-                if (Objects.isNull(users)) throw (BadApiRequestExceptions) ExceptionBuilder.builder()
+                if (usersOptional.isEmpty()) throw (BadApiRequestExceptions) ExceptionBuilder.builder()
                         .className(BadApiRequestExceptions.class)
                         .description("Null Users prohibited")
                         .methodName(methodName).build(BAD_API_EXEC);
 
+                Users users=usersOptional.get();
                 if (StringUtils.isBlank(users.getUserName())) throw (BadApiRequestExceptions) ExceptionBuilder.builder()
                         .className(BadApiRequestExceptions.class)
                         .description("Null UserName prohibited")
@@ -66,16 +68,26 @@ public class UserValidationServiceImpl implements IUserValidationService {
                         .description("Null LastName prohibited")
                         .methodName(methodName).build(BAD_API_EXEC);
 
-                //Check for existing users
-                Set<Users> userDtoList = new HashSet<>(userRepository.findAll());
+                // Check for existing users
 
-                final String email = users.getEmail();
-                Predicate<Users> checkEmailExist = (Users user) -> user.getEmail().equalsIgnoreCase(email);
+                // Existing email
+                final String EMAIL = users.getEmail();
+                Predicate<Users> checkEmailExist = (Users user) -> user.getEmail().equalsIgnoreCase(EMAIL);
                 boolean isEmailPresent = userDtoList.stream().anyMatch(checkEmailExist);
 
                 if (isEmailPresent) throw (UserExceptions) ExceptionBuilder.builder()
                         .className(UserExceptions.class)
-                        .description(String.format("There's an account with Email %s", email))
+                        .description(String.format("There's an account with Email %s", EMAIL))
+                        .methodName(methodName).build(USER_EXEC);
+
+                // Existing userName
+                final String USER_NAME = users.getUserName();
+                Predicate<Users> checkUserNameExist = (Users user) -> user.getUserName().equalsIgnoreCase(USER_NAME);
+                boolean isUserNamePresent = userDtoList.stream().anyMatch(checkUserNameExist);
+
+                if (isUserNamePresent) throw (UserExceptions) ExceptionBuilder.builder()
+                        .className(UserExceptions.class)
+                        .description(String.format("There's an account with UserName %s", USER_NAME))
                         .methodName(methodName).build(USER_EXEC);
 
                 //this case is rare and hypothetical, it happens when UUID will generate same userId twice
@@ -88,17 +100,37 @@ public class UserValidationServiceImpl implements IUserValidationService {
                         .description("System Error In generating user")
                         .methodName(methodName).build(BAD_API_EXEC);
             }
-            case GET_USER_INFO_BY_EMAIL_USER_NAME, GET_USER_INFO_BY_USERID_USER_NAME -> {
-                if (Objects.isNull(users)) throw (UserExceptions) ExceptionBuilder.builder()
+            case GET_USER_INFO_BY_EMAIL_USER_NAME -> {
+                if (usersOptional.isEmpty()) throw (UserExceptions) ExceptionBuilder.builder()
                         .className(UserExceptions.class)
-                        .description("No User with Email")
+                        .description("No User with this email or UserName")
+                        .methodName(methodName).build(USER_EXEC);
+            }
+            case GET_USER_INFO_BY_USERID_USER_NAME ->{
+                if (usersOptional.isEmpty()) throw (UserExceptions) ExceptionBuilder.builder()
+                        .className(UserExceptions.class)
+                        .description("No User with this UserId or UserName")
                         .methodName(methodName).build(USER_EXEC);
             }
             case UPDATE_USER_BY_USER_ID_OR_USER_NAME -> {
+                // Existing email
+                if (usersOptional.isEmpty()) throw (UserExceptions) ExceptionBuilder.builder()
+                        .className(UserExceptions.class)
+                        .description("No User")
+                        .methodName(methodName).build(USER_EXEC);
 
+                Users users=usersOptional.get();
+                final String EMAIL = users.getEmail();
+                Predicate<Users> checkEmailExist = (Users user) -> user.getEmail().equalsIgnoreCase(EMAIL);
+                boolean isEmailPresent = userDtoList.stream().anyMatch(checkEmailExist);
+
+                if (isEmailPresent) throw (UserExceptions) ExceptionBuilder.builder()
+                        .className(UserExceptions.class)
+                        .description(String.format("There's an account with Email %s", EMAIL))
+                        .methodName(methodName).build(USER_EXEC);
             }
             case DELETE_USER_BY_USER_ID_OR_USER_NAME -> {
-                if (Objects.isNull(users)) throw (UserExceptions) ExceptionBuilder.builder()
+                if (usersOptional.isEmpty()) throw (UserExceptions) ExceptionBuilder.builder()
                         .className(UserExceptions.class)
                         .description("No User Found")
                         .methodName(methodName).build(USER_EXEC);
