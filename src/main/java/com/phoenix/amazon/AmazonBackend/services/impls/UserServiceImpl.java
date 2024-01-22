@@ -2,7 +2,9 @@ package com.phoenix.amazon.AmazonBackend.services.impls;
 
 import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 import com.phoenix.amazon.AmazonBackend.entity.Users;
+import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
+import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
 import com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers;
 import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
 import com.phoenix.amazon.AmazonBackend.services.AbstractService;
@@ -54,7 +56,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
      * @return UserDTo
      */
     @Override
-    public UserDto createUser(final UserDto userDto) {
+    public UserDto createUser(final UserDto userDto) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions {
         final String methodName = "createUser(UserDto) in UserServiceImpl";
 
         UserDto userDtoWithId = initializeUserId(userDto);

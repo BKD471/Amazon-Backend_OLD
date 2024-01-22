@@ -1,8 +1,6 @@
 package com.phoenix.amazon.AmazonBackend.helpers;
 
-import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 
-import java.util.List;
 
 public class AllConstantHelpers {
     public enum COUNTRY {

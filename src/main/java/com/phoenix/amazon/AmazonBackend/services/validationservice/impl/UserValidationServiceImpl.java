@@ -35,7 +35,7 @@ public class UserValidationServiceImpl implements IUserValidationService {
      * @param userValidation - user validation field
      */
     @Override
-    public void validateUser(Optional<Users> usersOptional, String methodName, USER_VALIDATION userValidation) throws UserExceptions {
+    public void validateUser(Optional<Users> usersOptional, String methodName, USER_VALIDATION userValidation) throws UserExceptions,BadApiRequestExceptions,UserNotFoundExceptions {
         // Get all users
         Set<Users> userDtoList = new HashSet<>(userRepository.findAll());
         switch (userValidation) {
