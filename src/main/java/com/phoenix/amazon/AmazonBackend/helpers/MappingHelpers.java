@@ -27,7 +27,7 @@ public class MappingHelpers {
                 .email(userDto.email())
                 .password(userDto.password())
                 .gender(userDto.gender())
-                .imageName(userDto.profileImage())
+                .profileImage(userDto.profileImage())
                 .about(userDto.about())
                 .build();
     }

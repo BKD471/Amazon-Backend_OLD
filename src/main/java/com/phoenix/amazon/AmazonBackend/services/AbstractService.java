@@ -113,7 +113,7 @@ public abstract class AbstractService {
                         .gender(oldUser.getGender())
                         .password(oldUser.getPassword())
                         .about(oldUser.getAbout())
-                        .imageName(oldUser.getProfileImage())
+                        .profileImage(oldUser.getProfileImage())
                         .lastSeen(oldUser.getLastSeen())
                         .build();
             }
@@ -127,7 +127,7 @@ public abstract class AbstractService {
                         .gender(oldUser.getGender())
                         .password(oldUser.getPassword())
                         .about(oldUser.getAbout())
-                        .imageName(oldUser.getProfileImage())
+                        .profileImage(oldUser.getProfileImage())
                         .lastSeen(oldUser.getLastSeen())
                         .build();
 
@@ -142,21 +142,22 @@ public abstract class AbstractService {
                         .email(oldUser.getEmail())
                         .gender(oldUser.getGender())
                         .password(oldUser.getPassword())
-                        .imageName(oldUser.getProfileImage())
+                        .profileImage(oldUser.getProfileImage())
                         .lastSeen(oldUser.getLastSeen())
                         .build();
 
             }
             case EMAIL -> {
                 return new Users.builder()
+                        .email(newUser.getEmail())
                         .lastName(newUser.getLastName())
                         .firstName(oldUser.getFirstName())
                         .userId(oldUser.getUserId())
                         .userName(oldUser.getUserName())
-                        .email(oldUser.getEmail())
                         .gender(oldUser.getGender())
                         .password(oldUser.getPassword())
                         .about(oldUser.getAbout())
+                        .profileImage(oldUser.getProfileImage())
                         .lastSeen(oldUser.getLastSeen())
                         .build();
             }
@@ -169,6 +170,7 @@ public abstract class AbstractService {
                         .userName(oldUser.getUserName())
                         .email(oldUser.getEmail())
                         .password(oldUser.getPassword())
+                        .profileImage(oldUser.getProfileImage())
                         .about(oldUser.getAbout())
                         .lastSeen(oldUser.getLastSeen())
                         .build();

@@ -7,7 +7,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Column;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.EnumType;
+import org.springframework.data.annotation.CreatedBy;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.GENDER;
@@ -59,6 +61,8 @@ public class Users extends Audit {
         this.password = builder.password;
         this.lastSeen = builder.lastSeen;
         this.about = builder.about;
+        this.createdDate=builder.createdDate;
+        this.createdBy=builder.createdBy;
     }
 
     public static final class builder {
@@ -72,6 +76,8 @@ public class Users extends Audit {
         private String profileImage;
         private LocalDateTime lastSeen;
         private String about;
+        private LocalDate createdDate;
+        private String createdBy;
 
         public builder() {
         }
@@ -111,7 +117,7 @@ public class Users extends Audit {
             return this;
         }
 
-        public builder imageName(final String profileImage) {
+        public builder profileImage(final String profileImage) {
             this.profileImage = profileImage;
             return this;
         }
@@ -123,6 +129,16 @@ public class Users extends Audit {
 
         public builder lastSeen(final LocalDateTime lastSeen) {
             this.lastSeen = lastSeen;
+            return this;
+        }
+
+        public builder createdDate(final LocalDate createdDate) {
+            this.createdDate = createdDate;
+            return this;
+        }
+
+        public builder createdBy(final String createdBy) {
+            this.createdBy = createdBy;
             return this;
         }
 
