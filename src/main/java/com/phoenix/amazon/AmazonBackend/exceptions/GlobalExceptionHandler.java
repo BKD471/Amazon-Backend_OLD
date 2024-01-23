@@ -17,7 +17,11 @@ import java.util.Map;
 public class GlobalExceptionHandler {
     @ExceptionHandler({UserExceptions.class,UserNotFoundExceptions.class, BadApiRequestExceptions.class})
     public ResponseEntity<ErrorDetails> handleAllUncheckedCustomException(Exception e, WebRequest web) {
-        ErrorDetails error = new ErrorDetails(LocalTime.now(), e.getMessage(), web.getDescription(false));
+        ErrorDetails error = new ErrorDetails.builder()
+                .timeStamp(LocalTime.now())
+                .message(e.getMessage())
+                .details(web.getDescription(false)).build();
+
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
@@ -35,7 +39,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorDetails> handleGenericException(Exception e, WebRequest web) {
-        ErrorDetails error = new ErrorDetails(LocalTime.now(), e.getMessage(), web.getDescription(false));
+        ErrorDetails error = new ErrorDetails.builder()
+                .timeStamp(LocalTime.now())
+                .message(e.getMessage())
+                .details(web.getDescription(false)).build();
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

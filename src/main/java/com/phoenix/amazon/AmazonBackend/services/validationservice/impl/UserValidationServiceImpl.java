@@ -11,10 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
@@ -143,7 +140,7 @@ public class UserValidationServiceImpl implements IUserValidationService {
      * @param userValidation - user validation field
      */
     @Override
-    public void validateUserList(Set<Users> userSet, String methodName, USER_VALIDATION userValidation) throws UserNotFoundExceptions {
+    public void validateUserList(Collection<Users> userSet, String methodName, USER_VALIDATION userValidation) throws UserNotFoundExceptions {
         switch (userValidation) {
             case GET_ALL_USERS -> {
                 if (CollectionUtils.isEmpty(userSet)) throw (UserNotFoundExceptions) ExceptionBuilder.builder()

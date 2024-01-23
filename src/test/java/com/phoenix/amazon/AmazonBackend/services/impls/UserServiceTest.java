@@ -49,11 +49,11 @@ import static org.mockito.Mockito.anySet;
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
     @InjectMocks
-    private UserServiceImpl userService;
+    private UserServiceImpl userServiceMock;
     @Mock
-    private IUserValidationService userValidationService;
+    private IUserValidationService userValidationServiceMock;
     @Mock
-    private IUserRepository userRepository;
+    private IUserRepository userRepositoryMock;
     private final String TEST_EMAIL = "test@gmail.com";
     private final String TEST_USER_NAME = "TEST_USER_NAME";
     private final String TEST_UUID = "58824409-dd6b-4934-9923-ec1daf9693da";
@@ -75,9 +75,9 @@ public class UserServiceTest {
     @DisplayName("Test Happy Path -- createUser() With valid fields")
     public void testCreateUserHappyPath() throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions {
         // When
-        when(userRepository.save(any())).thenReturn(constructUser());
-        doNothing().when(userValidationService).validateUser(any(), anyString(), any());
-        UserDto userDto = userService.createUser(MappingHelpers.UsersToUsersDto(constructUser()));
+        when(userRepositoryMock.save(any())).thenReturn(constructUser());
+        doNothing().when(userValidationServiceMock).validateUser(any(), anyString(), any());
+        UserDto userDto = userServiceMock.createUser(MappingHelpers.UsersToUsersDto(constructUser()));
 
         // Then
         assertThat(userDto.userName()).isEqualTo(TEST_USER_NAME);
@@ -105,11 +105,11 @@ public class UserServiceTest {
         // When
         doThrow(new UserExceptions(UserExceptions.class, String.format("There's an account with Email %s", userRequest.email())
                 , "testCreateUserUnhappyPathExistingEmail"))
-                .when(userValidationService).validateUser(any(), anyString(), any());
+                .when(userValidationServiceMock).validateUser(any(), anyString(), any());
 
         // Then
         assertThrows(UserExceptions.class, () -> {
-            userService.createUser(userRequest);
+            userServiceMock.createUser(userRequest);
         }, "UserException should have been thrown");
     }
 
@@ -120,11 +120,11 @@ public class UserServiceTest {
         doThrow(new BadApiRequestExceptions(BadApiRequestExceptions.class,
                 "Null Users prohibited"
                 , "testCreateUserUnhappyPathNullUser"))
-                .when(userValidationService).validateUser(any(), anyString(), any());
+                .when(userValidationServiceMock).validateUser(any(), anyString(), any());
 
         // Then
         assertThrows(BadApiRequestExceptions.class, () -> {
-            userService.createUser(null);
+            userServiceMock.createUser(null);
         }, "BadApiRequestExceptions should have been thrown");
     }
 
@@ -147,11 +147,11 @@ public class UserServiceTest {
         doThrow(new BadApiRequestExceptions(BadApiRequestExceptions.class,
                 "Null UserName prohibited"
                 , "testCreateUserUnhappyPathNullUserName"))
-                .when(userValidationService).validateUser(any(), anyString(), any());
+                .when(userValidationServiceMock).validateUser(any(), anyString(), any());
 
         // Then
         assertThrows(BadApiRequestExceptions.class, () -> {
-            userService.createUser(userRequest);
+            userServiceMock.createUser(userRequest);
         }, "BadApiRequestExceptions should have been thrown");
     }
 
@@ -174,11 +174,11 @@ public class UserServiceTest {
         doThrow(new BadApiRequestExceptions(BadApiRequestExceptions.class,
                 "Null Email prohibited"
                 , "testCreateUserUnhappyPathNullEmail"))
-                .when(userValidationService).validateUser(any(), anyString(), any());
+                .when(userValidationServiceMock).validateUser(any(), anyString(), any());
 
         // Then
         assertThrows(BadApiRequestExceptions.class, () -> {
-            userService.createUser(userRequest);
+            userServiceMock.createUser(userRequest);
         }, "BadApiRequestExceptions should have been thrown");
     }
 
@@ -201,11 +201,11 @@ public class UserServiceTest {
         doThrow(new BadApiRequestExceptions(BadApiRequestExceptions.class,
                 "Null FirstName prohibited"
                 , "testCreateUserUnhappyPathNullFirstName"))
-                .when(userValidationService).validateUser(any(), anyString(), any());
+                .when(userValidationServiceMock).validateUser(any(), anyString(), any());
 
         // Then
         assertThrows(BadApiRequestExceptions.class, () -> {
-            userService.createUser(userRequest);
+            userServiceMock.createUser(userRequest);
         }, "BadApiRequestExceptions should have been thrown");
     }
 
@@ -229,11 +229,11 @@ public class UserServiceTest {
         doThrow(new UserExceptions(UserExceptions.class,
                 String.format("There's an account with Email %s", userRequest.email())
                 , "testCreateUserUnhappyPathNullWithExistingEmail"))
-                .when(userValidationService).validateUser(any(), anyString(), any());
+                .when(userValidationServiceMock).validateUser(any(), anyString(), any());
 
         // Then
         assertThrows(UserExceptions.class, () -> {
-            userService.createUser(userRequest);
+            userServiceMock.createUser(userRequest);
         }, "UserExceptions should have been thrown");
     }
 
@@ -257,11 +257,11 @@ public class UserServiceTest {
         doThrow(new UserExceptions(UserExceptions.class,
                 String.format("There's an account with UserName %s", userRequest.userName())
                 , "testCreateUserUnhappyPathNullWithExistingUserName"))
-                .when(userValidationService).validateUser(any(), anyString(), any());
+                .when(userValidationServiceMock).validateUser(any(), anyString(), any());
 
         // Then
         assertThrows(UserExceptions.class, () -> {
-            userService.createUser(userRequest);
+            userServiceMock.createUser(userRequest);
         }, "UserExceptions should have been thrown");
     }
 
@@ -285,11 +285,11 @@ public class UserServiceTest {
         doThrow(new UserExceptions(UserExceptions.class,
                 String.format("There's an account with UserId %s", userRequest.userId())
                 , "testCreateUserUnhappyPathNullWithExistingUserId"))
-                .when(userValidationService).validateUser(any(), anyString(), any());
+                .when(userValidationServiceMock).validateUser(any(), anyString(), any());
 
         // Then
         assertThrows(UserExceptions.class, () -> {
-            userService.createUser(userRequest);
+            userServiceMock.createUser(userRequest);
         }, "UserExceptions should have been thrown");
     }
 
@@ -300,11 +300,11 @@ public class UserServiceTest {
         UserDto requestedUserFields = constructIncomingUserDtoRequest();
 
         // When
-        when(userRepository.findByUserIdOrUserName(TEST_UUID, TEST_USER_NAME)).thenReturn(Optional.of(constructUser()));
-        when(userRepository.save(any())).thenReturn(UserDtoToUsers(constructIncomingUserDtoRequest()));
-        doNothing().when(userValidationService).validateFields(anyString(), anyString(), any(), anyString(), any());
-        doNothing().when(userValidationService).validateUser(any(), anyString(), any());
-        UserDto updatedUser = userService.updateUserByUserIdOrUserName(requestedUserFields, TEST_UUID, TEST_USER_NAME);
+        when(userRepositoryMock.findByUserIdOrUserName(TEST_UUID, TEST_USER_NAME)).thenReturn(Optional.of(constructUser()));
+        when(userRepositoryMock.save(any())).thenReturn(UserDtoToUsers(constructIncomingUserDtoRequest()));
+        doNothing().when(userValidationServiceMock).validateFields(anyString(), anyString(), any(), anyString(), any());
+        doNothing().when(userValidationServiceMock).validateUser(any(), anyString(), any());
+        UserDto updatedUser = userServiceMock.updateUserByUserIdOrUserName(requestedUserFields, TEST_UUID, TEST_USER_NAME);
 
         // Then
         assertThat(updatedUser.firstName()).isEqualTo(requestedUserFields.firstName());
@@ -333,11 +333,11 @@ public class UserServiceTest {
                 .build();
 
         // When
-        when(userRepository.findByUserIdOrUserName(TEST_UUID, TEST_USER_NAME)).thenReturn(Optional.of(users));
-        when(userRepository.save(any())).thenReturn(UserDtoToUsers(newUserDTo));
-        doNothing().when(userValidationService).validateFields(anyString(), anyString(), any(), anyString(), any());
-        doNothing().when(userValidationService).validateUser(any(), anyString(), any());
-        UserDto updatedUser = userService.updateUserByUserIdOrUserName(newUserDTo, TEST_UUID, TEST_USER_NAME);
+        when(userRepositoryMock.findByUserIdOrUserName(TEST_UUID, TEST_USER_NAME)).thenReturn(Optional.of(users));
+        when(userRepositoryMock.save(any())).thenReturn(UserDtoToUsers(newUserDTo));
+        doNothing().when(userValidationServiceMock).validateFields(anyString(), anyString(), any(), anyString(), any());
+        doNothing().when(userValidationServiceMock).validateUser(any(), anyString(), any());
+        UserDto updatedUser = userServiceMock.updateUserByUserIdOrUserName(newUserDTo, TEST_UUID, TEST_USER_NAME);
 
         // Then
         assertThat(updatedUser.firstName()).isEqualTo(newUserDTo.firstName());
@@ -366,11 +366,11 @@ public class UserServiceTest {
                 .build();
 
         // When
-        when(userRepository.findByUserIdOrUserName(TEST_UUID, TEST_USER_NAME)).thenReturn(Optional.of(users));
-        when(userRepository.save(any())).thenReturn(UserDtoToUsers(newUserDTo));
-        doNothing().when(userValidationService).validateFields(anyString(), anyString(), any(), anyString(), any());
-        doNothing().when(userValidationService).validateUser(any(), anyString(), any());
-        UserDto updatedUser = userService.updateUserByUserIdOrUserName(newUserDTo, TEST_UUID, TEST_USER_NAME);
+        when(userRepositoryMock.findByUserIdOrUserName(TEST_UUID, TEST_USER_NAME)).thenReturn(Optional.of(users));
+        when(userRepositoryMock.save(any())).thenReturn(UserDtoToUsers(newUserDTo));
+        doNothing().when(userValidationServiceMock).validateFields(anyString(), anyString(), any(), anyString(), any());
+        doNothing().when(userValidationServiceMock).validateUser(any(), anyString(), any());
+        UserDto updatedUser = userServiceMock.updateUserByUserIdOrUserName(newUserDTo, TEST_UUID, TEST_USER_NAME);
 
         // Then
         assertThat(updatedUser.firstName()).isEqualTo(users.getFirstName());
@@ -399,11 +399,11 @@ public class UserServiceTest {
                 .build();
 
         // When
-        when(userRepository.findByUserIdOrUserName(TEST_UUID, TEST_USER_NAME)).thenReturn(Optional.of(users));
-        when(userRepository.save(any())).thenReturn(UserDtoToUsers(newUserDTo));
-        doNothing().when(userValidationService).validateFields(anyString(), anyString(), any(), anyString(), any());
-        doNothing().when(userValidationService).validateUser(any(), anyString(), any());
-        UserDto updatedUser = userService.updateUserByUserIdOrUserName(newUserDTo, TEST_UUID, TEST_USER_NAME);
+        when(userRepositoryMock.findByUserIdOrUserName(TEST_UUID, TEST_USER_NAME)).thenReturn(Optional.of(users));
+        when(userRepositoryMock.save(any())).thenReturn(UserDtoToUsers(newUserDTo));
+        doNothing().when(userValidationServiceMock).validateFields(anyString(), anyString(), any(), anyString(), any());
+        doNothing().when(userValidationServiceMock).validateUser(any(), anyString(), any());
+        UserDto updatedUser = userServiceMock.updateUserByUserIdOrUserName(newUserDTo, TEST_UUID, TEST_USER_NAME);
 
         // Then
         assertThat(updatedUser.firstName()).isEqualTo(users.getFirstName());
@@ -432,11 +432,11 @@ public class UserServiceTest {
                 .build();
 
         // When
-        when(userRepository.findByUserIdOrUserName(TEST_UUID, TEST_USER_NAME)).thenReturn(Optional.of(users));
-        when(userRepository.save(any())).thenReturn(UserDtoToUsers(newUserDTo));
-        doNothing().when(userValidationService).validateFields(anyString(), anyString(), any(), anyString(), any());
-        doNothing().when(userValidationService).validateUser(any(), anyString(), any());
-        UserDto updatedUser = userService.updateUserByUserIdOrUserName(newUserDTo, TEST_UUID, TEST_USER_NAME);
+        when(userRepositoryMock.findByUserIdOrUserName(TEST_UUID, TEST_USER_NAME)).thenReturn(Optional.of(users));
+        when(userRepositoryMock.save(any())).thenReturn(UserDtoToUsers(newUserDTo));
+        doNothing().when(userValidationServiceMock).validateFields(anyString(), anyString(), any(), anyString(), any());
+        doNothing().when(userValidationServiceMock).validateUser(any(), anyString(), any());
+        UserDto updatedUser = userServiceMock.updateUserByUserIdOrUserName(newUserDTo, TEST_UUID, TEST_USER_NAME);
 
         // Then
         assertThat(updatedUser.firstName()).isEqualTo(users.getFirstName());
@@ -465,11 +465,11 @@ public class UserServiceTest {
                 .build();
 
         // When
-        when(userRepository.findByUserIdOrUserName(TEST_UUID, TEST_USER_NAME)).thenReturn(Optional.of(users));
-        when(userRepository.save(any())).thenReturn(UserDtoToUsers(newUserDTo));
-        doNothing().when(userValidationService).validateFields(anyString(), anyString(), any(), anyString(), any());
-        doNothing().when(userValidationService).validateUser(any(), anyString(), any());
-        UserDto updatedUser = userService.updateUserByUserIdOrUserName(newUserDTo, TEST_UUID, TEST_USER_NAME);
+        when(userRepositoryMock.findByUserIdOrUserName(TEST_UUID, TEST_USER_NAME)).thenReturn(Optional.of(users));
+        when(userRepositoryMock.save(any())).thenReturn(UserDtoToUsers(newUserDTo));
+        doNothing().when(userValidationServiceMock).validateFields(anyString(), anyString(), any(), anyString(), any());
+        doNothing().when(userValidationServiceMock).validateUser(any(), anyString(), any());
+        UserDto updatedUser = userServiceMock.updateUserByUserIdOrUserName(newUserDTo, TEST_UUID, TEST_USER_NAME);
 
         // Then
         assertThat(updatedUser.firstName()).isEqualTo(users.getFirstName());
@@ -487,11 +487,11 @@ public class UserServiceTest {
 
         // When
         doThrow(new BadApiRequestExceptions(BadApiRequestExceptions.class, "Please provide non null username or user Id", "testUpdateUserByUserIdOrUserNameUnhappyPathWithBothUserIdAndUserNameNull"))
-                .when(userValidationService).validateFields(any(), any(), any(), anyString(), any());
+                .when(userValidationServiceMock).validateFields(any(), any(), any(), anyString(), any());
 
         // Then
         assertThrows(BadApiRequestExceptions.class, () -> {
-            userService.updateUserByUserIdOrUserName(MappingHelpers.UsersToUsersDto(users), null, null);
+            userServiceMock.updateUserByUserIdOrUserName(MappingHelpers.UsersToUsersDto(users), null, null);
         }, "BadApiRequestException should have been thrown");
     }
 
@@ -503,15 +503,15 @@ public class UserServiceTest {
 
 
         // When
-        when(userRepository.findByUserIdOrUserName("INVALID_USER_ID", "INVALID_USER_NAME")).thenReturn(Optional.empty());
-        doNothing().when(userValidationService).validateFields(anyString(), anyString(), any(), anyString(), any());
+        when(userRepositoryMock.findByUserIdOrUserName("INVALID_USER_ID", "INVALID_USER_NAME")).thenReturn(Optional.empty());
+        doNothing().when(userValidationServiceMock).validateFields(anyString(), anyString(), any(), anyString(), any());
         doThrow(new UserNotFoundExceptions(UserNotFoundExceptions.class, "No User with this UserId or UserName"
                 , "testUpdateUserByUserIdOrUserNameUnhappyPathForUserNotFound"))
-                .when(userValidationService).validateUser(any(), anyString(), any());
+                .when(userValidationServiceMock).validateUser(any(), anyString(), any());
 
         // Then
         assertThrows(UserNotFoundExceptions.class, () -> {
-            userService.updateUserByUserIdOrUserName(MappingHelpers.UsersToUsersDto(users), "INVALID_USER_ID", "INVALID_USER_NAME");
+            userServiceMock.updateUserByUserIdOrUserName(MappingHelpers.UsersToUsersDto(users), "INVALID_USER_ID", "INVALID_USER_NAME");
         }, "UserNotFoundException should have been thrown");
     }
 
@@ -535,16 +535,16 @@ public class UserServiceTest {
                 .build();
 
         // When
-        when(userRepository.findByUserIdOrUserName(TEST_UUID, TEST_USER_NAME)).thenReturn(Optional.of(users));
-        doNothing().when(userValidationService).validateFields(anyString(), anyString(), any(), anyString(), any());
+        when(userRepositoryMock.findByUserIdOrUserName(TEST_UUID, TEST_USER_NAME)).thenReturn(Optional.of(users));
+        doNothing().when(userValidationServiceMock).validateFields(anyString(), anyString(), any(), anyString(), any());
         doNothing().doThrow(new UserExceptions(UserExceptions.class,
                         String.format("There's an account with Email %s EMAIL", newUserDTo.email())
                         , "testUpdateUserByUserIdOrUserNameUnhappyPathWithExistingEmail"))
-                .when(userValidationService).validateUser(any(), anyString(), any());
+                .when(userValidationServiceMock).validateUser(any(), anyString(), any());
 
         // Then
         assertThrows(UserExceptions.class, () -> {
-            userService.updateUserByUserIdOrUserName(newUserDTo, TEST_UUID, TEST_USER_NAME);
+            userServiceMock.updateUserByUserIdOrUserName(newUserDTo, TEST_UUID, TEST_USER_NAME);
         }, "UserExceptions Should have been thrown");
     }
 
@@ -552,13 +552,13 @@ public class UserServiceTest {
     @DisplayName("Test Happy Path -- deleteUserByUserIdOrUserName() With valid UserId & UserName")
     public void testDeleteUserByUserIdOrUserNameHappyPath() throws BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions {
         // When
-        doNothing().when(userValidationService).validateFields(anyString(), anyString(), any(), anyString(), any());
-        when(userRepository.findByUserIdOrUserName(TEST_UUID, TEST_USER_NAME)).thenReturn(Optional.of(constructUser()));
-        doNothing().when(userValidationService).validateUser(any(), anyString(), any());
-        userService.deleteUserByUserIdOrUserName(TEST_UUID, TEST_USER_NAME);
+        doNothing().when(userValidationServiceMock).validateFields(anyString(), anyString(), any(), anyString(), any());
+        when(userRepositoryMock.findByUserIdOrUserName(TEST_UUID, TEST_USER_NAME)).thenReturn(Optional.of(constructUser()));
+        doNothing().when(userValidationServiceMock).validateUser(any(), anyString(), any());
+        userServiceMock.deleteUserByUserIdOrUserName(TEST_UUID, TEST_USER_NAME);
 
         // Then
-        verify(userRepository, times(1)).deleteByUserIdOrUserName(TEST_UUID, TEST_USER_NAME);
+        verify(userRepositoryMock, times(1)).deleteByUserIdOrUserName(TEST_UUID, TEST_USER_NAME);
     }
 
     @Test
@@ -567,11 +567,11 @@ public class UserServiceTest {
         // When
         doThrow(new BadApiRequestExceptions(BadApiRequestExceptions.class, "Please provide non null username or user Id",
                 "testDeleteUserByUserIdOrUserNameUnhappyPath()"))
-                .when(userValidationService).validateFields(any(), any(), any(), anyString(), any());
+                .when(userValidationServiceMock).validateFields(any(), any(), any(), anyString(), any());
 
         // Then
         assertThrows(BadApiRequestExceptions.class, () -> {
-            userService.deleteUserByUserIdOrUserName(null, null);
+            userServiceMock.deleteUserByUserIdOrUserName(null, null);
         }, "BadApiRequestException should have been thrown");
     }
 
@@ -579,15 +579,15 @@ public class UserServiceTest {
     @DisplayName("Test Unhappy Path -- deleteUserByUserIdOrUserName() With InValid UserId & UserName")
     public void testDeleteUserByUserIdOrUserNameUnhappyPathForInValidUserIdAndUserName() throws BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions {
         // When
-        when(userRepository.findByUserIdOrUserName("INVALID_USER_ID", "INVALID_USER_NAME")).thenReturn(Optional.empty());
-        doNothing().when(userValidationService).validateFields(anyString(), anyString(), any(), anyString(), any());
+        when(userRepositoryMock.findByUserIdOrUserName("INVALID_USER_ID", "INVALID_USER_NAME")).thenReturn(Optional.empty());
+        doNothing().when(userValidationServiceMock).validateFields(anyString(), anyString(), any(), anyString(), any());
         doThrow(new UserNotFoundExceptions(UserNotFoundExceptions.class, "No User with this UserId or UserName",
                 "testDeleteUserByUserIdOrUserNameUnhappyPathForInValidUserIdAndUserName()"))
-                .when(userValidationService).validateUser(any(), anyString(), any());
+                .when(userValidationServiceMock).validateUser(any(), anyString(), any());
 
         // Then
         assertThrows(UserNotFoundExceptions.class, () -> {
-            userService.deleteUserByUserIdOrUserName("INVALID_USER_ID",
+            userServiceMock.deleteUserByUserIdOrUserName("INVALID_USER_ID",
                     "INVALID_USER_NAME");
         }, "UserNotFoundException should have been thrown");
     }
@@ -596,9 +596,9 @@ public class UserServiceTest {
     @DisplayName("Test Happy Path -- testGetALlUsersHappyPath() with Users Present")
     public void testGetALlUsersHappyPath() throws UserNotFoundExceptions {
         // When
-        when(userRepository.findAll()).thenReturn(constructUsersSet().stream().toList());
-        doNothing().when(userValidationService).validateUserList(anySet(), anyString(), any());
-        Set<UserDto> usersSet = userService.getALlUsers();
+        when(userRepositoryMock.findAll()).thenReturn(constructUsersSet().stream().toList());
+        doNothing().when(userValidationServiceMock).validateUserList(anySet(), anyString(), any());
+        Set<UserDto> usersSet = userServiceMock.getALlUsers();
 
         //Then
         assertThat(usersSet.isEmpty()).isFalse();
@@ -608,15 +608,15 @@ public class UserServiceTest {
     @DisplayName("Test Unhappy Path -- testGetALlUsersHappyPath() with No Users Present")
     public void testGetALlUsersUnhappyPath() throws UserNotFoundExceptions {
         // When
-        when(userRepository.findAll()).thenReturn(new ArrayList<>());
+        when(userRepositoryMock.findAll()).thenReturn(new ArrayList<>());
         doThrow(new UserNotFoundExceptions(UserNotFoundExceptions.class,
                 "Our Database have no Users", "testGetALlUsersHappyPath"))
-                .when(userValidationService).validateUserList(anySet(), anyString(), any());
+                .when(userValidationServiceMock).validateUserList(anySet(), anyString(), any());
 
         //Then
         assertThrows(UserNotFoundExceptions.class,
                 () -> {
-                    userService.getALlUsers();
+                    userServiceMock.getALlUsers();
                 },
                 "UserNotFound Exception Should Be thrown");
     }
@@ -628,10 +628,10 @@ public class UserServiceTest {
         Users users = constructUser();
 
         // When
-        doNothing().when(userValidationService).validateFields(any(), anyString(), anyString(), anyString(), any());
-        when(userRepository.findByEmailOrUserName(TEST_EMAIL, TEST_USER_NAME)).thenReturn(Optional.of(users));
-        doNothing().when(userValidationService).validateUser(any(), anyString(), any());
-        UserDto fetchedUser = userService.getUserInformationByEmailOrUserName(TEST_EMAIL, TEST_USER_NAME);
+        doNothing().when(userValidationServiceMock).validateFields(any(), anyString(), anyString(), anyString(), any());
+        when(userRepositoryMock.findByEmailOrUserName(TEST_EMAIL, TEST_USER_NAME)).thenReturn(Optional.of(users));
+        doNothing().when(userValidationServiceMock).validateUser(any(), anyString(), any());
+        UserDto fetchedUser = userServiceMock.getUserInformationByEmailOrUserName(TEST_EMAIL, TEST_USER_NAME);
 
         // Then
         assertThat(fetchedUser.userName()).isEqualTo(users.getUserName());
@@ -651,11 +651,11 @@ public class UserServiceTest {
         doThrow(new BadApiRequestExceptions(BadApiRequestExceptions.class,
                 "Please provide non null username or email",
                 "testGetUserInformationByEmailOrUserNameUnhappyPathWithNullValues"))
-                .when(userValidationService).validateFields(any(), any(), any(), anyString(), any());
+                .when(userValidationServiceMock).validateFields(any(), any(), any(), anyString(), any());
 
         assertThrows(BadApiRequestExceptions.class,
                 () -> {
-                    userService.getUserInformationByEmailOrUserName(null, null);
+                    userServiceMock.getUserInformationByEmailOrUserName(null, null);
                 },
                 "BadApiRequestExceptions should have been thrown");
     }
@@ -664,16 +664,16 @@ public class UserServiceTest {
     @DisplayName("Test Unhappy Path -- getUserInformationByEmailOrUserName() With Invalid UserName & Email")
     public void testGetUserInformationByEmailOrUserNameUnhappyPathWithInvalidUserNameAndEmail() throws BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions {
         // When
-        doNothing().when(userValidationService).validateFields(any(), anyString(), anyString(), anyString(), any());
-        when(userRepository.findByEmailOrUserName("INVALID_EMAIL", "INVALID_USER_NAME")).thenReturn(Optional.empty());
+        doNothing().when(userValidationServiceMock).validateFields(any(), anyString(), anyString(), anyString(), any());
+        when(userRepositoryMock.findByEmailOrUserName("INVALID_EMAIL", "INVALID_USER_NAME")).thenReturn(Optional.empty());
         doThrow(new UserNotFoundExceptions(UserNotFoundExceptions.class,
                 "No User with this email or UserName",
                 "testGetUserInformationByEmailOrUserNameUnhappyPathWithInvalidUserNameAndEmail"))
-                .when(userValidationService).validateUser(any(), anyString(), any());
+                .when(userValidationServiceMock).validateUser(any(), anyString(), any());
 
         assertThrows(UserNotFoundExceptions.class,
                 () -> {
-                    userService.getUserInformationByEmailOrUserName("INVALID_EMAIL", "INVALID_USER_NAME");
+                    userServiceMock.getUserInformationByEmailOrUserName("INVALID_EMAIL", "INVALID_USER_NAME");
                 },
                 "UserNotFoundExceptions should have been thrown");
     }
@@ -685,9 +685,9 @@ public class UserServiceTest {
         Set<Users> usersSet = constructUsersSet();
 
         // When
-        when(userRepository.findAllByUserNameContaining(anyString())).thenReturn(Optional.of(usersSet));
-        doNothing().when(userValidationService).validateUserList(anySet(), anyString(), any());
-        Set<UserDto> userSet = userService.searchAllUsersByUserName(TEST_USER_NAME);
+        when(userRepositoryMock.findAllByUserNameContaining(anyString())).thenReturn(Optional.of(usersSet));
+        doNothing().when(userValidationServiceMock).validateUserList(anySet(), anyString(), any());
+        Set<UserDto> userSet = userServiceMock.searchAllUsersByUserName(TEST_USER_NAME);
 
         // Then
         assertThat(userSet.isEmpty()).isFalse();
@@ -697,15 +697,15 @@ public class UserServiceTest {
     @DisplayName("Test Unhappy Path -- searchAllUsersByUserName() with no matching userName present in DB")
     public void testSearchAllUsersByUserNameUnhappyPath() throws UserNotFoundExceptions {
         // When
-        when(userRepository.findAllByUserNameContaining("NOT_AVAILABLE_USER_NAME")).thenReturn(Optional.of(new HashSet<>()));
+        when(userRepositoryMock.findAllByUserNameContaining("NOT_AVAILABLE_USER_NAME")).thenReturn(Optional.of(new HashSet<>()));
         doThrow(new UserNotFoundExceptions(UserNotFoundExceptions.class,
                 "Our Database have no Users With this UserName",
                 "testSearchAllUsersByUserNameUnhappyPath"))
-                .when(userValidationService).validateUserList(anySet(), anyString(), any());
+                .when(userValidationServiceMock).validateUserList(anySet(), anyString(), any());
 
         // Then
         assertThrows(UserNotFoundExceptions.class, () -> {
-            userService.searchAllUsersByUserName("NOT_AVAILABLE_USER_NAME");
+            userServiceMock.searchAllUsersByUserName("NOT_AVAILABLE_USER_NAME");
         }, "UserNotFoundExceptions should have been thrown");
     }
 
@@ -716,9 +716,9 @@ public class UserServiceTest {
         Set<Users> usersSet = constructUsersSet();
 
         // When
-        when(userRepository.searchUserByEmail(anyString())).thenReturn(Optional.of(usersSet));
-        doNothing().when(userValidationService).validateUserList(any(), anyString(), any());
-        Set<UserDto> usersSets = userService.searchUserByFieldAndValue(EMAIL, TEST_EMAIL);
+        when(userRepositoryMock.searchUserByEmail(anyString())).thenReturn(Optional.of(usersSet));
+        doNothing().when(userValidationServiceMock).validateUserList(any(), anyString(), any());
+        Set<UserDto> usersSets = userServiceMock.searchUserByFieldAndValue(EMAIL, TEST_EMAIL);
 
         // Then
         assertThat(usersSets.isEmpty()).isFalse();
@@ -729,16 +729,16 @@ public class UserServiceTest {
     @DisplayName("Test Unhappy Path -- searchUserByFieldAndValue() with email not present int DB")
     public void testSearchUserByFieldAndValueWhenFieldIsEmailUnhappyPath() throws UserNotFoundExceptions {
         // When
-        when(userRepository.searchUserByEmail("INVALID_EMAIL")).thenReturn(Optional.of(new HashSet<>()));
+        when(userRepositoryMock.searchUserByEmail("INVALID_EMAIL")).thenReturn(Optional.of(new HashSet<>()));
         doThrow(new UserNotFoundExceptions(UserNotFoundExceptions.class,
                 "Our Database have no Users With this email",
                 "testSearchUserByFieldAndValueWhenFieldIsEmailUnhappyPath"))
-                .when(userValidationService).validateUserList(any(), anyString(), any());
+                .when(userValidationServiceMock).validateUserList(any(), anyString(), any());
 
 
         // Then
         assertThrows(UserNotFoundExceptions.class, () -> {
-            userService.searchUserByFieldAndValue(EMAIL, "INVALID_EMAIL");
+            userServiceMock.searchUserByFieldAndValue(EMAIL, "INVALID_EMAIL");
         }, "UserNotFoundExceptions should have been thrown");
     }
 
@@ -749,9 +749,9 @@ public class UserServiceTest {
         Set<Users> usersSet = constructUsersSet();
 
         // When
-        when(userRepository.searchUserByUserName(anyString())).thenReturn(Optional.of(usersSet));
-        doNothing().when(userValidationService).validateUserList(any(), anyString(), any());
-        Set<UserDto> usersSets = userService.searchUserByFieldAndValue(USER_NAME, TEST_USER_NAME);
+        when(userRepositoryMock.searchUserByUserName(anyString())).thenReturn(Optional.of(usersSet));
+        doNothing().when(userValidationServiceMock).validateUserList(any(), anyString(), any());
+        Set<UserDto> usersSets = userServiceMock.searchUserByFieldAndValue(USER_NAME, TEST_USER_NAME);
 
         // Then
         assertThat(usersSets.isEmpty()).isFalse();
@@ -762,16 +762,16 @@ public class UserServiceTest {
     @DisplayName("Test Unhappy Path -- searchUserByFieldAndValue() with userName not present int DB")
     public void testSearchUserByFieldAndValueWhenFieldIsUserNameUnhappyPath() throws UserNotFoundExceptions {
         // When
-        when(userRepository.searchUserByUserName("INVALID_USER_NAME")).thenReturn(Optional.of(new HashSet<>()));
+        when(userRepositoryMock.searchUserByUserName("INVALID_USER_NAME")).thenReturn(Optional.of(new HashSet<>()));
         doThrow(new UserNotFoundExceptions(UserNotFoundExceptions.class,
                 "Our Database have no Users With this userName",
                 "testSearchUserByFieldAndValueWhenFieldIsUserNameUnhappyPath"))
-                .when(userValidationService).validateUserList(any(), anyString(), any());
+                .when(userValidationServiceMock).validateUserList(any(), anyString(), any());
 
 
         // Then
         assertThrows(UserNotFoundExceptions.class, () -> {
-            userService.searchUserByFieldAndValue(USER_NAME, "INVALID_USER_NAME");
+            userServiceMock.searchUserByFieldAndValue(USER_NAME, "INVALID_USER_NAME");
         }, "UserNotFoundExceptions should have been thrown");
     }
 
@@ -782,9 +782,9 @@ public class UserServiceTest {
         Set<Users> usersSet = constructUsersSet();
 
         // When
-        when(userRepository.searchUserByFirstName(anyString())).thenReturn(Optional.of(usersSet));
-        doNothing().when(userValidationService).validateUserList(any(), anyString(), any());
-        Set<UserDto> usersSets = userService.searchUserByFieldAndValue(FIRST_NAME, TEST_FIRST_NAME);
+        when(userRepositoryMock.searchUserByFirstName(anyString())).thenReturn(Optional.of(usersSet));
+        doNothing().when(userValidationServiceMock).validateUserList(any(), anyString(), any());
+        Set<UserDto> usersSets = userServiceMock.searchUserByFieldAndValue(FIRST_NAME, TEST_FIRST_NAME);
 
         // Then
         assertThat(usersSets.isEmpty()).isFalse();
@@ -795,16 +795,16 @@ public class UserServiceTest {
     @DisplayName("Test Unhappy Path -- searchUserByFieldAndValue() with FirstName not present int DB")
     public void testSearchUserByFieldAndValueWhenFieldIsFirstNameUnhappyPath() throws UserNotFoundExceptions {
         // When
-        when(userRepository.searchUserByFirstName("INVALID_FIRST_NAME")).thenReturn(Optional.of(new HashSet<>()));
+        when(userRepositoryMock.searchUserByFirstName("INVALID_FIRST_NAME")).thenReturn(Optional.of(new HashSet<>()));
         doThrow(new UserNotFoundExceptions(UserNotFoundExceptions.class,
                 "Our Database have no Users With this firstName",
                 "testSearchUserByFieldAndValueWhenFieldIsFirstNameUnhappyPath"))
-                .when(userValidationService).validateUserList(any(), anyString(), any());
+                .when(userValidationServiceMock).validateUserList(any(), anyString(), any());
 
 
         // Then
         assertThrows(UserNotFoundExceptions.class, () -> {
-            userService.searchUserByFieldAndValue(FIRST_NAME, "INVALID_FIRST_NAME");
+            userServiceMock.searchUserByFieldAndValue(FIRST_NAME, "INVALID_FIRST_NAME");
         }, "UserNotFoundExceptions should have been thrown");
     }
 
@@ -815,9 +815,9 @@ public class UserServiceTest {
         Set<Users> usersSet = constructUsersSet();
 
         // When
-        when(userRepository.searchUserByLastName(anyString())).thenReturn(Optional.of(usersSet));
-        doNothing().when(userValidationService).validateUserList(any(), anyString(), any());
-        Set<UserDto> usersSets = userService.searchUserByFieldAndValue(LAST_NAME, TEST_LAST_NAME);
+        when(userRepositoryMock.searchUserByLastName(anyString())).thenReturn(Optional.of(usersSet));
+        doNothing().when(userValidationServiceMock).validateUserList(any(), anyString(), any());
+        Set<UserDto> usersSets = userServiceMock.searchUserByFieldAndValue(LAST_NAME, TEST_LAST_NAME);
 
         // Then
         assertThat(usersSets.isEmpty()).isFalse();
@@ -828,15 +828,15 @@ public class UserServiceTest {
     @DisplayName("Test Unhappy Path -- searchUserByFieldAndValue() with LastName not present int DB")
     public void testSearchUserByFieldAndValueWhenFieldIsLastNameUnhappyPath() throws UserNotFoundExceptions {
         // When
-        when(userRepository.searchUserByLastName("INVALID_LAST_NAME")).thenReturn(Optional.of(new HashSet<>()));
+        when(userRepositoryMock.searchUserByLastName("INVALID_LAST_NAME")).thenReturn(Optional.of(new HashSet<>()));
         doThrow(new UserNotFoundExceptions(UserNotFoundExceptions.class,
                 "Our Database have no Users With this lastName",
                 "testSearchUserByFieldAndValueWhenFieldIsLastNameUnhappyPath"))
-                .when(userValidationService).validateUserList(any(), anyString(), any());
+                .when(userValidationServiceMock).validateUserList(any(), anyString(), any());
 
         // Then
         assertThrows(UserNotFoundExceptions.class, () -> {
-            userService.searchUserByFieldAndValue(LAST_NAME, "INVALID_LAST_NAME");
+            userServiceMock.searchUserByFieldAndValue(LAST_NAME, "INVALID_LAST_NAME");
         }, "UserNotFoundExceptions should have been thrown");
     }
 
@@ -848,9 +848,9 @@ public class UserServiceTest {
         Set<Users> usersSet = constructUsersSet();
 
         // When
-        when(userRepository.searchUserByGender(anyString())).thenReturn(Optional.of(usersSet));
-        doNothing().when(userValidationService).validateUserList(any(), anyString(), any());
-        Set<UserDto> usersSets = userService.searchUserByFieldAndValue(GENDER, TEST_GENDER.toString());
+        when(userRepositoryMock.searchUserByGender(anyString())).thenReturn(Optional.of(usersSet));
+        doNothing().when(userValidationServiceMock).validateUserList(any(), anyString(), any());
+        Set<UserDto> usersSets = userServiceMock.searchUserByFieldAndValue(GENDER, TEST_GENDER.toString());
 
         // Then
         assertThat(usersSets.isEmpty()).isFalse();
@@ -861,15 +861,15 @@ public class UserServiceTest {
     @DisplayName("Test Unhappy Path -- searchUserByFieldAndValue() with gender not present int DB")
     public void testSearchUserByFieldAndValueWhenFieldIsGenderUnhappyPath() throws UserNotFoundExceptions {
         // When
-        when(userRepository.searchUserByGender(String.valueOf(FEMALE))).thenReturn(Optional.of(new HashSet<>()));
+        when(userRepositoryMock.searchUserByGender(String.valueOf(FEMALE))).thenReturn(Optional.of(new HashSet<>()));
         doThrow(new UserNotFoundExceptions(UserNotFoundExceptions.class,
                 "Our Database have no Users With this gender",
                 "testSearchUserByFieldAndValueWhenFieldIsGenderUnhappyPath"))
-                .when(userValidationService).validateUserList(any(), anyString(), any());
+                .when(userValidationServiceMock).validateUserList(any(), anyString(), any());
 
         // Then
         assertThrows(UserNotFoundExceptions.class, () -> {
-            userService.searchUserByFieldAndValue(GENDER, String.valueOf(FEMALE));
+            userServiceMock.searchUserByFieldAndValue(GENDER, String.valueOf(FEMALE));
         }, "UserNotFoundExceptions should have been thrown");
     }
 

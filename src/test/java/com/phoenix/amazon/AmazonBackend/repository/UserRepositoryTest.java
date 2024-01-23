@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class UserRepositoryTest {
     @Autowired
-    private IUserRepository userRepository;
+    private IUserRepository userRepositoryMock;
 
     private final String TEST_EMAIL = "test@gmail.com";
     private final String TEST_USER_NAME = "TEST_USER_NAME";
@@ -34,7 +34,7 @@ public class UserRepositoryTest {
     @BeforeEach
     public void setUp() {
         // Given
-        userRepository.save(constructUser());
+        userRepositoryMock.save(constructUser());
     }
 
     @Test
@@ -43,7 +43,7 @@ public class UserRepositoryTest {
         // When
         final String userName = TEST_USER_NAME;
         final String email = TEST_EMAIL;
-        Optional<Users> loadedUser = userRepository.findByEmailOrUserName(email, userName);
+        Optional<Users> loadedUser = userRepositoryMock.findByEmailOrUserName(email, userName);
 
         // Then
         assertThat(loadedUser.isPresent()).isTrue();
@@ -57,7 +57,7 @@ public class UserRepositoryTest {
         // When
         final String userName = TEST_USER_NAME;
         final String email = "INVALID_EMAIL";
-        Optional<Users> loadedUser = userRepository.findByEmailOrUserName(email, userName);
+        Optional<Users> loadedUser = userRepositoryMock.findByEmailOrUserName(email, userName);
 
         // Then
         assertThat(loadedUser.isPresent()).isTrue();
@@ -70,7 +70,7 @@ public class UserRepositoryTest {
         // When
         final String userName = "INVALID_USER_NAME";
         final String email = TEST_EMAIL;
-        Optional<Users> loadedUser = userRepository.findByEmailOrUserName(email, userName);
+        Optional<Users> loadedUser = userRepositoryMock.findByEmailOrUserName(email, userName);
 
         // Then
         assertThat(loadedUser.isPresent()).isTrue();
@@ -83,7 +83,7 @@ public class UserRepositoryTest {
         // When
         final String userName = "INVALID_USER_NAME";
         final String email = "INVALID_EMAIL";
-        Optional<Users> loadedUser = userRepository.findByEmailOrUserName(email, userName);
+        Optional<Users> loadedUser = userRepositoryMock.findByEmailOrUserName(email, userName);
 
         // Then
         assertThat(loadedUser.isEmpty()).isTrue();
@@ -95,7 +95,7 @@ public class UserRepositoryTest {
         // When
         final String userId = TEST_UUID;
         final String userName = TEST_USER_NAME;
-        Optional<Users> loadedUser = userRepository.findByUserIdOrUserName(userId, userName);
+        Optional<Users> loadedUser = userRepositoryMock.findByUserIdOrUserName(userId, userName);
 
         // Then
         assertThat(loadedUser.isPresent()).isTrue();
@@ -109,7 +109,7 @@ public class UserRepositoryTest {
         // When
         final String userId = TEST_UUID;
         final String userName = "INVALID_USER_NAME";
-        Optional<Users> loadedUser = userRepository.findByUserIdOrUserName(userId, userName);
+        Optional<Users> loadedUser = userRepositoryMock.findByUserIdOrUserName(userId, userName);
 
         // Then
         assertThat(loadedUser.isPresent()).isTrue();
@@ -122,7 +122,7 @@ public class UserRepositoryTest {
         // When
         final String userId = "INVALID_USER_ID";
         final String userName = TEST_USER_NAME;
-        Optional<Users> loadedUser = userRepository.findByUserIdOrUserName(userId, userName);
+        Optional<Users> loadedUser = userRepositoryMock.findByUserIdOrUserName(userId, userName);
 
         // Then
         assertThat(loadedUser.isPresent()).isTrue();
@@ -135,7 +135,7 @@ public class UserRepositoryTest {
         // When
         final String userId = "INVALID_USER_ID";
         final String userName = "INVALID_USER_NAME";
-        Optional<Users> loadedUser = userRepository.findByUserIdOrUserName(userId, userName);
+        Optional<Users> loadedUser = userRepositoryMock.findByUserIdOrUserName(userId, userName);
 
         // Then
         assertThat(loadedUser.isEmpty()).isTrue();
@@ -147,10 +147,10 @@ public class UserRepositoryTest {
         // When
         final String userId = TEST_UUID;
         final String userName = TEST_USER_NAME;
-        userRepository.deleteByUserIdOrUserName(userId, userName);
+        userRepositoryMock.deleteByUserIdOrUserName(userId, userName);
 
         // Then
-        assertThat(userRepository.findByUserIdOrUserName(userId, userName).isEmpty()).isTrue();
+        assertThat(userRepositoryMock.findByUserIdOrUserName(userId, userName).isEmpty()).isTrue();
     }
 
     @Test
@@ -159,10 +159,10 @@ public class UserRepositoryTest {
         // When
         final String userId = TEST_UUID;
         final String userName = "INVALID_USER_NAME";
-        userRepository.deleteByUserIdOrUserName(userId, userName);
+        userRepositoryMock.deleteByUserIdOrUserName(userId, userName);
 
         // Then
-        assertThat(userRepository.findByUserIdOrUserName(userId, userName).isEmpty()).isTrue();
+        assertThat(userRepositoryMock.findByUserIdOrUserName(userId, userName).isEmpty()).isTrue();
     }
 
     @Test
@@ -171,10 +171,10 @@ public class UserRepositoryTest {
         // When
         final String userId = "INVALID_USER_ID";
         final String userName = TEST_USER_NAME;
-        userRepository.deleteByUserIdOrUserName(userId, userName);
+        userRepositoryMock.deleteByUserIdOrUserName(userId, userName);
 
         // Then
-        assertThat(userRepository.findByUserIdOrUserName(userId, userName).isEmpty()).isTrue();
+        assertThat(userRepositoryMock.findByUserIdOrUserName(userId, userName).isEmpty()).isTrue();
     }
 
     @Test
@@ -183,21 +183,21 @@ public class UserRepositoryTest {
         // When
         final String userId = "INVALID_USER_ID";
         final String userName = "INVALID_USER_NAME";
-        userRepository.deleteByUserIdOrUserName(userId, userName);
+        userRepositoryMock.deleteByUserIdOrUserName(userId, userName);
 
         // Then
-        assertThat(userRepository.findByUserIdOrUserName(TEST_UUID, TEST_USER_NAME).isPresent()).isTrue();
+        assertThat(userRepositoryMock.findByUserIdOrUserName(TEST_UUID, TEST_USER_NAME).isPresent()).isTrue();
     }
 
     @Test
     @DisplayName("Test Happy Path -- findAllByUserNameContaining() With Valid field")
     public void testFindAllByUserNameContainingHappyPath() {
         // Given
-        userRepository.saveAll(constructUsersSet());
+        userRepositoryMock.saveAll(constructUsersSet());
 
         // When
         final String USER_NAME = "TEST_USER_NAME";
-        Optional<Set<Users>> usersSetOptional = userRepository.findAllByUserNameContaining(USER_NAME);
+        Optional<Set<Users>> usersSetOptional = userRepositoryMock.findAllByUserNameContaining(USER_NAME);
 
         // Then
         assertThat(usersSetOptional.isPresent()).isTrue();
@@ -208,11 +208,11 @@ public class UserRepositoryTest {
     @DisplayName("Test Unhappy Path -- findAllByUserNameContaining() With invalid field")
     public void testFindAllByUserNameContainingUnhappyPath() {
         // Given
-        userRepository.saveAll(constructUsersSet());
+        userRepositoryMock.saveAll(constructUsersSet());
 
         // When
         final String USER_NAME = "INVALID_USER_NAME";
-        Optional<Set<Users>> usersSetOptional = userRepository.findAllByUserNameContaining(USER_NAME);
+        Optional<Set<Users>> usersSetOptional = userRepositoryMock.findAllByUserNameContaining(USER_NAME);
 
         // Then
         assertThat(usersSetOptional.isPresent()).isTrue();
@@ -224,7 +224,7 @@ public class UserRepositoryTest {
     @DisplayName("Test Happy Path -- searchUserByFirstName() With valid firstName")
     public void testSearchUserByFirstNameHappyPath() {
         // When
-        Optional<Set<Users>> usersSetOptional = userRepository.searchUserByFirstName(TEST_FIRST_NAME);
+        Optional<Set<Users>> usersSetOptional = userRepositoryMock.searchUserByFirstName(TEST_FIRST_NAME);
 
         // Then
         assertThat(usersSetOptional.isPresent()).isTrue();
@@ -236,7 +236,7 @@ public class UserRepositoryTest {
     @DisplayName("Test Unhappy Path -- searchUserByFirstName() With invalid firstName")
     public void testSearchUserByFirstNameUnhappyPath() {
         // When
-        Optional<Set<Users>> usersSetOptional = userRepository.searchUserByFirstName("INVALID_FIRST_NAME");
+        Optional<Set<Users>> usersSetOptional = userRepositoryMock.searchUserByFirstName("INVALID_FIRST_NAME");
 
         // Then
         assertThat(usersSetOptional.isPresent()).isTrue();
@@ -248,7 +248,7 @@ public class UserRepositoryTest {
     @DisplayName("Test Happy Path -- searchUserByLastName() With valid lastName")
     public void testSearchUserByLastNameHappyPath() {
         // When
-        Optional<Set<Users>> usersSetOptional = userRepository.searchUserByLastName(TEST_LAST_NAME);
+        Optional<Set<Users>> usersSetOptional = userRepositoryMock.searchUserByLastName(TEST_LAST_NAME);
 
         // Then
         assertThat(usersSetOptional.isPresent()).isTrue();
@@ -260,7 +260,7 @@ public class UserRepositoryTest {
     @DisplayName("Test Unhappy Path -- searchUserByLastName() With invalid lastName")
     public void testSearchUserByLastNameUnhappyPath() {
         // When
-        Optional<Set<Users>> usersSetOptional = userRepository.searchUserByLastName("INVALID_LAST_NAME");
+        Optional<Set<Users>> usersSetOptional = userRepositoryMock.searchUserByLastName("INVALID_LAST_NAME");
 
         // Then
         assertThat(usersSetOptional.isPresent()).isTrue();
@@ -271,7 +271,7 @@ public class UserRepositoryTest {
     @DisplayName("Test Happy Path -- searchUserByGender() With valid gender")
     public void testSearchUserByGenderHappyPath() {
         // When
-        Optional<Set<Users>> usersSetOptional = userRepository.searchUserByGender(TEST_GENDER.toString());
+        Optional<Set<Users>> usersSetOptional = userRepositoryMock.searchUserByGender(TEST_GENDER.toString());
 
         // Then
         assertThat(usersSetOptional.isPresent()).isTrue();
@@ -283,7 +283,7 @@ public class UserRepositoryTest {
     @DisplayName("Test Unhappy Path -- searchUserByGender() With invalid gender")
     public void testSearchUserByGenderUnhappyPath() {
         // When
-        Optional<Set<Users>> usersSetOptional = userRepository.searchUserByGender(NON_BINARY.toString());
+        Optional<Set<Users>> usersSetOptional = userRepositoryMock.searchUserByGender(NON_BINARY.toString());
 
         // Then
         assertThat(usersSetOptional.isPresent()).isTrue();
@@ -294,7 +294,7 @@ public class UserRepositoryTest {
     @DisplayName("Test Happy Path -- searchUserByUserName() With valid userName")
     public void testSearchUserByUserNameHappyPath() {
         // When
-        Optional<Set<Users>> usersSetOptional = userRepository.searchUserByUserName(TEST_USER_NAME);
+        Optional<Set<Users>> usersSetOptional = userRepositoryMock.searchUserByUserName(TEST_USER_NAME);
 
         // Then
         assertThat(usersSetOptional.isPresent()).isTrue();
@@ -306,7 +306,7 @@ public class UserRepositoryTest {
     @DisplayName("Test Unhappy Path -- searchUserByUserName() With invalid userName")
     public void testSearchUserByUserNameUnhappyPath() {
         // When
-        Optional<Set<Users>> usersSetOptional = userRepository.searchUserByUserName("INVALID_USER_NAME");
+        Optional<Set<Users>> usersSetOptional = userRepositoryMock.searchUserByUserName("INVALID_USER_NAME");
 
         // Then
         assertThat(usersSetOptional.isPresent()).isTrue();
@@ -317,7 +317,7 @@ public class UserRepositoryTest {
     @DisplayName("Test Happy Path -- searchUserByEmail() With valid email")
     public void testSearchUserByEmailHappyPath() {
         // When
-        Optional<Set<Users>> usersSetOptional = userRepository.searchUserByEmail(TEST_EMAIL);
+        Optional<Set<Users>> usersSetOptional = userRepositoryMock.searchUserByEmail(TEST_EMAIL);
 
         // Then
         assertThat(usersSetOptional.isPresent()).isTrue();
@@ -329,7 +329,7 @@ public class UserRepositoryTest {
     @DisplayName("Test Unhappy Path -- searchUserByEmail() With invalid email")
     public void testSearchUserByEmailUnhappyPath() {
         // When
-        Optional<Set<Users>> usersSetOptional = userRepository.searchUserByEmail("INVALID_EMAIL");
+        Optional<Set<Users>> usersSetOptional = userRepositoryMock.searchUserByEmail("INVALID_EMAIL");
 
         // Then
         assertThat(usersSetOptional.isPresent()).isTrue();
