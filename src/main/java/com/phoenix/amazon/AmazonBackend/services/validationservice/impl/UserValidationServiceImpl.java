@@ -18,7 +18,9 @@ import java.util.Objects;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.EXCEPTION_CODES.*;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.EXCEPTION_CODES.BAD_API_EXEC;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.EXCEPTION_CODES.USER_NOT_FOUND_EXEC;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.EXCEPTION_CODES.USER_EXEC;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELD_VALIDATION;
 
@@ -35,12 +37,12 @@ public class UserValidationServiceImpl implements IUserValidationService {
      * @param userValidation - user validation field
      */
     @Override
-    public void validateUser(Optional<Users> usersOptional, String methodName, USER_VALIDATION userValidation) throws UserExceptions,BadApiRequestExceptions,UserNotFoundExceptions {
+    public void validateUser(Optional<Users> usersOptional, String methodName, USER_VALIDATION userValidation) throws UserExceptions, BadApiRequestExceptions, UserNotFoundExceptions {
         // Get all users
         Set<Users> userDtoList = new HashSet<>(userRepository.findAll());
-        Users users=null;
+        Users users = null;
         switch (userValidation) {
-            case NULL_OBJECT-> {
+            case NULL_OBJECT -> {
                 if (usersOptional.isEmpty()) throw (BadApiRequestExceptions) ExceptionBuilder.builder()
                         .className(BadApiRequestExceptions.class)
                         .description("Null Users prohibited")
@@ -141,7 +143,7 @@ public class UserValidationServiceImpl implements IUserValidationService {
      * @param userValidation - user validation field
      */
     @Override
-    public void validateUserList(Set<Users> userSet, String methodName, USER_VALIDATION userValidation) {
+    public void validateUserList(Set<Users> userSet, String methodName, USER_VALIDATION userValidation) throws UserNotFoundExceptions {
         switch (userValidation) {
             case GET_ALL_USERS -> {
                 if (CollectionUtils.isEmpty(userSet)) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
@@ -197,7 +199,7 @@ public class UserValidationServiceImpl implements IUserValidationService {
      */
     @Override
     public void validateFields(final String userId, final String userName, final String email, final String methodName,
-                               final USER_FIELD_VALIDATION userFieldValidation) {
+                               final USER_FIELD_VALIDATION userFieldValidation) throws BadApiRequestExceptions {
         final BiPredicate<String, String> checkBothFieldsNull = (String a, String b) -> Objects.isNull(a) && Objects.isNull(b);
         switch (userFieldValidation) {
             case VALIDATE_USER_ID_OR_USER_NAME -> {

@@ -50,10 +50,10 @@ public class UserServiceImpl extends AbstractService implements IUserService {
         this.userValidationService = userValidationService;
     }
 
-    private UserDto initializeUserId(final UserDto userDto) {
-        final String methodName="initializeUserId";
-        if(Objects.isNull(userDto)) userValidationService.validateUser(Optional.empty(),
-                "initializeUserId in UserService",NULL_OBJECT);
+    private UserDto initializeUserId(final UserDto userDto) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions {
+        final String methodName = "initializeUserId";
+        if (Objects.isNull(userDto)) userValidationService.validateUser(Optional.empty(),
+                "initializeUserId in UserService", NULL_OBJECT);
 
         final String userIdUUID = UUID.randomUUID().toString();
         return new UserDto.builder()
@@ -91,7 +91,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
      * @return UserDto
      */
     @Override
-    public UserDto updateUserByUserIdOrUserName(final UserDto user, final String userId, final String userName) {
+    public UserDto updateUserByUserIdOrUserName(final UserDto user, final String userId, final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
         final String methodName = "updateUserByUserIdOrUserName(UserDto,String) in UserServiceImpl";
 
         Users userDetails = UserDtoToUsers(user);
@@ -132,7 +132,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
      * @param userName - userName of user
      */
     @Override
-    public void deleteUserByUserIdOrUserName(final String userId, final String userName) {
+    public void deleteUserByUserIdOrUserName(final String userId, final String userName) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions {
         final String methodName = "deleteUserByUserIdOrUserName(string) in UserServiceImpl";
 
         Users fetchedUser = loadUserByUserIdOrUserName(userId, userName, methodName);
@@ -144,7 +144,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
      * @return Set<UserDto> - List Of all Users
      */
     @Override
-    public Set<UserDto> getALlUsers() {
+    public Set<UserDto> getALlUsers() throws UserNotFoundExceptions {
         final String methodName = "getALlUsers() in UserServiceImpl";
 
         Set<Users> usersSet = new HashSet<>(userRepository.findAll());
@@ -158,7 +158,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
      * @return UserDTo
      */
     @Override
-    public UserDto getUserInformationByEmailOrUserName(final String email, final String userName) throws UserExceptions {
+    public UserDto getUserInformationByEmailOrUserName(final String email, final String userName) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions {
         final String methodName = "getUserInformationByEmailOrUserName(String) in UserServiceImpl";
 
         Users users = loadUserByEmailOrUserName(email, userName, methodName);
@@ -171,7 +171,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
      * @return List<UserDTo>
      */
     @Override
-    public Set<UserDto> searchUserByFieldAndValue(final USER_FIELDS field, final String value) {
+    public Set<UserDto> searchUserByFieldAndValue(final USER_FIELDS field, final String value) throws UserNotFoundExceptions {
         final String methodName = "searchUserByFieldAndValue(field,String) in UserServiceImpl";
         Set<Users> users = null;
         switch (field) {
@@ -204,7 +204,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
      * @return Set<UserDto>
      */
     @Override
-    public Set<UserDto> searchAllUsersByUserName(final String userNameWord) {
+    public Set<UserDto> searchAllUsersByUserName(final String userNameWord) throws UserNotFoundExceptions {
         final String methodName = "searchAllUsersByUserName(string) in UsersServiceImpl";
 
         Set<Users> usersSet = loadAllUserByUserNameMatched(userNameWord, methodName);

@@ -1,6 +1,9 @@
 package com.phoenix.amazon.AmazonBackend.services;
 
 import com.phoenix.amazon.AmazonBackend.entity.Users;
+import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
+import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
+import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
 import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
 
@@ -10,8 +13,9 @@ import java.util.Set;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELD_VALIDATION.VALIDATE_USER_NAME_OR_EMAIL;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELD_VALIDATION.VALIDATE_USER_ID_OR_USER_NAME;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.*;
-
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_USER_INFO_BY_EMAIL_USER_NAME;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_USER_INFO_BY_USERID_USER_NAME;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_ALL_USERS_BY_USER_NAME;
 
 public abstract class AbstractService {
     private final IUserRepository userRepository;
@@ -40,7 +44,7 @@ public abstract class AbstractService {
      * @return Users
      **/
     private Users loadUserByUserNameOrEmailOrUserId(final String userId, final String userName, final String email,
-                                                    final String methodName, UserLoadType loadType) {
+                                                    final String methodName, UserLoadType loadType) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
         Optional<Users> users = Optional.empty();
         switch (loadType) {
             case LU1 -> {
@@ -62,7 +66,7 @@ public abstract class AbstractService {
      * @param methodName - origin of requesting method
      * @return Users
      **/
-    protected Users loadUserByEmailOrUserName(final String email, final String userName, final String methodName) {
+    protected Users loadUserByEmailOrUserName(final String email, final String userName, final String methodName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
         userValidationService.validateFields(null, userName, email, methodName, VALIDATE_USER_NAME_OR_EMAIL);
         return loadUserByUserNameOrEmailOrUserId(null, userName, email, methodName, UserLoadType.LU2);
     }
@@ -72,7 +76,7 @@ public abstract class AbstractService {
      * @param methodName - origin of requesting method
      * @return Users
      **/
-    protected Users loadUserByUserIdOrUserName(final String userId, final String userName, final String methodName) {
+    protected Users loadUserByUserIdOrUserName(final String userId, final String userName, final String methodName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
         userValidationService.validateFields(userId, userName, null, methodName, VALIDATE_USER_ID_OR_USER_NAME);
         return loadUserByUserNameOrEmailOrUserId(userId, userName, null, methodName, UserLoadType.LU1);
     }
@@ -82,7 +86,7 @@ public abstract class AbstractService {
      * @param methodName   - origin of requesting method
      * @return Set<Users> - set of all found users
      **/
-    protected Set<Users> loadAllUserByUserNameMatched(final String userNameLike, final String methodName) {
+    protected Set<Users> loadAllUserByUserNameMatched(final String userNameLike, final String methodName) throws UserNotFoundExceptions {
         Set<Users> allUsersWithNearlyUserName = userRepository.findAllByUserNameContaining(userNameLike).get();
         userValidationService.validateUserList(allUsersWithNearlyUserName, methodName, SEARCH_ALL_USERS_BY_USER_NAME);
         return allUsersWithNearlyUserName;

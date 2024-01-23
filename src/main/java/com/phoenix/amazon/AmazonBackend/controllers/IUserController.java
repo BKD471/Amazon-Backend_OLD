@@ -2,6 +2,9 @@ package com.phoenix.amazon.AmazonBackend.controllers;
 
 import com.phoenix.amazon.AmazonBackend.dto.ApiResponse;
 import com.phoenix.amazon.AmazonBackend.dto.UserDto;
+import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
+import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
+import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +26,7 @@ public interface IUserController {
      * @return ResponseEntity<UserDto>
      */
     @PostMapping("/v1/create")
-    ResponseEntity<UserDto> createUser(@RequestBody final UserDto user);
+    ResponseEntity<UserDto> createUser(@RequestBody final UserDto user) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions;
 
     /**
      * @param user     - User Object
@@ -32,7 +35,7 @@ public interface IUserController {
      * @return ResponseEntity<UserDto>
      */
     @PutMapping("/v1/update")
-    ResponseEntity<UserDto> updateUserByUserIdOrUserName(@RequestBody final UserDto user, @RequestParam(required = false) final String userId, @RequestParam(required = false) final String userName);
+    ResponseEntity<UserDto> updateUserByUserIdOrUserName(@RequestBody final UserDto user, @RequestParam(required = false) final String userId, @RequestParam(required = false) final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions;
 
     /**
      * @param userId   - User Id
@@ -40,13 +43,13 @@ public interface IUserController {
      * @return ResponseEntity<ApiResponse>
      */
     @DeleteMapping("/v1/delete")
-    ResponseEntity<ApiResponse> deleteUserByUserIdOrUserName(@RequestParam(required = false) final String userId, @RequestParam(required = false) final String userName);
+    ResponseEntity<ApiResponse> deleteUserByUserIdOrUserName(@RequestParam(required = false) final String userId, @RequestParam(required = false) final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions;
 
     /**
      * @return ResponseEntity<List < UserDTo>>
      */
     @GetMapping("/v1/getAll")
-    ResponseEntity<Set<UserDto>> getALlUsers();
+    ResponseEntity<Set<UserDto>> getALlUsers() throws UserNotFoundExceptions;
 
     /**
      * @param email    - email of user
@@ -54,7 +57,7 @@ public interface IUserController {
      * @return ResponseEntity<UserDto>
      */
     @GetMapping("/v1/info")
-    ResponseEntity<UserDto> getUserInformationByEmailOrUserName(@RequestParam(required = false) final String email, @RequestParam(required = false) final String userName);
+    ResponseEntity<UserDto> getUserInformationByEmailOrUserName(@RequestParam(required = false) final String email, @RequestParam(required = false) final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions;
 
     /**
      * @param field - field of User Entity
@@ -62,12 +65,12 @@ public interface IUserController {
      * @return ResponseEntity<List < UserDto>>
      */
     @GetMapping("/v1/search_by_field")
-    ResponseEntity<Set<UserDto>> searchUserByFieldAndValue(@RequestParam final USER_FIELDS field, @RequestParam final String value);
+    ResponseEntity<Set<UserDto>> searchUserByFieldAndValue(@RequestParam final USER_FIELDS field, @RequestParam final String value) throws UserNotFoundExceptions;
 
     /**
      * @param userNameWord - Keyword to get multiple users with almost same name initials
      * @return ResponseEntity<List < UserDto>>
      */
     @GetMapping("/v1/search_by_username/{userNameWord}")
-    ResponseEntity<Set<UserDto>> searchAllUsersByUserName(@PathVariable("userNameWord") final String userNameWord);
+    ResponseEntity<Set<UserDto>> searchAllUsersByUserName(@PathVariable("userNameWord") final String userNameWord) throws UserNotFoundExceptions;
 }

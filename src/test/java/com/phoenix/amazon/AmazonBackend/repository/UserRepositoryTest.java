@@ -343,7 +343,7 @@ public class UserRepositoryTest {
     }
 
     private Users constructUser() {
-        final String TEST_PASSWORD = "!@123456789aBcd";
+        final String TEST_PASSWORD = "$2y$10$JUH1QJQnAndkUwMclwdMc.hAbqAZ61Yb/7yCmCeIdNTjAMgC1NhNC";
         final String TEST_PROFILE_IMAGE = "0ecbe17e-5537-4533-9b9f-b3c2438e58eb.jpg";
         final String TEST_ABOUT = "Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia,\n" +
                 "molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum\n" +

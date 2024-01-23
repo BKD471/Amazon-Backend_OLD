@@ -3,6 +3,9 @@ package com.phoenix.amazon.AmazonBackend.controllers.impl;
 import com.phoenix.amazon.AmazonBackend.controllers.IUserController;
 import com.phoenix.amazon.AmazonBackend.dto.ApiResponse;
 import com.phoenix.amazon.AmazonBackend.dto.UserDto;
+import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
+import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
+import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
 import com.phoenix.amazon.AmazonBackend.services.IUserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +27,7 @@ public class UserControllerImpl implements IUserController {
      * @return ResponseEntity<UserDto>
      */
     @Override
-    public ResponseEntity<UserDto> createUser(final UserDto user) {
+    public ResponseEntity<UserDto> createUser(final UserDto user) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
         UserDto userDto = userService.createUser(user);
         return new ResponseEntity<>(userDto, HttpStatus.CREATED);
     }
@@ -36,7 +39,7 @@ public class UserControllerImpl implements IUserController {
      * @return ResponseEntity<UserDto>
      */
     @Override
-    public ResponseEntity<UserDto> updateUserByUserIdOrUserName(final UserDto user, final String userId, final String userName) {
+    public ResponseEntity<UserDto> updateUserByUserIdOrUserName(final UserDto user, final String userId, final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
         UserDto userDto = userService.updateUserByUserIdOrUserName(user, userId, userName);
         return new ResponseEntity<>(userDto, HttpStatus.ACCEPTED);
     }
@@ -47,7 +50,7 @@ public class UserControllerImpl implements IUserController {
      * @return ResponseEntity<ApiResponse>
      */
     @Override
-    public ResponseEntity<ApiResponse> deleteUserByUserIdOrUserName(final String userId, final String userName) {
+    public ResponseEntity<ApiResponse> deleteUserByUserIdOrUserName(final String userId, final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
         userService.deleteUserByUserIdOrUserName(userId, userName);
 
         ApiResponse responseMessage = new ApiResponse.builder()
@@ -62,7 +65,7 @@ public class UserControllerImpl implements IUserController {
      * @return ResponseEntity<List < UserDTo>>
      */
     @Override
-    public ResponseEntity<Set<UserDto>> getALlUsers() {
+    public ResponseEntity<Set<UserDto>> getALlUsers() throws UserNotFoundExceptions {
         Set<UserDto> userDtoSet = userService.getALlUsers();
         return new ResponseEntity<>(userDtoSet, HttpStatus.OK);
     }
@@ -73,7 +76,7 @@ public class UserControllerImpl implements IUserController {
      * @return ResponseEntity<UserDto>
      */
     @Override
-    public ResponseEntity<UserDto> getUserInformationByEmailOrUserName(final String email, final String userName) {
+    public ResponseEntity<UserDto> getUserInformationByEmailOrUserName(final String email, final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
         UserDto userDto = userService.getUserInformationByEmailOrUserName(email, userName);
         return new ResponseEntity<>(userDto, HttpStatus.OK);
     }
@@ -84,7 +87,7 @@ public class UserControllerImpl implements IUserController {
      * @return ResponseEntity<List < UserDto>>
      */
     @Override
-    public ResponseEntity<Set<UserDto>> searchUserByFieldAndValue(final USER_FIELDS field, final String value) {
+    public ResponseEntity<Set<UserDto>> searchUserByFieldAndValue(final USER_FIELDS field, final String value) throws UserNotFoundExceptions {
         Set<UserDto> userDtoSet = userService.searchUserByFieldAndValue(field, value);
         return new ResponseEntity<>(userDtoSet, HttpStatus.OK);
     }
@@ -94,7 +97,7 @@ public class UserControllerImpl implements IUserController {
      * @return ResponseEntity<List < UserDto>>
      */
     @Override
-    public ResponseEntity<Set<UserDto>> searchAllUsersByUserName(final String userNameWord) {
+    public ResponseEntity<Set<UserDto>> searchAllUsersByUserName(final String userNameWord) throws UserNotFoundExceptions {
         Set<UserDto> userDtoSet = userService.searchAllUsersByUserName(userNameWord);
         return new ResponseEntity<>(userDtoSet, HttpStatus.OK);
     }
