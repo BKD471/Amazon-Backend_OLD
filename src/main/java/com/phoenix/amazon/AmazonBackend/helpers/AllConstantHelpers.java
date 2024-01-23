@@ -33,7 +33,8 @@ public class AllConstantHelpers {
         SEARCH_USER_BY_USER_NAME,
         SEARCH_ALL_USERS_BY_GENDER,
         SEARCH_ALL_USERS_BY_FIRST_NAME,
-        SEARCH_ALL_USERS_BY_LAST_NAME
+        SEARCH_ALL_USERS_BY_LAST_NAME,
+        NULL_OBJECT
     }
 
     public enum USER_FIELD_VALIDATION{

@@ -38,15 +38,17 @@ public class UserValidationServiceImpl implements IUserValidationService {
     public void validateUser(Optional<Users> usersOptional, String methodName, USER_VALIDATION userValidation) throws UserExceptions,BadApiRequestExceptions,UserNotFoundExceptions {
         // Get all users
         Set<Users> userDtoList = new HashSet<>(userRepository.findAll());
+        Users users=null;
         switch (userValidation) {
-            case CREATE_USER -> {
-                //Null checks
+            case NULL_OBJECT-> {
                 if (usersOptional.isEmpty()) throw (BadApiRequestExceptions) ExceptionBuilder.builder()
                         .className(BadApiRequestExceptions.class)
                         .description("Null Users prohibited")
                         .methodName(methodName).build(BAD_API_EXEC);
-
-                Users users = usersOptional.get();
+            }
+            case CREATE_USER -> {
+                //Null checks
+                users = usersOptional.get();
                 if (StringUtils.isBlank(users.getUserName())) throw (BadApiRequestExceptions) ExceptionBuilder.builder()
                         .className(BadApiRequestExceptions.class)
                         .description("Null UserName prohibited")
@@ -119,7 +121,7 @@ public class UserValidationServiceImpl implements IUserValidationService {
                         .description("No User")
                         .methodName(methodName).build(USER_NOT_FOUND_EXEC);
 
-                Users users = usersOptional.get();
+                users = usersOptional.get();
                 final String EMAIL = users.getEmail();
                 Predicate<Users> checkEmailExist = (Users user) -> user.getEmail().equalsIgnoreCase(EMAIL);
                 boolean isEmailPresent = userDtoList.stream().anyMatch(checkEmailExist);

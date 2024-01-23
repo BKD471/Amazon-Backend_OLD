@@ -9,6 +9,7 @@ import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers;
 import com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers;
 import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,9 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -49,12 +48,11 @@ public class UserServiceTest {
     private final AllConstantHelpers.GENDER TEST_GENDER = MALE;
 
     @Test
+    @DisplayName("Test Happy Path -- createUser() With valid fields")
     public void testCreateUserHappyPath() {
-        // Given
+        // When
         when(userRepository.save(any())).thenReturn(constructUser());
         doNothing().when(userValidationService).validateUser(any(), anyString(), any());
-
-        // When
         UserDto userDto = userService.createUser(MappingHelpers.UsersToUsersDto(constructUser()));
 
         // Then
@@ -64,26 +62,59 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testCreateUserUnhappyPath() {
+    @DisplayName("Test Unhappy Path -- createUser() with email already existing")
+    public void testCreateUserUnhappyPathExistingEmail() {
         // Given
-        doThrow(new UserExceptions(UserExceptions.class, "User Exception", "testCreateUserUnhappyPath")).when(userValidationService).validateUser(any(), anyString(), any());
+        UserDto userRequest=new UserDto.builder()
+                .userId(TEST_UUID)
+                .userName(TEST_USER_NAME)
+                .firstName(TEST_FIRST_NAME)
+                .lastName(TEST_LAST_NAME)
+                .email("EXISTING_EMAIL")
+                .about("")
+                .gender(TEST_GENDER)
+                .password("")
+                .profileImage(".jpg")
+                .lastSeen(null)
+                .build();
 
-        // When & Then
+        // When
+        doThrow(new UserExceptions(UserExceptions.class, String.format("There's an account with Email %s",userRequest.email())
+                , "testCreateUserUnhappyPathExistingEmail"))
+                .when(userValidationService).validateUser(any(), anyString(), any());
+
+        // Then
         assertThrows(UserExceptions.class, () -> {
-            userService.createUser(MappingHelpers.UsersToUsersDto(constructUser()));
+            userService.createUser(userRequest);
         }, "UserException should have been thrown");
     }
 
     @Test
+    @DisplayName("Test Unhappy Path -- createUser() with Null User")
+    public void testCreateUserUnhappyPathNullUser() {
+        // When
+        doThrow(new BadApiRequestExceptions(BadApiRequestExceptions.class,
+                "Null Users prohibited"
+                , "testCreateUserUnhappyPathNullUser"))
+                .when(userValidationService).validateUser(any(), anyString(), any());
+
+        // Then
+        assertThrows(BadApiRequestExceptions.class, () -> {
+            userService.createUser(null);
+        }, "BadApiRequestExceptions should have been thrown");
+    }
+
+    @Test
+    @DisplayName("Test Happy Path -- updateUserByUserIdOrUserName() With all fields (firstName,lastName,Email,Gender,About) updated")
     public void testUpdateUserByUserIdOrUserNameAllFields() {
         // Given
+        UserDto requestedUserFields = constructIncomingUserDtoRequest();
+
+        // When
         when(userRepository.findByUserIdOrUserName(TEST_UUID, TEST_USER_NAME)).thenReturn(Optional.of(constructUser()));
         when(userRepository.save(any())).thenReturn(UserDtoToUsers(constructIncomingUserDtoRequest()));
         doNothing().when(userValidationService).validateFields(anyString(), anyString(), any(), anyString(), any());
         doNothing().when(userValidationService).validateUser(any(), anyString(), any());
-
-        // When
-        UserDto requestedUserFields = constructIncomingUserDtoRequest();
         UserDto updatedUser = userService.updateUserByUserIdOrUserName(requestedUserFields, TEST_UUID, TEST_USER_NAME);
 
         // Then
@@ -95,6 +126,7 @@ public class UserServiceTest {
     }
 
     @Test
+    @DisplayName("Test Happy Path -- updateUserByUserIdOrUserName() With only firstName updated")
     public void testUpdateUserByUserIdOrUserNameWithOnlyFirstNameChanged() {
         // Given
         Users users = constructUser();
@@ -127,6 +159,7 @@ public class UserServiceTest {
     }
 
     @Test
+    @DisplayName("Test Happy Path -- updateUserByUserIdOrUserName() With only lastName updated")
     public void testUpdateUserByUserIdOrUserNameWithOnlyLastNameChanged() {
         // Given
         Users users = constructUser();
@@ -159,6 +192,7 @@ public class UserServiceTest {
     }
 
     @Test
+    @DisplayName("Test Happy Path -- updateUserByUserIdOrUserName() With only email updated")
     public void testUpdateUserByUserIdOrUserNameWithOnlyEmailChanged() {
         // Given
         Users users = constructUser();
@@ -191,6 +225,7 @@ public class UserServiceTest {
     }
 
     @Test
+    @DisplayName("Test Happy Path -- updateUserByUserIdOrUserName() With only about updated")
     public void testUpdateUserByUserIdOrUserNameWithOnlyAboutChanged() {
         // Given
         Users users = constructUser();
@@ -223,6 +258,7 @@ public class UserServiceTest {
     }
 
     @Test
+    @DisplayName("Test Happy Path -- updateUserByUserIdOrUserName() With only gender updated")
     public void testUpdateUserByUserIdOrUserNameWithOnlyGenderChanged() {
         // Given
         Users users = constructUser();
@@ -255,6 +291,7 @@ public class UserServiceTest {
     }
 
     @Test
+    @DisplayName("Test Unhappy Path -- updateUserByUserIdOrUserName() With both UserId & UserName Null")
     public void testUpdateUserByUserIdOrUserNameUnhappyPathWithBothUserIdAndUserNameNull() {
         // Given
         Users users = constructUser();
@@ -270,6 +307,7 @@ public class UserServiceTest {
     }
 
     @Test
+    @DisplayName("Test Unhappy Path -- updateUserByUserIdOrUserName() With both UserId & UserName invalid or not present in db")
     public void testUpdateUserByUserIdOrUserNameUnhappyPathForUserNotFound() {
         // Given
         Users users = constructUser();
@@ -286,6 +324,70 @@ public class UserServiceTest {
         assertThrows(UserNotFoundExceptions.class, () -> {
             userService.updateUserByUserIdOrUserName(MappingHelpers.UsersToUsersDto(users), "INVALID_USER_ID", "INVALID_USER_NAME");
         }, "UserNotFoundException should have been thrown");
+    }
+
+
+    @Test
+    @DisplayName("Test Unhappy Path -- updateUserByUserIdOrUserName() With email already existing")
+    public void testUpdateUserByUserIdOrUserNameUnhappyPathWithExistingEmail() {
+        // Given
+        Users users = constructUser();
+        UserDto newUserDTo = new UserDto.builder()
+                .userId(users.getUserId())
+                .userName(users.getUserName())
+                .firstName(users.getFirstName())
+                .lastName(users.getLastName())
+                .email("EXISTING_EMAIL")
+                .password(users.getPassword())
+                .profileImage(users.getProfileImage())
+                .gender(users.getGender())
+                .about(users.getAbout())
+                .lastSeen(users.getLastSeen())
+                .build();
+
+        // When
+        when(userRepository.findByUserIdOrUserName(TEST_UUID, TEST_USER_NAME)).thenReturn(Optional.of(users));
+        doNothing().when(userValidationService).validateFields(anyString(), anyString(), any(), anyString(), any());
+        doNothing().doThrow(new UserExceptions(UserExceptions.class,
+                        String.format("There's an account with Email %s EMAIL",newUserDTo.email())
+                        ,"testUpdateUserByUserIdOrUserNameUnhappyPathWithExistingEmail"))
+                .when(userValidationService).validateUser(any(), anyString(), any());
+
+        // Then
+        assertThrows(UserExceptions.class,()->{
+            userService.updateUserByUserIdOrUserName(newUserDTo,TEST_UUID,TEST_USER_NAME);
+        },"UserExceptions Should have been thrown");
+    }
+
+    @Test
+    @DisplayName("Test Happy Path -- deleteUserByUserIdOrUserName() With valid UserId & UserName")
+    public void testDeleteUserByUserIdOrUserNameHappyPath(){
+            // When
+            doNothing().when(userValidationService).validateFields(anyString(),anyString(),any(),anyString(),any());
+            when(userRepository.findByUserIdOrUserName(TEST_UUID,TEST_USER_NAME)).thenReturn(Optional.of(constructUser()));
+            doNothing().when(userValidationService).validateUser(any(),anyString(),any());
+            userService.deleteUserByUserIdOrUserName(TEST_UUID,TEST_USER_NAME);
+
+            // Then
+            verify(userRepository,times(1)).deleteByUserIdOrUserName(TEST_UUID,TEST_USER_NAME);
+    }
+
+    @Test
+    @DisplayName("Test Unhappy Path -- deleteUserByUserIdOrUserName() With null UserId & UserName")
+    public void testDeleteUserByUserIdOrUserNameUnhappyPathForNullUserIdAndUserName(){
+        // When
+        doThrow(new BadApiRequestExceptions(BadApiRequestExceptions.class,"Please provide non null username or user Id",
+                "testDeleteUserByUserIdOrUserNameUnhappyPath()"))
+                .when(userValidationService).validateFields(any(),any(),any(),anyString(),any());
+
+        // Then
+        assertThrows(BadApiRequestExceptions.class,()->{ userService.deleteUserByUserIdOrUserName(null,null);},"BadApiRequestException should have been thrown");
+    }
+
+    private Set<Users> constructUsersSet() {
+        Users user1 = constructUser();
+        Users user2 = constructUser();
+        return Set.of(user1, user2);
     }
 
     private UserDto constructIncomingUserDtoRequest() {
@@ -311,12 +413,6 @@ public class UserServiceTest {
                 .profileImage(NEW_PROFILE_IMAGE)
                 .lastSeen(null)
                 .build();
-    }
-
-    private Set<Users> constructUsersSet() {
-        Users user1 = constructUser();
-        Users user2 = constructUser();
-        return Set.of(user1, user2);
     }
 
     private Users constructUser() {

@@ -3,6 +3,7 @@ package com.phoenix.amazon.AmazonBackend.repository;
 
 import com.phoenix.amazon.AmazonBackend.entity.Users;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -37,6 +38,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @DisplayName("Test Happy Path -- findByEmailOrUserName() With Both Valid Fields")
     public void testFindByEmailOrUserNameHappyPathWithBothValidFields() {
         // When
         final String userName = TEST_USER_NAME;
@@ -50,6 +52,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @DisplayName("Test Happy Path -- findByEmailOrUserName() With Valid UserName Only")
     public void testFindByEmailOrUserNameHappyPathWithValidUserName() {
         // When
         final String userName = TEST_USER_NAME;
@@ -62,6 +65,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @DisplayName("Test Happy Path -- findByEmailOrUserName() With Valid Email Only")
     public void testFindByEmailOrUserNameHappyPathWithValidEmail() {
         // When
         final String userName = "INVALID_USER_NAME";
@@ -74,6 +78,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @DisplayName("Test Unhappy Path -- findByEmailOrUserName() With both invalid fields")
     public void testFindByEmailOrUserNameUnhappyPath() {
         // When
         final String userName = "INVALID_USER_NAME";
@@ -85,6 +90,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @DisplayName("Test Happy Path -- findByUserIdOrUserName() With both Valid fields")
     public void testFindByUserIdOrUserNameHappyPathWithBothValidFields() {
         // When
         final String userId = TEST_UUID;
@@ -98,6 +104,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @DisplayName("Test Happy Path -- findByUserIdOrUserName() With Valid UserId only")
     public void testFindByUserIdOrUserNameHappyPathWithValidUserId() {
         // When
         final String userId = TEST_UUID;
@@ -110,6 +117,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @DisplayName("Test Happy Path -- findByUserIdOrUserName() With Valid UserName only")
     public void testFindByUserIdOrUserNameHappyPathWithValidUserName() {
         // When
         final String userId = "INVALID_USER_ID";
@@ -122,6 +130,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @DisplayName("Test UnHappy Path -- findByUserIdOrUserName() With both invalid fields")
     public void testFindByUserIdOrUserNameUnhappyPath() {
         // When
         final String userId = "INVALID_USER_ID";
@@ -133,6 +142,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @DisplayName("Test Happy Path -- deleteByUserIdOrUserName() With both Valid fields")
     public void testDeleteByUserIdOrUserNameHappyPathWithBothValidFields() {
         // When
         final String userId = TEST_UUID;
@@ -144,6 +154,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @DisplayName("Test Happy Path -- deleteByUserIdOrUserName() With Valid UserId Only")
     public void testDeleteByUserIdOrUserNameHappyPathWithValidUserId() {
         // When
         final String userId = TEST_UUID;
@@ -155,6 +166,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @DisplayName("Test Happy Path -- deleteByUserIdOrUserName() With Valid UserName Only")
     public void testDeleteByUserIdOrUserNameHappyPathWithValidUserName() {
         // When
         final String userId = "INVALID_USER_ID";
@@ -166,6 +178,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @DisplayName("Test Unhappy Path -- deleteByUserIdOrUserName() With both invalid fields")
     public void testDeleteByUserIdOrUserNameUnhappyPath() {
         // When
         final String userId = "INVALID_USER_ID";
@@ -177,6 +190,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @DisplayName("Test Happy Path -- findAllByUserNameContaining() With Valid field")
     public void testFindAllByUserNameContainingHappyPath() {
         // Given
         userRepository.saveAll(constructUsersSet());
@@ -191,6 +205,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @DisplayName("Test Unhappy Path -- findAllByUserNameContaining() With invalid field")
     public void testFindAllByUserNameContainingUnhappyPath() {
         // Given
         userRepository.saveAll(constructUsersSet());
@@ -204,7 +219,9 @@ public class UserRepositoryTest {
         assertThat(usersSetOptional.get().isEmpty()).isTrue();
     }
 
+
     @Test
+    @DisplayName("Test Happy Path -- searchUserByFirstName() With valid firstName")
     public void testSearchUserByFirstNameHappyPath() {
         // When
         Optional<Set<Users>> usersSetOptional = userRepository.searchUserByFirstName(TEST_FIRST_NAME);
@@ -216,6 +233,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @DisplayName("Test Unhappy Path -- searchUserByFirstName() With invalid firstName")
     public void testSearchUserByFirstNameUnhappyPath() {
         // When
         Optional<Set<Users>> usersSetOptional = userRepository.searchUserByFirstName("INVALID_FIRST_NAME");
@@ -227,6 +245,7 @@ public class UserRepositoryTest {
 
 
     @Test
+    @DisplayName("Test Happy Path -- searchUserByLastName() With valid lastName")
     public void testSearchUserByLastNameHappyPath() {
         // When
         Optional<Set<Users>> usersSetOptional = userRepository.searchUserByLastName(TEST_LAST_NAME);
@@ -238,6 +257,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @DisplayName("Test Unhappy Path -- searchUserByLastName() With invalid lastName")
     public void testSearchUserByLastNameUnhappyPath() {
         // When
         Optional<Set<Users>> usersSetOptional = userRepository.searchUserByLastName("INVALID_LAST_NAME");
@@ -248,6 +268,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @DisplayName("Test Happy Path -- searchUserByGender() With valid gender")
     public void testSearchUserByGenderHappyPath() {
         // When
         Optional<Set<Users>> usersSetOptional = userRepository.searchUserByGender(TEST_GENDER.toString());
@@ -259,6 +280,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @DisplayName("Test Unhappy Path -- searchUserByGender() With invalid gender")
     public void testSearchUserByGenderUnhappyPath() {
         // When
         Optional<Set<Users>> usersSetOptional = userRepository.searchUserByGender(NON_BINARY.toString());
@@ -269,6 +291,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @DisplayName("Test Happy Path -- searchUserByUserName() With valid userName")
     public void testSearchUserByUserNameHappyPath() {
         // When
         Optional<Set<Users>> usersSetOptional = userRepository.searchUserByUserName(TEST_USER_NAME);
@@ -280,6 +303,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @DisplayName("Test Unhappy Path -- searchUserByUserName() With invalid userName")
     public void testSearchUserByUserNameUnhappyPath() {
         // When
         Optional<Set<Users>> usersSetOptional = userRepository.searchUserByUserName("INVALID_USER_NAME");
@@ -290,6 +314,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @DisplayName("Test Happy Path -- searchUserByEmail() With valid email")
     public void testSearchUserByEmailHappyPath() {
         // When
         Optional<Set<Users>> usersSetOptional = userRepository.searchUserByEmail(TEST_EMAIL);
@@ -301,6 +326,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @DisplayName("Test Unhappy Path -- searchUserByEmail() With invalid email")
     public void testSearchUserByEmailUnhappyPath() {
         // When
         Optional<Set<Users>> usersSetOptional = userRepository.searchUserByEmail("INVALID_EMAIL");
