@@ -10,9 +10,7 @@ import java.util.Set;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELD_VALIDATION.VALIDATE_USER_NAME_OR_EMAIL;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELD_VALIDATION.VALIDATE_USER_ID_OR_USER_NAME;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_ALL_USER_BY_SIMILAR_USER_NAME;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_USER_INFO_BY_USERID_USER_NAME;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_USER_INFO_BY_EMAIL_USER_NAME;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.*;
 
 
 public abstract class AbstractService {
@@ -46,7 +44,7 @@ public abstract class AbstractService {
         Optional<Users> users = Optional.empty();
         switch (loadType) {
             case LU1 -> {
-                users= userRepository.findByUserIdOrUserName(userId, userName);
+                users = userRepository.findByUserIdOrUserName(userId, userName);
                 userValidationService.validateUser(users, methodName, GET_USER_INFO_BY_USERID_USER_NAME);
             }
             case LU2 -> {
@@ -86,7 +84,7 @@ public abstract class AbstractService {
      **/
     protected Set<Users> loadAllUserByUserNameMatched(final String userNameLike, final String methodName) {
         Set<Users> allUsersWithNearlyUserName = userRepository.findAllByUserNameContaining(userNameLike).get();
-        userValidationService.validateUserList(allUsersWithNearlyUserName, methodName, GET_ALL_USER_BY_SIMILAR_USER_NAME);
+        userValidationService.validateUserList(allUsersWithNearlyUserName, methodName, SEARCH_ALL_USERS_BY_USER_NAME);
         return allUsersWithNearlyUserName;
     }
 

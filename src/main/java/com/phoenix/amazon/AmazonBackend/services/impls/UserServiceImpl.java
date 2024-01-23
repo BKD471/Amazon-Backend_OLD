@@ -5,7 +5,6 @@ import com.phoenix.amazon.AmazonBackend.entity.Users;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
-import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers;
 import com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers;
 import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
 import com.phoenix.amazon.AmazonBackend.services.AbstractService;
@@ -14,7 +13,11 @@ import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidati
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.UUID;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -22,7 +25,17 @@ import java.util.stream.Collectors;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.GENDER;
 
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.*;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.NULL_OBJECT;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.CREATE_USER;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.UPDATE_USER_BY_USER_ID_OR_USER_NAME;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.DELETE_USER_BY_USER_ID_OR_USER_NAME;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_ALL_USERS;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_USER_BY_EMAIL;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_USER_BY_USER_NAME;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_ALL_USERS_BY_GENDER;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_ALL_USERS_BY_FIRST_NAME;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_ALL_USERS_BY_LAST_NAME;
+
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UserDtoToUsers;
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UsersToUsersDto;
 
@@ -149,7 +162,6 @@ public class UserServiceImpl extends AbstractService implements IUserService {
         final String methodName = "getUserInformationByEmailOrUserName(String) in UserServiceImpl";
 
         Users users = loadUserByEmailOrUserName(email, userName, methodName);
-        userValidationService.validateUser(Optional.of(users), methodName, GET_USER_INFO_BY_EMAIL_USER_NAME);
         return UsersToUsersDto(users);
     }
 
@@ -196,7 +208,6 @@ public class UserServiceImpl extends AbstractService implements IUserService {
         final String methodName = "searchAllUsersByUserName(string) in UsersServiceImpl";
 
         Set<Users> usersSet = loadAllUserByUserNameMatched(userNameWord, methodName);
-        userValidationService.validateUserList(usersSet, methodName, SEARCH_ALL_USERS_BY_USER_NAME);
         return usersSet.stream().map(MappingHelpers::UsersToUsersDto).collect(Collectors.toSet());
     }
 }

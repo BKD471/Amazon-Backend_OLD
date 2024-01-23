@@ -65,11 +65,6 @@ public class UserValidationServiceImpl implements IUserValidationService {
                             .description("Null firstName prohibited")
                             .methodName(methodName).build(BAD_API_EXEC);
 
-                if (StringUtils.isBlank(users.getLastName())) throw (BadApiRequestExceptions) ExceptionBuilder.builder()
-                        .className(BadApiRequestExceptions.class)
-                        .description("Null LastName prohibited")
-                        .methodName(methodName).build(BAD_API_EXEC);
-
                 // Check for existing users
 
                 // Existing email
