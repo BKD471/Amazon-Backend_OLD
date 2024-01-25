@@ -52,7 +52,7 @@ public abstract class AbstractService {
                 userValidationService.validateUser(users, methodName, GET_USER_INFO_BY_USERID_USER_NAME);
             }
             case LU2 -> {
-                users = userRepository.findByEmailOrUserName(email, userName);
+                users = userRepository.findByPrimaryEmailAndUserName(email, userName);
                 userValidationService.validateUser(users, methodName, GET_USER_INFO_BY_EMAIL_USER_NAME);
             }
         }
@@ -111,7 +111,8 @@ public abstract class AbstractService {
                         .userId(oldUser.getUserId())
                         .userName(oldUser.getUserName())
                         .lastName(oldUser.getLastName())
-                        .email(oldUser.getEmail())
+                        .primaryEmail(oldUser.getPrimaryEmail())
+                        .secondaryEmail(oldUser.getSecondaryEmail())
                         .gender(oldUser.getGender())
                         .password(oldUser.getPassword())
                         .about(oldUser.getAbout())
@@ -125,7 +126,8 @@ public abstract class AbstractService {
                         .firstName(oldUser.getFirstName())
                         .userId(oldUser.getUserId())
                         .userName(oldUser.getUserName())
-                        .email(oldUser.getEmail())
+                        .primaryEmail(oldUser.getPrimaryEmail())
+                        .secondaryEmail(oldUser.getSecondaryEmail())
                         .gender(oldUser.getGender())
                         .password(oldUser.getPassword())
                         .about(oldUser.getAbout())
@@ -141,7 +143,8 @@ public abstract class AbstractService {
                         .firstName(oldUser.getFirstName())
                         .userId(oldUser.getUserId())
                         .userName(oldUser.getUserName())
-                        .email(oldUser.getEmail())
+                        .primaryEmail(oldUser.getPrimaryEmail())
+                        .secondaryEmail(oldUser.getSecondaryEmail())
                         .gender(oldUser.getGender())
                         .password(oldUser.getPassword())
                         .profileImage(oldUser.getProfileImage())
@@ -149,9 +152,25 @@ public abstract class AbstractService {
                         .build();
 
             }
-            case EMAIL -> {
+            case PRIMARY_EMAIL -> {
                 return new Users.builder()
-                        .email(newUser.getEmail())
+                        .primaryEmail(newUser.getPrimaryEmail())
+                        .secondaryEmail(oldUser.getSecondaryEmail())
+                        .lastName(newUser.getLastName())
+                        .firstName(oldUser.getFirstName())
+                        .userId(oldUser.getUserId())
+                        .userName(oldUser.getUserName())
+                        .gender(oldUser.getGender())
+                        .password(oldUser.getPassword())
+                        .about(oldUser.getAbout())
+                        .profileImage(oldUser.getProfileImage())
+                        .lastSeen(oldUser.getLastSeen())
+                        .build();
+            }
+            case SECONDARY_EMAIL -> {
+                return new Users.builder()
+                        .secondaryEmail(newUser.getSecondaryEmail())
+                        .primaryEmail(oldUser.getPrimaryEmail())
                         .lastName(newUser.getLastName())
                         .firstName(oldUser.getFirstName())
                         .userId(oldUser.getUserId())
@@ -170,13 +189,15 @@ public abstract class AbstractService {
                         .firstName(oldUser.getFirstName())
                         .userId(oldUser.getUserId())
                         .userName(oldUser.getUserName())
-                        .email(oldUser.getEmail())
+                        .primaryEmail(oldUser.getPrimaryEmail())
+                        .secondaryEmail(oldUser.getSecondaryEmail())
                         .password(oldUser.getPassword())
                         .profileImage(oldUser.getProfileImage())
                         .about(oldUser.getAbout())
                         .lastSeen(oldUser.getLastSeen())
                         .build();
             }
+
         }
         return oldUser;
     }

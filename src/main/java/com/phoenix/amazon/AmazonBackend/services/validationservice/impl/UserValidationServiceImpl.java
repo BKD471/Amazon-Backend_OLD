@@ -53,7 +53,7 @@ public class UserValidationServiceImpl implements IUserValidationService {
                         .description("Null UserName prohibited")
                         .methodName(methodName).build(BAD_API_EXEC);
 
-                if (StringUtils.isBlank(users.getEmail())) throw (BadApiRequestExceptions) ExceptionBuilder.builder()
+                if (StringUtils.isBlank(users.getPrimaryEmail())) throw (BadApiRequestExceptions) ExceptionBuilder.builder()
                         .className(BadApiRequestExceptions.class)
                         .description("Null email prohibited")
                         .methodName(methodName).build(BAD_API_EXEC);
@@ -67,8 +67,8 @@ public class UserValidationServiceImpl implements IUserValidationService {
                 // Check for existing users
 
                 // Existing email
-                final String EMAIL = users.getEmail();
-                Predicate<Users> checkEmailExist = (Users user) -> user.getEmail().equalsIgnoreCase(EMAIL);
+                final String EMAIL = users.getPrimaryEmail();
+                Predicate<Users> checkEmailExist = (Users user) -> user.getPrimaryEmail().equalsIgnoreCase(EMAIL);
                 boolean isEmailPresent = userDtoList.stream().anyMatch(checkEmailExist);
 
                 if (isEmailPresent) throw (UserExceptions) ExceptionBuilder.builder()
@@ -116,8 +116,8 @@ public class UserValidationServiceImpl implements IUserValidationService {
                         .methodName(methodName).build(USER_NOT_FOUND_EXEC);
 
                 users = usersOptional.get();
-                final String EMAIL = users.getEmail();
-                Predicate<Users> checkEmailExist = (Users user) -> user.getEmail().equalsIgnoreCase(EMAIL);
+                final String EMAIL = users.getPrimaryEmail();
+                Predicate<Users> checkEmailExist = (Users user) -> user.getPrimaryEmail().equalsIgnoreCase(EMAIL);
                 boolean isEmailPresent = userDtoList.stream().anyMatch(checkEmailExist);
 
                 if (isEmailPresent) throw (UserExceptions) ExceptionBuilder.builder()

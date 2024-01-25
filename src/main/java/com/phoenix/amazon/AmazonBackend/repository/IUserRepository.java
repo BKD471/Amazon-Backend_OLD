@@ -17,7 +17,7 @@ public interface IUserRepository extends JpaRepository<Users, String> {
      * @param userName - userName of user
      * @return Optional<Users>
      */
-    Optional<Users> findByEmailOrUserName(final String email, final String userName);
+    Optional<Users> findByPrimaryEmailAndUserName(final String email, final String userName);
 
     /**
      * @param userId   - id of user
@@ -70,6 +70,6 @@ public interface IUserRepository extends JpaRepository<Users, String> {
      * @param value - value of user fields
      * @return Set<Users>
      **/
-    @Query(value = "SELECT * FROM Users WHERE user_email=?1", nativeQuery = true)
-    Optional<Set<Users>> searchUserByEmail(final String value);
+    @Query(value = "SELECT * FROM Users WHERE user_primary_email=?1", nativeQuery = true)
+    Optional<Set<Users>> searchUserByPrimaryEmail(final String value);
 }

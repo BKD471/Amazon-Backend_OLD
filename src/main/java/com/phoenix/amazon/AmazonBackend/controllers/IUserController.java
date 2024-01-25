@@ -5,6 +5,7 @@ import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,7 +27,7 @@ public interface IUserController {
      * @return ResponseEntity<UserDto>
      */
     @PostMapping("/v1/create")
-    ResponseEntity<UserDto> createUser(@RequestBody final UserDto user) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions;
+    ResponseEntity<UserDto> createUser(@Valid @RequestBody final UserDto user) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions;
 
     /**
      * @param user     - User Object
@@ -35,7 +36,7 @@ public interface IUserController {
      * @return ResponseEntity<UserDto>
      */
     @PutMapping("/v1/update")
-    ResponseEntity<UserDto> updateUserByUserIdOrUserName(@RequestBody final UserDto user, @RequestParam(required = false) final String userId, @RequestParam(required = false) final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions;
+    ResponseEntity<UserDto> updateUserByUserIdOrUserName(@Valid @RequestBody final UserDto user, @RequestParam(required = false) final String userId, @RequestParam(required = false) final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions;
 
     /**
      * @param userId   - User Id

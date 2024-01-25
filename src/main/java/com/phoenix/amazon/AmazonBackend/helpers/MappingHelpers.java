@@ -3,6 +3,8 @@ package com.phoenix.amazon.AmazonBackend.helpers;
 import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 import com.phoenix.amazon.AmazonBackend.entity.Users;
 
+import static com.phoenix.amazon.AmazonBackend.helpers.GenderMapHelpers.getGender;
+
 public class MappingHelpers {
     public static UserDto UsersToUsersDto(final Users users) {
         return new UserDto.builder()
@@ -10,8 +12,9 @@ public class MappingHelpers {
                 .userName(users.getUserName())
                 .firstName(users.getFirstName())
                 .lastName(users.getLastName())
-                .email(users.getEmail())
-                .gender(users.getGender())
+                .primaryEmail(users.getPrimaryEmail())
+                .secondaryEmail(users.getSecondaryEmail())
+                .gender(users.getGender().toString())
                 .profileImage(users.getProfileImage())
                 .about(users.getAbout())
                 .lastSeen(users.getLastSeen())
@@ -24,9 +27,10 @@ public class MappingHelpers {
                 .userName(userDto.userName())
                 .firstName(userDto.firstName())
                 .lastName(userDto.lastName())
-                .email(userDto.email())
+                .primaryEmail(userDto.primaryEmail())
+                .secondaryEmail(userDto.secondaryEmail())
                 .password(userDto.password())
-                .gender(userDto.gender())
+                .gender(getGender(userDto.gender()))
                 .profileImage(userDto.profileImage())
                 .about(userDto.about())
                 .build();

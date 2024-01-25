@@ -1,0 +1,46 @@
+User Validation TDD
+
+fields             validation                    responsibility               impl     status
+
+username           unique                        custom logic                 todo
+                   not null                      spring data validation       done     ok
+
+primary email      email but not null            from spring data validation  done
+                   unique, can be changed        custom logic                 todo
+				   must not be someone secondary custom logic                 todo
+
+secondary email	   email but can be null	     spring validation            done     ok
+                   unique can be changed,        custom logic                 todo
+				   must not be someone primary   custom logic                 todo
+
+
+firstName          not null
+                   must not contain whitespace   custom annotation            done    ok
+                   or number or special
+
+lastName           not null
+                   must not contain whitespace   custom annotation            done    ok
+                   or number or special
+
+gender             not null &
+                   from valid gender list        custom annotation            done    ok
+
+
+
+password           not null                      custom annotation            done    ok
+                   1 letter, 1 special
+                   1 uppercase, 1 lowercase
+                   1 number must be at least 15
+
+profile image      can be null                    custom logic                todo
+                   must not be greater than 100kb
+
+
+bio                can be null                    spring annotation           done    ok
+                   cannot be more than 500
+
+lastSeen           auto generated                 no need for anyone
+                   during create & login
+
+userId             auto generated                 no need for anyone
+                   during create

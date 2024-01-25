@@ -13,6 +13,7 @@ import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidati
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -23,19 +24,11 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
+
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.GENDER;
 
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.NULL_OBJECT;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.CREATE_USER;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.UPDATE_USER_BY_USER_ID_OR_USER_NAME;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.DELETE_USER_BY_USER_ID_OR_USER_NAME;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_ALL_USERS;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_USER_BY_EMAIL;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_USER_BY_USER_NAME;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_ALL_USERS_BY_GENDER;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_ALL_USERS_BY_FIRST_NAME;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_ALL_USERS_BY_LAST_NAME;
-
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.*;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.*;
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UserDtoToUsers;
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UsersToUsersDto;
 
@@ -56,16 +49,22 @@ public class UserServiceImpl extends AbstractService implements IUserService {
                 "initializeUserId in UserService", NULL_OBJECT);
 
         final String userIdUUID = UUID.randomUUID().toString();
+        final String secondaryEmail=StringUtils.isBlank(userDto.secondaryEmail()) ? userDto.secondaryEmail(): userDto.secondaryEmail().trim();
+        final String about=StringUtils.isBlank(userDto.about())? userDto.about(): userDto.about().trim();
+        final String profileImage=StringUtils.isBlank(userDto.profileImage())? userDto.profileImage():userDto.profileImage().trim();
+
         return new UserDto.builder()
                 .userId(userIdUUID)
-                .userName(userDto.userName())
-                .firstName(userDto.firstName())
-                .lastName(userDto.lastName())
-                .email(userDto.email())
+                .userName(userDto.userName().trim())
+                .firstName(userDto.firstName().trim())
+                .lastName(userDto.lastName().trim())
+                .primaryEmail(userDto.primaryEmail().trim())
+                .secondaryEmail(secondaryEmail)
                 .gender(userDto.gender())
-                .profileImage(userDto.profileImage())
-                .password(userDto.password())
-                .about(userDto.about())
+                .profileImage(profileImage)
+                .password(userDto.password().trim())
+                .about(about)
+                .lastSeen(LocalDateTime.now())
                 .build();
     }
 
@@ -102,26 +101,50 @@ public class UserServiceImpl extends AbstractService implements IUserService {
 
         Predicate<GENDER> isNotBlankFieldEnum = Objects::nonNull;
         BiPredicate<GENDER, GENDER> checkEqualEnumValues = Objects::equals;
+        if (isNotBlankFieldEnum.test(userDetails.getGender()) &&
+                !checkEqualEnumValues.test(userDetails.getGender(), fetchedUser.getGender())) {
+            userValidationService.validateUser(Optional.of(fetchedUser),methodName,UPDATE_USERNAME);
+            fetchedUser = constructUser(fetchedUser, userDetails, USER_NAME);
+        }
         if (isNotBlankField.test(userDetails.getFirstName()) &&
                 !checkFieldEquality.test(userDetails.getFirstName(), fetchedUser.getFirstName())) {
-            fetchedUser = constructUser(fetchedUser, userDetails, USER_FIELDS.FIRST_NAME);
+            userValidationService.validateUser(Optional.of(fetchedUser),methodName,UPDATE_FIRST_NAME);
+            fetchedUser = constructUser(fetchedUser, userDetails, FIRST_NAME);
         }
         if (isNotBlankField.test(userDetails.getLastName()) &&
                 !checkFieldEquality.test(userDetails.getLastName(), fetchedUser.getLastName())) {
-            fetchedUser = constructUser(fetchedUser, userDetails, USER_FIELDS.LAST_NAME);
+            userValidationService.validateUser(Optional.of(fetchedUser),methodName,UPDATE_LAST_NAME);
+            fetchedUser = constructUser(fetchedUser, userDetails, LAST_NAME);
         }
         if (isNotBlankField.test(userDetails.getAbout()) &&
                 !checkFieldEquality.test(userDetails.getAbout(), fetchedUser.getAbout())) {
-            fetchedUser = constructUser(fetchedUser, userDetails, USER_FIELDS.ABOUT);
+            userValidationService.validateUser(Optional.of(fetchedUser),methodName,UPDATE_ABOUT);
+            fetchedUser = constructUser(fetchedUser, userDetails, ABOUT);
         }
-        if (isNotBlankField.test(userDetails.getEmail()) &&
-                !checkFieldEquality.test(userDetails.getEmail(), fetchedUser.getEmail())) {
-            userValidationService.validateUser(Optional.of(userDetails), methodName, UPDATE_USER_BY_USER_ID_OR_USER_NAME);
-            fetchedUser = constructUser(fetchedUser, userDetails, USER_FIELDS.EMAIL);
+        if (isNotBlankField.test(userDetails.getPrimaryEmail()) &&
+                !checkFieldEquality.test(userDetails.getPrimaryEmail(), fetchedUser.getPrimaryEmail())) {
+            userValidationService.validateUser(Optional.of(userDetails), methodName, UPDATE_PRIMARY_EMAIL);
+            fetchedUser = constructUser(fetchedUser, userDetails, PRIMARY_EMAIL);
+        }
+        if (isNotBlankField.test(userDetails.getSecondaryEmail()) &&
+                !checkFieldEquality.test(userDetails.getSecondaryEmail(), fetchedUser.getSecondaryEmail())) {
+            userValidationService.validateUser(Optional.of(userDetails), methodName, UPDATE_SECONDARY_EMAIL);
+            fetchedUser = constructUser(fetchedUser, userDetails, SECONDARY_EMAIL);
         }
         if (isNotBlankFieldEnum.test(userDetails.getGender()) &&
                 !checkEqualEnumValues.test(userDetails.getGender(), fetchedUser.getGender())) {
-            fetchedUser = constructUser(fetchedUser, userDetails, USER_FIELDS.GENDER);
+            userValidationService.validateUser(Optional.of(fetchedUser),methodName,UPDATE_GENDER);
+            fetchedUser = constructUser(fetchedUser, userDetails, GENDER);
+        }
+        if (isNotBlankFieldEnum.test(userDetails.getGender()) &&
+                !checkEqualEnumValues.test(userDetails.getGender(), fetchedUser.getGender())) {
+            userValidationService.validateUser(Optional.of(fetchedUser),methodName,UPDATE_PASSWORD);
+            fetchedUser = constructUser(fetchedUser, userDetails, PASSWORD);
+        }
+        if (isNotBlankFieldEnum.test(userDetails.getGender()) &&
+                !checkEqualEnumValues.test(userDetails.getGender(), fetchedUser.getGender())) {
+            userValidationService.validateUser(Optional.of(fetchedUser),methodName,UPDATE_PROFILE_IMAGE);
+            fetchedUser = constructUser(fetchedUser, userDetails, PROFILE_IMAGE);
         }
         Users savedUser = userRepository.save(fetchedUser);
         return UsersToUsersDto(savedUser);
@@ -175,8 +198,8 @@ public class UserServiceImpl extends AbstractService implements IUserService {
         final String methodName = "searchUserByFieldAndValue(field,String) in UserServiceImpl";
         Set<Users> users = null;
         switch (field) {
-            case EMAIL -> {
-                users = userRepository.searchUserByEmail(value).get();
+            case PRIMARY_EMAIL -> {
+                users = userRepository.searchUserByPrimaryEmail(value).get();
                 userValidationService.validateUserList(users, methodName, SEARCH_USER_BY_EMAIL);
             }
             case USER_NAME -> {

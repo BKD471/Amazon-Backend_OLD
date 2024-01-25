@@ -29,8 +29,11 @@ public class Users extends Audit {
     @Column(name = "last_name", nullable = false)
     private String lastName;
 
-    @Column(name = "user_email", unique = true)
-    private String email;
+    @Column(name = "user_primary_email", unique = true, nullable = false)
+    private String primaryEmail;
+
+    @Column(name = "user_secondary_email", unique = true)
+    private String secondaryEmail;
 
     @Column(name = "user_password", length = 255, nullable = false)
     private String password;
@@ -55,14 +58,15 @@ public class Users extends Audit {
         this.userName = builder.userName;
         this.firstName = builder.firstName;
         this.lastName = builder.lastName;
-        this.email = builder.email;
+        this.primaryEmail = builder.primaryEmail;
+        this.secondaryEmail=builder.secondaryEmail;
         this.gender = builder.gender;
         this.profileImage = builder.profileImage;
         this.password = builder.password;
         this.lastSeen = builder.lastSeen;
         this.about = builder.about;
-        this.createdDate=builder.createdDate;
-        this.createdBy=builder.createdBy;
+        this.createdDate = builder.createdDate;
+        this.createdBy = builder.createdBy;
     }
 
     public static final class builder {
@@ -70,7 +74,8 @@ public class Users extends Audit {
         private String userName;
         private String firstName;
         private String lastName;
-        private String email;
+        private String primaryEmail;
+        private String secondaryEmail;
         private String password;
         private GENDER gender;
         private String profileImage;
@@ -102,8 +107,13 @@ public class Users extends Audit {
             return this;
         }
 
-        public builder email(final String email) {
-            this.email = email;
+        public builder primaryEmail(final String primaryEmail) {
+            this.primaryEmail = primaryEmail;
+            return this;
+        }
+
+        public builder secondaryEmail(final String secondaryEmail) {
+            this.secondaryEmail = secondaryEmail;
             return this;
         }
 
@@ -150,7 +160,6 @@ public class Users extends Audit {
     public String getUserId() {
         return userId;
     }
-
     public String getUserName() {
         return userName;
     }
@@ -163,8 +172,12 @@ public class Users extends Audit {
         return lastName;
     }
 
-    public String getEmail() {
-        return email;
+    public String getPrimaryEmail() {
+        return primaryEmail;
+    }
+
+    public String getSecondaryEmail() {
+        return secondaryEmail;
     }
 
     public String getPassword() {
