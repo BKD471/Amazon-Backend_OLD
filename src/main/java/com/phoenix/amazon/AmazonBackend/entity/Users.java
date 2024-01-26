@@ -44,6 +44,7 @@ public class Users extends Audit {
     @Column(length = 1000)
     private String about;
 
+    public Users() {}
     public Users(builder builder) {
         this.userId = builder.userId;
         this.userName = builder.userName;

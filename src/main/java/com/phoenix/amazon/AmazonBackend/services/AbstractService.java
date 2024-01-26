@@ -197,6 +197,24 @@ public abstract class AbstractService {
                         .lastSeen(oldUser.getLastSeen())
                         .build();
             }
+            case PASSWORD -> {
+                Set<String> passWordSet=oldUser.getPrevious_password_set();
+                passWordSet.add(newUser.getPassword());
+                return new Users.builder()
+                        .password(newUser.getPassword())
+                        .userId(oldUser.getUserId())
+                        .userName(oldUser.getUserName())
+                        .firstName(oldUser.getFirstName())
+                        .lastName(oldUser.getLastName())
+                        .primaryEmail(oldUser.getPrimaryEmail())
+                        .secondaryEmail(oldUser.getSecondaryEmail())
+                        .gender(oldUser.getGender())
+                        .about(oldUser.getAbout())
+                        .profileImage(oldUser.getProfileImage())
+                        .previous_password_set(passWordSet)
+                        .lastSeen(oldUser.getLastSeen())
+                        .build();
+            }
 
         }
         return oldUser;

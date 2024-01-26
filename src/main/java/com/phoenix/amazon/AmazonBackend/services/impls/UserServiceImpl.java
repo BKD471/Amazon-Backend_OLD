@@ -52,7 +52,6 @@ public class UserServiceImpl extends AbstractService implements IUserService {
         final String secondaryEmail = StringUtils.isBlank(userDto.secondaryEmail()) ? userDto.secondaryEmail() : userDto.secondaryEmail().trim();
         final String about = StringUtils.isBlank(userDto.about()) ? userDto.about() : userDto.about().trim();
         final String profileImage = StringUtils.isBlank(userDto.profileImage()) ? userDto.profileImage() : userDto.profileImage().trim();
-
         return new UserDto.builder()
                 .userId(userIdUUID)
                 .userName(userDto.userName().trim())
@@ -64,6 +63,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
                 .profileImage(profileImage)
                 .password(userDto.password().trim())
                 .about(about)
+
                 .lastSeen(LocalDateTime.now())
                 .build();
     }
@@ -79,6 +79,9 @@ public class UserServiceImpl extends AbstractService implements IUserService {
         UserDto userDtoWithId = initializeUserId(userDto);
         Users user = UserDtoToUsers(userDtoWithId);
         userValidationService.validateUser(Optional.of(user), methodName, CREATE_USER);
+
+        //adding the password to set of password
+        user =constructUser(user,user,PASSWORD);
         Users savedUser = userRepository.save(user);
         return UsersToUsersDto(savedUser);
     }
