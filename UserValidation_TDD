@@ -4,7 +4,7 @@ fields             validation                    responsibility               im
 
 username           unique                        custom logic                 done
                    not null                      spring data validation       done     ok
-                   can be changed but unique     custom logic                 todo
+                   can be changed but unique     custom logic                 done
 
 
 primary email      email but not null            from spring data validation  done
@@ -20,18 +20,18 @@ secondary email	   email but can be null	     spring validation            done 
 firstName          not null
                    must not contain whitespace   custom annotation            done    ok
                    or number or special
-                   can be changed                custom logic                 todo
+                   can be changed                custom logic                 done
 
 
 lastName           not null
                    must not contain whitespace   custom annotation            done    ok
                    or number or special
-                   can be changed                custom logic                 todo
+                   can be changed                custom logic                 done
 
 
 gender             not null &
                    from valid gender list        custom annotation            done    ok
-                   can be changed                custom logic                 todo
+                   can be changed                custom logic                 done
 
 
 password           not null                      custom annotation            done    ok
@@ -39,7 +39,7 @@ password           not null                      custom annotation            do
                    1 uppercase, 1 lowercase
                    1 number must be at least 15
                    can be changed,
-                   must not be previous          custom logic                 todo
+                   must not be previous          custom logic                 done
 
 
 profile image      can be null                    custom logic                todo

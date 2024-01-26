@@ -29,7 +29,7 @@ public class UserValidationServiceImpl implements IUserValidationService {
         this.userRepository = userRepository;
     }
 
-    private void checkEmails(final Set<Users> usersSet,final String new_email, final String methodName,final String checkFor) throws UserExceptions {
+    private void checkEmails(final Set<Users> usersSet, final String new_email, final String methodName, final String checkFor) throws UserExceptions {
         // Check for previous existing
         Predicate<Users> checkEmailExist = null;
         if (checkFor.equalsIgnoreCase("primary"))
@@ -56,7 +56,7 @@ public class UserValidationServiceImpl implements IUserValidationService {
                 .methodName(methodName).build(USER_EXEC);
     }
 
-    private void checkUserName(final Set<Users> usersSet, final String new_user_name, final String methodName) throws UserExceptions{
+    private void checkUserName(final Set<Users> usersSet, final String new_user_name, final String methodName) throws UserExceptions {
         Predicate<Users> checkUserNameExist = (Users user) -> user.getUserName().equalsIgnoreCase(new_user_name);
         boolean isUserNamePresent = usersSet.stream().anyMatch(checkUserNameExist);
 
@@ -73,8 +73,9 @@ public class UserValidationServiceImpl implements IUserValidationService {
     @Override
     public void validateUser(Optional<Users> usersOptional, String methodName, USER_VALIDATION userValidation) throws UserExceptions, BadApiRequestExceptions, UserNotFoundExceptions {
         // Get all users
-        Set<Users> userDtoList = new HashSet<>(userRepository.findAll());
+        final Set<Users> userDtoList = new HashSet<>(userRepository.findAll());
         Users users = null;
+        if (usersOptional.isPresent()) users = usersOptional.get();
         switch (userValidation) {
             case NULL_OBJECT -> {
                 if (usersOptional.isEmpty()) throw (BadApiRequestExceptions) ExceptionBuilder.builder()
@@ -83,13 +84,15 @@ public class UserValidationServiceImpl implements IUserValidationService {
                         .methodName(methodName).build(BAD_API_EXEC);
             }
             case CREATE_USER -> {
+                // Null user check is already taken care
+
                 // Existing primary & secondary email
                 checkEmails(userDtoList, users.getPrimaryEmail(), methodName, "primary");
                 if (!StringUtils.isBlank(users.getSecondaryEmail()))
                     checkEmails(userDtoList, users.getSecondaryEmail(), methodName, "secondary");
 
                 // Existing userName
-                checkUserName(userDtoList,users.getUserName(),methodName);
+                checkUserName(userDtoList, users.getUserName(), methodName);
 
                 //this case is rare and hypothetical, it happens when UUID will generate same userId twice
                 final String userId = users.getUserId();
@@ -113,32 +116,44 @@ public class UserValidationServiceImpl implements IUserValidationService {
                         .description("No User with this UserId or UserName")
                         .methodName(methodName).build(USER_NOT_FOUND_EXEC);
             }
-            case UPDATE_USERNAME ->{
-
+            case UPDATE_USERNAME -> {
+                // Null user check is already taken care during loading the user
+                checkUserName(userDtoList, users.getUserName(), methodName);
             }
-            case UPDATE_FIRST_NAME ->{
-
+            case UPDATE_FIRST_NAME -> {
+                // validation is taken care by custom annotation
             }
             case UPDATE_LAST_NAME -> {
-
+                // validation is taken care by custom annotation
             }
             case UPDATE_PRIMARY_EMAIL -> {
-
+                // Null user check is already taken care during loading the user
+                checkEmails(userDtoList, users.getPrimaryEmail(), methodName, "primary");
             }
             case UPDATE_SECONDARY_EMAIL -> {
-
+                // Null user check is already taken care during loading the user
+                checkEmails(userDtoList, users.getSecondaryEmail(), methodName, "secondary");
             }
             case UPDATE_PASSWORD -> {
+                Set<String> passwordList=users.getPrevious_password_set();
+                final String NEW_PASSWORD=users.getPassword();
 
+                Predicate<String> isPassWordMatched=(String password)-> password.equals(NEW_PASSWORD);
+                boolean isOld=passwordList.stream().anyMatch(isPassWordMatched);
+
+                if(isOld) throw (UserExceptions) ExceptionBuilder.builder()
+                        .className(UserExceptions.class)
+                        .description("You already had this password before")
+                        .methodName(methodName).build(USER_EXEC);
             }
             case UPDATE_GENDER -> {
-
+                // validation is taken care by custom annotation
             }
             case UPDATE_ABOUT -> {
-
+                // validation is taken care by custom annotation
             }
             case UPDATE_PROFILE_IMAGE -> {
-
+                // todo
             }
             case DELETE_USER_BY_USER_ID_OR_USER_NAME -> {
                 if (usersOptional.isEmpty()) throw (UserNotFoundExceptions) ExceptionBuilder.builder()

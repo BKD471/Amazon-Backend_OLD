@@ -5,9 +5,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.Id;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.EnumType;
-import org.springframework.data.annotation.CreatedBy;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,42 +20,29 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.GENDER
 public class Users extends Audit {
     @Id
     private String userId;
-
     @Column(name = "user_name")
     private String userName;
-
     @Column(name = "first_name", nullable = false)
     private String firstName;
-
     @Column(name = "last_name", nullable = false)
     private String lastName;
-
     @Column(name = "user_primary_email", unique = true, nullable = false)
     private String primaryEmail;
-
     @Column(name = "user_secondary_email", unique = true)
     private String secondaryEmail;
-
     @Column(name = "user_password", length = 255, nullable = false)
     private String password;
-
-    @Column(name = "previous_password")
-    private Set<String> previous_password;
-
+    @Column(name = "previous_password",columnDefinition = "String[]")
+    @ElementCollection
+    private Set<String> previous_password_set;
     @Enumerated(value = EnumType.STRING)
     private GENDER gender;
-
     @Column(name = "user_image_name")
     private String profileImage;
-
     @Column(name = "last_seen")
     private LocalDateTime lastSeen;
-
     @Column(length = 1000)
     private String about;
-
-    public Users() {
-    }
 
     public Users(builder builder) {
         this.userId = builder.userId;
@@ -67,6 +54,7 @@ public class Users extends Audit {
         this.gender = builder.gender;
         this.profileImage = builder.profileImage;
         this.password = builder.password;
+        this.previous_password_set= builder.previous_password_set;
         this.lastSeen = builder.lastSeen;
         this.about = builder.about;
         this.createdDate = builder.createdDate;
@@ -85,6 +73,7 @@ public class Users extends Audit {
         private String profileImage;
         private LocalDateTime lastSeen;
         private String about;
+        private Set<String> previous_password_set;
         private LocalDate createdDate;
         private String createdBy;
 
@@ -123,6 +112,11 @@ public class Users extends Audit {
 
         public builder password(final String password) {
             this.password = password;
+            return this;
+        }
+
+        public builder previous_password_set(final Set<String> previous_password_set){
+            this.previous_password_set=previous_password_set;
             return this;
         }
 
@@ -167,39 +161,31 @@ public class Users extends Audit {
     public String getUserName() {
         return userName;
     }
-
     public String getFirstName() {
         return firstName;
     }
-
     public String getLastName() {
         return lastName;
     }
-
     public String getPrimaryEmail() {
         return primaryEmail;
     }
-
     public String getSecondaryEmail() {
         return secondaryEmail;
     }
-
     public String getPassword() {
         return password;
     }
-
+    public Set<String> getPrevious_password_set() {return previous_password_set;}
     public GENDER getGender() {
         return gender;
     }
-
     public String getProfileImage() {
         return profileImage;
     }
-
     public LocalDateTime getLastSeen() {
         return lastSeen;
     }
-
     public String getAbout() {
         return about;
     }
