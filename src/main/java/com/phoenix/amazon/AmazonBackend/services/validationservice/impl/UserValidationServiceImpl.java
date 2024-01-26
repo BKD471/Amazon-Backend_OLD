@@ -29,6 +29,43 @@ public class UserValidationServiceImpl implements IUserValidationService {
         this.userRepository = userRepository;
     }
 
+    private void checkEmails(final Set<Users> usersSet,final String new_email, final String methodName,final String checkFor) throws UserExceptions {
+        // Check for previous existing
+        Predicate<Users> checkEmailExist = null;
+        if (checkFor.equalsIgnoreCase("primary"))
+            checkEmailExist = (Users user) -> user.getPrimaryEmail().equalsIgnoreCase(new_email);
+        else checkEmailExist = (Users user) -> user.getSecondaryEmail().equalsIgnoreCase(new_email);
+
+        boolean isEmailPresent = usersSet.stream().anyMatch(checkEmailExist);
+        if (isEmailPresent) throw (UserExceptions) ExceptionBuilder.builder()
+                .className(UserExceptions.class)
+                .description(String.format("There's an account with Email %s", new_email))
+                .methodName(methodName).build(USER_EXEC);
+
+        // for primary check for existing in secondary,
+        // for secondary check for existing in primary
+        if (checkFor.equalsIgnoreCase("primary"))
+            checkEmailExist = (Users user) -> user.getSecondaryEmail().equalsIgnoreCase(new_email);
+        if (checkFor.equalsIgnoreCase("secondary"))
+            checkEmailExist = (Users user) -> user.getPrimaryEmail().equalsIgnoreCase(new_email);
+
+        isEmailPresent = usersSet.stream().anyMatch(checkEmailExist);
+        if (isEmailPresent) throw (UserExceptions) ExceptionBuilder.builder()
+                .className(UserExceptions.class)
+                .description(String.format("There's an account with Email %s", new_email))
+                .methodName(methodName).build(USER_EXEC);
+    }
+
+    private void checkUserName(final Set<Users> usersSet, final String new_user_name, final String methodName) throws UserExceptions{
+        Predicate<Users> checkUserNameExist = (Users user) -> user.getUserName().equalsIgnoreCase(new_user_name);
+        boolean isUserNamePresent = usersSet.stream().anyMatch(checkUserNameExist);
+
+        if (isUserNamePresent) throw (UserExceptions) ExceptionBuilder.builder()
+                .className(UserExceptions.class)
+                .description(String.format("There's an account with UserName %s", new_user_name))
+                .methodName(methodName).build(USER_EXEC);
+    }
+
     /**
      * @param usersOptional  - user object
      * @param userValidation - user validation field
@@ -46,45 +83,13 @@ public class UserValidationServiceImpl implements IUserValidationService {
                         .methodName(methodName).build(BAD_API_EXEC);
             }
             case CREATE_USER -> {
-                //Null checks
-                users = usersOptional.get();
-                if (StringUtils.isBlank(users.getUserName())) throw (BadApiRequestExceptions) ExceptionBuilder.builder()
-                        .className(BadApiRequestExceptions.class)
-                        .description("Null UserName prohibited")
-                        .methodName(methodName).build(BAD_API_EXEC);
-
-                if (StringUtils.isBlank(users.getPrimaryEmail())) throw (BadApiRequestExceptions) ExceptionBuilder.builder()
-                        .className(BadApiRequestExceptions.class)
-                        .description("Null email prohibited")
-                        .methodName(methodName).build(BAD_API_EXEC);
-
-                if (StringUtils.isBlank(users.getFirstName()))
-                    throw (BadApiRequestExceptions) ExceptionBuilder.builder()
-                            .className(BadApiRequestExceptions.class)
-                            .description("Null firstName prohibited")
-                            .methodName(methodName).build(BAD_API_EXEC);
-
-                // Check for existing users
-
-                // Existing email
-                final String EMAIL = users.getPrimaryEmail();
-                Predicate<Users> checkEmailExist = (Users user) -> user.getPrimaryEmail().equalsIgnoreCase(EMAIL);
-                boolean isEmailPresent = userDtoList.stream().anyMatch(checkEmailExist);
-
-                if (isEmailPresent) throw (UserExceptions) ExceptionBuilder.builder()
-                        .className(UserExceptions.class)
-                        .description(String.format("There's an account with Email %s", EMAIL))
-                        .methodName(methodName).build(USER_EXEC);
+                // Existing primary & secondary email
+                checkEmails(userDtoList, users.getPrimaryEmail(), methodName, "primary");
+                if (!StringUtils.isBlank(users.getSecondaryEmail()))
+                    checkEmails(userDtoList, users.getSecondaryEmail(), methodName, "secondary");
 
                 // Existing userName
-                final String USER_NAME = users.getUserName();
-                Predicate<Users> checkUserNameExist = (Users user) -> user.getUserName().equalsIgnoreCase(USER_NAME);
-                boolean isUserNamePresent = userDtoList.stream().anyMatch(checkUserNameExist);
-
-                if (isUserNamePresent) throw (UserExceptions) ExceptionBuilder.builder()
-                        .className(UserExceptions.class)
-                        .description(String.format("There's an account with UserName %s", USER_NAME))
-                        .methodName(methodName).build(USER_EXEC);
+                checkUserName(userDtoList,users.getUserName(),methodName);
 
                 //this case is rare and hypothetical, it happens when UUID will generate same userId twice
                 final String userId = users.getUserId();
@@ -108,22 +113,32 @@ public class UserValidationServiceImpl implements IUserValidationService {
                         .description("No User with this UserId or UserName")
                         .methodName(methodName).build(USER_NOT_FOUND_EXEC);
             }
-            case UPDATE_USER_BY_USER_ID_OR_USER_NAME -> {
-                // Existing email
-                if (usersOptional.isEmpty()) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
-                        .className(UserExceptions.class)
-                        .description("No User")
-                        .methodName(methodName).build(USER_NOT_FOUND_EXEC);
+            case UPDATE_USERNAME ->{
 
-                users = usersOptional.get();
-                final String EMAIL = users.getPrimaryEmail();
-                Predicate<Users> checkEmailExist = (Users user) -> user.getPrimaryEmail().equalsIgnoreCase(EMAIL);
-                boolean isEmailPresent = userDtoList.stream().anyMatch(checkEmailExist);
+            }
+            case UPDATE_FIRST_NAME ->{
 
-                if (isEmailPresent) throw (UserExceptions) ExceptionBuilder.builder()
-                        .className(UserExceptions.class)
-                        .description(String.format("There's an account with Email %s", EMAIL))
-                        .methodName(methodName).build(USER_EXEC);
+            }
+            case UPDATE_LAST_NAME -> {
+
+            }
+            case UPDATE_PRIMARY_EMAIL -> {
+
+            }
+            case UPDATE_SECONDARY_EMAIL -> {
+
+            }
+            case UPDATE_PASSWORD -> {
+
+            }
+            case UPDATE_GENDER -> {
+
+            }
+            case UPDATE_ABOUT -> {
+
+            }
+            case UPDATE_PROFILE_IMAGE -> {
+
             }
             case DELETE_USER_BY_USER_ID_OR_USER_NAME -> {
                 if (usersOptional.isEmpty()) throw (UserNotFoundExceptions) ExceptionBuilder.builder()

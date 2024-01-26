@@ -49,9 +49,9 @@ public class UserServiceImpl extends AbstractService implements IUserService {
                 "initializeUserId in UserService", NULL_OBJECT);
 
         final String userIdUUID = UUID.randomUUID().toString();
-        final String secondaryEmail=StringUtils.isBlank(userDto.secondaryEmail()) ? userDto.secondaryEmail(): userDto.secondaryEmail().trim();
-        final String about=StringUtils.isBlank(userDto.about())? userDto.about(): userDto.about().trim();
-        final String profileImage=StringUtils.isBlank(userDto.profileImage())? userDto.profileImage():userDto.profileImage().trim();
+        final String secondaryEmail = StringUtils.isBlank(userDto.secondaryEmail()) ? userDto.secondaryEmail() : userDto.secondaryEmail().trim();
+        final String about = StringUtils.isBlank(userDto.about()) ? userDto.about() : userDto.about().trim();
+        final String profileImage = StringUtils.isBlank(userDto.profileImage()) ? userDto.profileImage() : userDto.profileImage().trim();
 
         return new UserDto.builder()
                 .userId(userIdUUID)
@@ -101,24 +101,24 @@ public class UserServiceImpl extends AbstractService implements IUserService {
 
         Predicate<GENDER> isNotBlankFieldEnum = Objects::nonNull;
         BiPredicate<GENDER, GENDER> checkEqualEnumValues = Objects::equals;
-        if (isNotBlankFieldEnum.test(userDetails.getGender()) &&
-                !checkEqualEnumValues.test(userDetails.getGender(), fetchedUser.getGender())) {
-            userValidationService.validateUser(Optional.of(fetchedUser),methodName,UPDATE_USERNAME);
+        if (isNotBlankField.test(userDetails.getUserName()) &&
+                !checkFieldEquality.test(userDetails.getUserName(), fetchedUser.getUserName())) {
+            userValidationService.validateUser(Optional.of(fetchedUser), methodName, UPDATE_USERNAME);
             fetchedUser = constructUser(fetchedUser, userDetails, USER_NAME);
         }
         if (isNotBlankField.test(userDetails.getFirstName()) &&
                 !checkFieldEquality.test(userDetails.getFirstName(), fetchedUser.getFirstName())) {
-            userValidationService.validateUser(Optional.of(fetchedUser),methodName,UPDATE_FIRST_NAME);
+            userValidationService.validateUser(Optional.of(fetchedUser), methodName, UPDATE_FIRST_NAME);
             fetchedUser = constructUser(fetchedUser, userDetails, FIRST_NAME);
         }
         if (isNotBlankField.test(userDetails.getLastName()) &&
                 !checkFieldEquality.test(userDetails.getLastName(), fetchedUser.getLastName())) {
-            userValidationService.validateUser(Optional.of(fetchedUser),methodName,UPDATE_LAST_NAME);
+            userValidationService.validateUser(Optional.of(fetchedUser), methodName, UPDATE_LAST_NAME);
             fetchedUser = constructUser(fetchedUser, userDetails, LAST_NAME);
         }
         if (isNotBlankField.test(userDetails.getAbout()) &&
                 !checkFieldEquality.test(userDetails.getAbout(), fetchedUser.getAbout())) {
-            userValidationService.validateUser(Optional.of(fetchedUser),methodName,UPDATE_ABOUT);
+            userValidationService.validateUser(Optional.of(fetchedUser), methodName, UPDATE_ABOUT);
             fetchedUser = constructUser(fetchedUser, userDetails, ABOUT);
         }
         if (isNotBlankField.test(userDetails.getPrimaryEmail()) &&
@@ -133,17 +133,17 @@ public class UserServiceImpl extends AbstractService implements IUserService {
         }
         if (isNotBlankFieldEnum.test(userDetails.getGender()) &&
                 !checkEqualEnumValues.test(userDetails.getGender(), fetchedUser.getGender())) {
-            userValidationService.validateUser(Optional.of(fetchedUser),methodName,UPDATE_GENDER);
+            userValidationService.validateUser(Optional.of(fetchedUser), methodName, UPDATE_GENDER);
             fetchedUser = constructUser(fetchedUser, userDetails, GENDER);
         }
-        if (isNotBlankFieldEnum.test(userDetails.getGender()) &&
-                !checkEqualEnumValues.test(userDetails.getGender(), fetchedUser.getGender())) {
-            userValidationService.validateUser(Optional.of(fetchedUser),methodName,UPDATE_PASSWORD);
+        if (isNotBlankField.test(userDetails.getPassword()) &&
+                !checkFieldEquality.test(userDetails.getPassword(), fetchedUser.getPassword())) {
+            userValidationService.validateUser(Optional.of(fetchedUser), methodName, UPDATE_PASSWORD);
             fetchedUser = constructUser(fetchedUser, userDetails, PASSWORD);
         }
-        if (isNotBlankFieldEnum.test(userDetails.getGender()) &&
-                !checkEqualEnumValues.test(userDetails.getGender(), fetchedUser.getGender())) {
-            userValidationService.validateUser(Optional.of(fetchedUser),methodName,UPDATE_PROFILE_IMAGE);
+        if (isNotBlankField.test(userDetails.getProfileImage()) &&
+                !checkFieldEquality.test(userDetails.getProfileImage(), fetchedUser.getProfileImage())) {
+            userValidationService.validateUser(Optional.of(fetchedUser), methodName, UPDATE_PROFILE_IMAGE);
             fetchedUser = constructUser(fetchedUser, userDetails, PROFILE_IMAGE);
         }
         Users savedUser = userRepository.save(fetchedUser);

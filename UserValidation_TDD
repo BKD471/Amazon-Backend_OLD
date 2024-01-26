@@ -2,42 +2,55 @@ User Validation TDD
 
 fields             validation                    responsibility               impl     status
 
-username           unique                        custom logic                 todo
+username           unique                        custom logic                 done
                    not null                      spring data validation       done     ok
+                   can be changed but unique     custom logic                 todo
+
 
 primary email      email but not null            from spring data validation  done
-                   unique, can be changed        custom logic                 todo
-				   must not be someone secondary custom logic                 todo
+                   unique, can be changed        custom logic                 done
+				   must not be someone secondary custom logic                 done
+
 
 secondary email	   email but can be null	     spring validation            done     ok
-                   unique can be changed,        custom logic                 todo
-				   must not be someone primary   custom logic                 todo
+                   unique can be changed,        custom logic                 done
+				   must not be someone primary   custom logic                 done
 
 
 firstName          not null
                    must not contain whitespace   custom annotation            done    ok
                    or number or special
+                   can be changed                custom logic                 todo
+
 
 lastName           not null
                    must not contain whitespace   custom annotation            done    ok
                    or number or special
+                   can be changed                custom logic                 todo
+
 
 gender             not null &
                    from valid gender list        custom annotation            done    ok
-
+                   can be changed                custom logic                 todo
 
 
 password           not null                      custom annotation            done    ok
                    1 letter, 1 special
                    1 uppercase, 1 lowercase
                    1 number must be at least 15
+                   can be changed,
+                   must not be previous          custom logic                 todo
+
 
 profile image      can be null                    custom logic                todo
                    must not be greater than 100kb
+                   can be changed                 custom logic                todo
 
 
 bio                can be null                    spring annotation           done    ok
                    cannot be more than 500
+                   can be changed                 no need
+
 
 lastSeen           auto generated                 no need for anyone
                    during create & login

@@ -11,6 +11,7 @@ import org.springframework.data.annotation.CreatedBy;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.GENDER;
 
@@ -37,6 +38,9 @@ public class Users extends Audit {
 
     @Column(name = "user_password", length = 255, nullable = false)
     private String password;
+
+    @Column(name = "previous_password")
+    private Set<String> previous_password;
 
     @Enumerated(value = EnumType.STRING)
     private GENDER gender;
