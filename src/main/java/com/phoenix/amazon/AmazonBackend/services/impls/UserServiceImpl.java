@@ -81,7 +81,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
         userValidationService.validateUser(Optional.of(user), methodName, CREATE_USER);
 
         //adding the password to set of password
-        user =constructUser(user,user,PASSWORD);
+        user = constructUser(user, user, PASSWORD);
         Users savedUser = userRepository.save(user);
         return UsersToUsersDto(savedUser);
     }
