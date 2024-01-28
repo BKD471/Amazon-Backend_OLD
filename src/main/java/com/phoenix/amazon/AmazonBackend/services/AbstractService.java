@@ -1,14 +1,18 @@
 package com.phoenix.amazon.AmazonBackend.services;
 
+import com.phoenix.amazon.AmazonBackend.entity.PassWordSet;
 import com.phoenix.amazon.AmazonBackend.entity.Users;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
 import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
+import org.springframework.util.CollectionUtils;
 
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELD_VALIDATION.VALIDATE_USER_NAME_OR_EMAIL;
@@ -49,11 +53,11 @@ public abstract class AbstractService {
         switch (loadType) {
             case LU1 -> {
                 users = userRepository.findByUserIdOrUserName(userId, userName);
-                userValidationService.validateUser(users, methodName, GET_USER_INFO_BY_USERID_USER_NAME);
+                userValidationService.validateUser(Optional.empty(),users, methodName, GET_USER_INFO_BY_USERID_USER_NAME);
             }
             case LU2 -> {
                 users = userRepository.findByPrimaryEmailAndUserName(email, userName);
-                userValidationService.validateUser(users, methodName, GET_USER_INFO_BY_EMAIL_USER_NAME);
+                userValidationService.validateUser(Optional.empty(),users, methodName, GET_USER_INFO_BY_EMAIL_USER_NAME);
             }
         }
         return users.get();
@@ -105,6 +109,21 @@ public abstract class AbstractService {
      **/
     protected Users constructUser(Users oldUser, Users newUser, USER_FIELDS fields) {
         switch (fields) {
+            case USER_NAME -> {
+                return new Users.builder()
+                        .userName(newUser.getUserName())
+                        .firstName(oldUser.getFirstName())
+                        .userId(oldUser.getUserId())
+                        .lastName(oldUser.getLastName())
+                        .primaryEmail(oldUser.getPrimaryEmail())
+                        .secondaryEmail(oldUser.getSecondaryEmail())
+                        .gender(oldUser.getGender())
+                        .password(oldUser.getPassword())
+                        .about(oldUser.getAbout())
+                        .profileImage(oldUser.getProfileImage())
+                        .lastSeen(oldUser.getLastSeen())
+                        .build();
+            }
             case FIRST_NAME -> {
                 return new Users.builder()
                         .firstName(newUser.getFirstName())
@@ -198,8 +217,13 @@ public abstract class AbstractService {
                         .build();
             }
             case PASSWORD -> {
-                Set<String> passWordSet=oldUser.getPrevious_password_set();
-                passWordSet.add(newUser.getPassword());
+                Set<PassWordSet> oldPassWordSet=oldUser.getPrevious_password_set();
+                if(CollectionUtils.isEmpty(oldPassWordSet)) oldPassWordSet=new HashSet<>();
+                PassWordSet newPassWordSet=new PassWordSet.builder()
+                        .password_id(UUID.randomUUID().toString())
+                        .passwords(newUser.getPassword())
+                        .users(oldUser).build();
+                oldPassWordSet.add(newPassWordSet);
                 return new Users.builder()
                         .password(newUser.getPassword())
                         .userId(oldUser.getUserId())
@@ -211,7 +235,7 @@ public abstract class AbstractService {
                         .gender(oldUser.getGender())
                         .about(oldUser.getAbout())
                         .profileImage(oldUser.getProfileImage())
-                        .previous_password_set(passWordSet)
+                        .previous_password_set(oldPassWordSet)
                         .lastSeen(oldUser.getLastSeen())
                         .build();
             }

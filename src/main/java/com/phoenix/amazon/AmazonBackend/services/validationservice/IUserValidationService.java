@@ -19,7 +19,7 @@ public interface IUserValidationService {
      * @param methodName - origin method
      * @param userValidation - user validation type
      */
-    void validateUser(final Optional<Users> users, final String methodName, final USER_VALIDATION userValidation) throws UserExceptions, BadApiRequestExceptions, UserNotFoundExceptions;
+    void validateUser(Optional<Users> newusersOptional,Optional<Users> oldusersOptional,final String methodName, final USER_VALIDATION userValidation) throws UserExceptions, BadApiRequestExceptions, UserNotFoundExceptions;
 
     /**
      * @param usersList - set of users

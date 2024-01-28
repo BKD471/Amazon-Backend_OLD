@@ -45,7 +45,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
 
     private UserDto initializeUserId(final UserDto userDto) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions {
         final String methodName = "initializeUserId";
-        if (Objects.isNull(userDto)) userValidationService.validateUser(Optional.empty(),
+        if (Objects.isNull(userDto)) userValidationService.validateUser(Optional.empty(),Optional.empty(),
                 "initializeUserId in UserService", NULL_OBJECT);
 
         final String userIdUUID = UUID.randomUUID().toString();
@@ -63,7 +63,6 @@ public class UserServiceImpl extends AbstractService implements IUserService {
                 .profileImage(profileImage)
                 .password(userDto.password().trim())
                 .about(about)
-
                 .lastSeen(LocalDateTime.now())
                 .build();
     }
@@ -78,7 +77,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
 
         UserDto userDtoWithId = initializeUserId(userDto);
         Users user = UserDtoToUsers(userDtoWithId);
-        userValidationService.validateUser(Optional.of(user), methodName, CREATE_USER);
+        userValidationService.validateUser(Optional.of(user), Optional.empty(), methodName, CREATE_USER);
 
         //adding the password to set of password
         user = constructUser(user, user, PASSWORD);
@@ -106,47 +105,43 @@ public class UserServiceImpl extends AbstractService implements IUserService {
         BiPredicate<GENDER, GENDER> checkEqualEnumValues = Objects::equals;
         if (isNotBlankField.test(userDetails.getUserName()) &&
                 !checkFieldEquality.test(userDetails.getUserName(), fetchedUser.getUserName())) {
-            userValidationService.validateUser(Optional.of(fetchedUser), methodName, UPDATE_USERNAME);
+            userValidationService.validateUser(Optional.of(userDetails), Optional.of(fetchedUser), methodName, UPDATE_USERNAME);
             fetchedUser = constructUser(fetchedUser, userDetails, USER_NAME);
         }
         if (isNotBlankField.test(userDetails.getFirstName()) &&
                 !checkFieldEquality.test(userDetails.getFirstName(), fetchedUser.getFirstName())) {
-            userValidationService.validateUser(Optional.of(fetchedUser), methodName, UPDATE_FIRST_NAME);
             fetchedUser = constructUser(fetchedUser, userDetails, FIRST_NAME);
         }
         if (isNotBlankField.test(userDetails.getLastName()) &&
                 !checkFieldEquality.test(userDetails.getLastName(), fetchedUser.getLastName())) {
-            userValidationService.validateUser(Optional.of(fetchedUser), methodName, UPDATE_LAST_NAME);
             fetchedUser = constructUser(fetchedUser, userDetails, LAST_NAME);
         }
         if (isNotBlankField.test(userDetails.getAbout()) &&
                 !checkFieldEquality.test(userDetails.getAbout(), fetchedUser.getAbout())) {
-            userValidationService.validateUser(Optional.of(fetchedUser), methodName, UPDATE_ABOUT);
             fetchedUser = constructUser(fetchedUser, userDetails, ABOUT);
         }
         if (isNotBlankField.test(userDetails.getPrimaryEmail()) &&
                 !checkFieldEquality.test(userDetails.getPrimaryEmail(), fetchedUser.getPrimaryEmail())) {
-            userValidationService.validateUser(Optional.of(userDetails), methodName, UPDATE_PRIMARY_EMAIL);
+            userValidationService.validateUser(Optional.of(userDetails), Optional.of(fetchedUser), methodName, UPDATE_PRIMARY_EMAIL);
             fetchedUser = constructUser(fetchedUser, userDetails, PRIMARY_EMAIL);
         }
         if (isNotBlankField.test(userDetails.getSecondaryEmail()) &&
                 !checkFieldEquality.test(userDetails.getSecondaryEmail(), fetchedUser.getSecondaryEmail())) {
-            userValidationService.validateUser(Optional.of(userDetails), methodName, UPDATE_SECONDARY_EMAIL);
+            userValidationService.validateUser(Optional.of(userDetails), Optional.of(fetchedUser), methodName, UPDATE_SECONDARY_EMAIL);
             fetchedUser = constructUser(fetchedUser, userDetails, SECONDARY_EMAIL);
         }
         if (isNotBlankFieldEnum.test(userDetails.getGender()) &&
                 !checkEqualEnumValues.test(userDetails.getGender(), fetchedUser.getGender())) {
-            userValidationService.validateUser(Optional.of(fetchedUser), methodName, UPDATE_GENDER);
             fetchedUser = constructUser(fetchedUser, userDetails, GENDER);
         }
         if (isNotBlankField.test(userDetails.getPassword()) &&
                 !checkFieldEquality.test(userDetails.getPassword(), fetchedUser.getPassword())) {
-            userValidationService.validateUser(Optional.of(fetchedUser), methodName, UPDATE_PASSWORD);
+            userValidationService.validateUser(Optional.of(userDetails),Optional.of(fetchedUser), methodName, UPDATE_PASSWORD);
             fetchedUser = constructUser(fetchedUser, userDetails, PASSWORD);
         }
         if (isNotBlankField.test(userDetails.getProfileImage()) &&
                 !checkFieldEquality.test(userDetails.getProfileImage(), fetchedUser.getProfileImage())) {
-            userValidationService.validateUser(Optional.of(fetchedUser), methodName, UPDATE_PROFILE_IMAGE);
+            userValidationService.validateUser(Optional.of(userDetails),Optional.of(fetchedUser), methodName, UPDATE_PROFILE_IMAGE);
             fetchedUser = constructUser(fetchedUser, userDetails, PROFILE_IMAGE);
         }
         Users savedUser = userRepository.save(fetchedUser);
@@ -162,7 +157,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
         final String methodName = "deleteUserByUserIdOrUserName(string) in UserServiceImpl";
 
         Users fetchedUser = loadUserByUserIdOrUserName(userId, userName, methodName);
-        userValidationService.validateUser(Optional.of(fetchedUser), methodName, DELETE_USER_BY_USER_ID_OR_USER_NAME);
+        userValidationService.validateUser(Optional.empty(),Optional.of(fetchedUser), methodName, DELETE_USER_BY_USER_ID_OR_USER_NAME);
         userRepository.deleteByUserIdOrUserName(userId, userName);
     }
 

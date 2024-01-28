@@ -1,16 +1,11 @@
 package com.phoenix.amazon.AmazonBackend.entity;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.Id;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.EnumType;
+import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.GENDER;
@@ -32,9 +27,6 @@ public class Users extends Audit {
     private String secondaryEmail;
     @Column(name = "user_password", length = 255, nullable = false)
     private String password;
-    @Column(name = "previous_password",columnDefinition = "String[]")
-    @ElementCollection
-    private Set<String> previous_password_set;
     @Enumerated(value = EnumType.STRING)
     private GENDER gender;
     @Column(name = "user_image_name")
@@ -43,6 +35,9 @@ public class Users extends Audit {
     private LocalDateTime lastSeen;
     @Column(length = 1000)
     private String about;
+
+    @OneToMany(mappedBy = "users",cascade = CascadeType.ALL)
+    private Set<PassWordSet> previous_password_set=new LinkedHashSet<>();
 
     public Users() {}
     public Users(builder builder) {
@@ -74,7 +69,7 @@ public class Users extends Audit {
         private String profileImage;
         private LocalDateTime lastSeen;
         private String about;
-        private Set<String> previous_password_set;
+        private Set<PassWordSet> previous_password_set;
         private LocalDate createdDate;
         private String createdBy;
 
@@ -116,7 +111,7 @@ public class Users extends Audit {
             return this;
         }
 
-        public builder previous_password_set(final Set<String> previous_password_set){
+        public builder previous_password_set(final Set<PassWordSet> previous_password_set){
             this.previous_password_set=previous_password_set;
             return this;
         }
@@ -177,7 +172,7 @@ public class Users extends Audit {
     public String getPassword() {
         return password;
     }
-    public Set<String> getPrevious_password_set() {return previous_password_set;}
+    public Set<PassWordSet> getPrevious_password_set() {return previous_password_set;}
     public GENDER getGender() {
         return gender;
     }

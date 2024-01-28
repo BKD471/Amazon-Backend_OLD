@@ -4,7 +4,13 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.apache.commons.lang3.StringUtils;
 
-public class ValidateName implements ConstraintValidator<ValidName,String> {
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.RegexMatchersHelpers.PATTERN_FOR_PASSWORD;
+import static com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.RegexMatchersHelpers.PATTERN_FOR_USERNAME;
+
+public class ValidateUserName implements ConstraintValidator<ValidName,String> {
     /**
      * @param constraintAnnotation - constraint annotation
      */
@@ -20,20 +26,10 @@ public class ValidateName implements ConstraintValidator<ValidName,String> {
      */
     @Override
     public boolean isValid(String s, ConstraintValidatorContext constraintValidatorContext) {
-        // null name & whitespace is prohibited
         if(StringUtils.isBlank(s)) return false;
 
-        // No number in name
-        // ascii value of
-        // A-Z (65-90)
-        // a-z (97-122
-        // whitespace - 32
-        for(int i=0;i<s.length();i++){
-            int character=s.charAt(i);
-            if(character==32) continue;
-            if(character<65 || character>122) return false;
-            if(character>90 && character<97) return false;
-        }
-        return  true;
+        Pattern pattern=Pattern.compile(PATTERN_FOR_USERNAME);
+        Matcher matcher=pattern.matcher(s);
+        return matcher.matches();
     }
 }
