@@ -50,7 +50,8 @@ public interface IUserController {
      * @return ResponseEntity<List < UserDTo>>
      */
     @GetMapping("/v1/getAll")
-    ResponseEntity<Set<UserDto>> getALlUsers() throws UserNotFoundExceptions;
+    ResponseEntity<Set<UserDto>> getALlUsers(@RequestParam(value = "pageNumber",defaultValue = "0",required = false) int pageNumber,
+                                             @RequestParam(value = "pageSize",defaultValue = "5",required = false) int pageSize) throws UserNotFoundExceptions;
 
     /**
      * @param email    - email of user

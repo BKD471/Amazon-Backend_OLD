@@ -65,8 +65,8 @@ public class UserControllerImpl implements IUserController {
      * @return ResponseEntity<List < UserDTo>>
      */
     @Override
-    public ResponseEntity<Set<UserDto>> getALlUsers() throws UserNotFoundExceptions {
-        Set<UserDto> userDtoSet = userService.getALlUsers();
+    public ResponseEntity<Set<UserDto>> getALlUsers(int pageNumber,int pageSize) throws UserNotFoundExceptions {
+        Set<UserDto> userDtoSet = userService.getALlUsers(pageNumber,pageSize);
         return new ResponseEntity<>(userDtoSet, HttpStatus.OK);
     }
 

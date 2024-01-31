@@ -11,6 +11,9 @@ import com.phoenix.amazon.AmazonBackend.services.AbstractService;
 import com.phoenix.amazon.AmazonBackend.services.IUserService;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -165,10 +168,12 @@ public class UserServiceImpl extends AbstractService implements IUserService {
      * @return Set<UserDto> - List Of all Users
      */
     @Override
-    public Set<UserDto> getALlUsers() throws UserNotFoundExceptions {
+    public Set<UserDto> getALlUsers(final int pageNumber,final int pageSize) throws UserNotFoundExceptions {
         final String methodName = "getALlUsers() in UserServiceImpl";
+        Pageable page= PageRequest.of(pageNumber,pageSize);
 
-        Set<Users> usersSet = new HashSet<>(userRepository.findAll());
+        Page<Users> pages=userRepository.findAll(page);
+        Set<Users> usersSet = new HashSet<>(pages.getContent());
         userValidationService.validateUserList(usersSet, methodName, GET_ALL_USERS);
         return usersSet.stream().map(MappingHelpers::UsersToUsersDto).collect(Collectors.toSet());
     }

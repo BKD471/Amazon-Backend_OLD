@@ -33,7 +33,7 @@ public interface IUserService {
     /**
      * @return Set<userDto>
      **/
-    Set<UserDto> getALlUsers() throws UserNotFoundExceptions;
+    Set<UserDto> getALlUsers(final int pageNumber,final int pageSize) throws UserNotFoundExceptions;
 
     /**
      * @param email    - email of user
