@@ -15,6 +15,7 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.GENDER
 public class Users extends Audit {
     @Id
     private String userId;
+
     @Column(name = "user_name")
     private String userName;
     @Column(name = "first_name", nullable = false)
@@ -27,12 +28,16 @@ public class Users extends Audit {
     private String secondaryEmail;
     @Column(name = "user_password", length = 255, nullable = false)
     private String password;
+
     @Enumerated(value = EnumType.STRING)
     private GENDER gender;
+
     @Column(name = "user_image_name")
     private String profileImage;
+
     @Column(name = "last_seen")
     private LocalDateTime lastSeen;
+
     @Column(length = 1000)
     private String about;
 
@@ -43,10 +48,10 @@ public class Users extends Audit {
     public Users(builder builder) {
         this.userId = builder.userId;
         this.userName = builder.userName;
-        this.firstName = builder.firstName;
-        this.lastName = builder.lastName;
         this.primaryEmail = builder.primaryEmail;
         this.secondaryEmail=builder.secondaryEmail;
+        this.firstName=builder.firstName;
+        this.lastName=builder.lastName;
         this.gender = builder.gender;
         this.profileImage = builder.profileImage;
         this.password = builder.password;
@@ -115,12 +120,10 @@ public class Users extends Audit {
             this.previous_password_set=previous_password_set;
             return this;
         }
-
         public builder gender(final GENDER gender) {
             this.gender = gender;
             return this;
         }
-
         public builder profileImage(final String profileImage) {
             this.profileImage = profileImage;
             return this;

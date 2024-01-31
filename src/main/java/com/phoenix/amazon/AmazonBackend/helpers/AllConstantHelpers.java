@@ -3,6 +3,9 @@ package com.phoenix.amazon.AmazonBackend.helpers;
 
 import java.util.HashMap;
 import java.util.Map;
+import com.phoenix.amazon.AmazonBackend.dto.UserDto;
+
+import java.util.List;
 
 public class AllConstantHelpers {
     public enum COUNTRY {
@@ -19,6 +22,7 @@ public class AllConstantHelpers {
 
     public enum USER_FIELDS {
         USER_NAME,FIRST_NAME,LAST_NAME,PRIMARY_EMAIL,SECONDARY_EMAIL,GENDER,LAST_SEEN,ABOUT,PASSWORD,PROFILE_IMAGE
+
     }
 
     public enum USER_VALIDATION{
@@ -37,6 +41,7 @@ public class AllConstantHelpers {
         NULL_OBJECT,
         UPDATE_PRIMARY_EMAIL,
         UPDATE_SECONDARY_EMAIL,
+        SEARCH_USER_BY_FIELD_AND_VALUE,
         UPDATE_FIRST_NAME,
         UPDATE_LAST_NAME,
         UPDATE_PASSWORD,

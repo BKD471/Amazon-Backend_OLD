@@ -67,3 +67,4 @@ public class ExceptionBuilder implements IClassNameBuilder, IDescriptionBuilder,
         }
     }
 }
+

@@ -4,6 +4,7 @@ import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
+import static  com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
 
 import java.util.Set;
 

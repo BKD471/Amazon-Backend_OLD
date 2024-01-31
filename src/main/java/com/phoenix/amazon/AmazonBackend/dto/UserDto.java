@@ -106,7 +106,7 @@ public record UserDto(String userId,
         }
 
         public builder gender(final String gender) {
-            this.gender = gender;
+            this.gender=gender;
             return this;
         }
 

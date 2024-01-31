@@ -18,6 +18,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.HashSet;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
@@ -31,7 +35,7 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_F
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.*;
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UserDtoToUsers;
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UsersToUsersDto;
-
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_USER_INFO_BY_EMAIL_USER_NAME;
 
 
 @Service("UserServiceMain")
@@ -88,6 +92,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
     }
 
     /**
+<<<<<<< HEAD
      * @param user     - Incoming User Object from client
      * @param userId   - User Id
      * @param userName - userName of user
@@ -157,7 +162,6 @@ public class UserServiceImpl extends AbstractService implements IUserService {
     @Override
     public void deleteUserByUserIdOrUserName(final String userId, final String userName) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions {
         final String methodName = "deleteUserByUserIdOrUserName(string) in UserServiceImpl";
-
         Users fetchedUser = loadUserByUserIdOrUserName(userId, userName, methodName);
         userValidationService.validateUser(Optional.empty(),Optional.of(fetchedUser), methodName, DELETE_USER_BY_USER_ID_OR_USER_NAME);
         userRepository.deleteByUserIdOrUserName(userId, userName);
@@ -176,6 +180,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
     }
 
     /**
+<<<<<<< HEAD
      * @param email    - email of User
      * @param userName - userName of user
      * @return UserDTo
