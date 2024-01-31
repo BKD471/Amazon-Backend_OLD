@@ -3,26 +3,35 @@ package com.phoenix.amazon.AmazonBackend.helpers;
 import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 import com.phoenix.amazon.AmazonBackend.entity.Users;
 
+import static com.phoenix.amazon.AmazonBackend.helpers.GenderMapHelpers.getGender;
+
 public class MappingHelpers {
-    public static UserDto UsersToUsersDto(Users users) {
+    public static UserDto UsersToUsersDto(final Users users) {
         return new UserDto.builder()
                 .userId(users.getUserId())
-                .name(users.getName())
-                .email(users.getEmail())
-                .gender(users.getGender())
-                .imageName(users.getImageName())
+                .userName(users.getUserName())
+                .firstName(users.getFirstName())
+                .lastName(users.getLastName())
+                .primaryEmail(users.getPrimaryEmail())
+                .secondaryEmail(users.getSecondaryEmail())
+                .gender(users.getGender().toString())
+                .profileImage(users.getProfileImage())
                 .about(users.getAbout())
+                .lastSeen(users.getLastSeen())
                 .build();
     }
 
-    public static Users UserDtoToUsers(UserDto userDto) {
+    public static Users UserDtoToUsers(final UserDto userDto) {
         return new Users.builder()
                 .userId(userDto.userId())
-                .name(userDto.name())
-                .email(userDto.email())
+                .userName(userDto.userName())
+                .firstName(userDto.firstName())
+                .lastName(userDto.lastName())
+                .primaryEmail(userDto.primaryEmail())
+                .secondaryEmail(userDto.secondaryEmail())
                 .password(userDto.password())
-                .gender(userDto.gender())
-                .imageName(userDto.imageName())
+                .gender(getGender(userDto.gender()))
+                .profileImage(userDto.profileImage())
                 .about(userDto.about())
                 .build();
     }

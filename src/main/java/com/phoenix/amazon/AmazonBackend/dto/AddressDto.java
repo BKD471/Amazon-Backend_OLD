@@ -5,8 +5,6 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.COUNTR
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.STATE;
 
 public record AddressDto(String addressId,
-                         String firstName,
-                         String lastName,
                          String mobileNumber,
                          String pinCode,
                          String addressLine1,
@@ -17,8 +15,6 @@ public record AddressDto(String addressId,
                          STATE state) {
 
     public AddressDto(String addressId,
-                      String firstName,
-                      String lastName,
                       String mobileNumber,
                       String pinCode,
                       String addressLine1,
@@ -28,8 +24,6 @@ public record AddressDto(String addressId,
                       COUNTRY country,
                       STATE state) {
         this.addressId = addressId;
-        this.firstName = firstName;
-        this.lastName = lastName;
         this.mobileNumber = mobileNumber;
         this.pinCode = pinCode;
         this.addressLine1 = addressLine1;
@@ -42,8 +36,6 @@ public record AddressDto(String addressId,
 
     public static final class builder {
         private String addressId;
-        private String firstName;
-        private String lastName;
         private String mobileNumber;
         private String pinCode;
         private String addressLine1;
@@ -56,57 +48,47 @@ public record AddressDto(String addressId,
         public builder() {
         }
 
-        public builder addressId(String addressId) {
+        public builder addressId(final String addressId) {
             this.addressId = addressId;
             return this;
         }
 
-        public builder firstName(String firstName) {
-            this.firstName = firstName;
-            return this;
-        }
-
-        public builder lastName(String lastName) {
-            this.lastName = lastName;
-            return this;
-        }
-
-        public builder mobileNumber(String mobileNumber) {
+        public builder mobileNumber(final String mobileNumber) {
             this.mobileNumber = mobileNumber;
             return this;
         }
 
-        public builder pinCode(String pinCode) {
+        public builder pinCode(final String pinCode) {
             this.pinCode = pinCode;
             return this;
         }
 
-        public builder addressLine1(String addressLine1) {
+        public builder addressLine1(final String addressLine1) {
             this.addressLine1 = addressLine1;
             return this;
         }
 
-        public builder addressLine2(String addressLine2) {
+        public builder addressLine2(final String addressLine2) {
             this.addressLine2 = addressLine2;
             return this;
         }
 
-        public builder houseOrApartmentNumber(String houseOrApartmentNumber) {
+        public builder houseOrApartmentNumber(final String houseOrApartmentNumber) {
             this.houseOrApartmentNumber = houseOrApartmentNumber;
             return this;
         }
 
-        public builder townOrCity(String townOrCity) {
+        public builder townOrCity(final String townOrCity) {
             this.townOrCity = townOrCity;
             return this;
         }
 
-        public builder country(COUNTRY country) {
+        public builder country(final COUNTRY country) {
             this.country = country;
             return this;
         }
 
-        public builder state(STATE state) {
+        public builder state(final STATE state) {
             this.state = state;
             return this;
         }
@@ -114,8 +96,6 @@ public record AddressDto(String addressId,
 
         public AddressDto build() {
             return new AddressDto(addressId,
-                    firstName,
-                    lastName,
                     mobileNumber,
                     pinCode,
                     addressLine1,

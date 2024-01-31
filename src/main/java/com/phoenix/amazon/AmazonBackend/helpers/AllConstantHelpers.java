@@ -1,5 +1,9 @@
 package com.phoenix.amazon.AmazonBackend.helpers;
 
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class AllConstantHelpers {
     public enum COUNTRY {
         USA,UNITED_KINGDOM,INDIA,AUSTRALIA,JAPAN,CHINA,MALAYSIA,ITALY,CANADA,GERMANY
@@ -13,8 +17,40 @@ public class AllConstantHelpers {
         MALE,FEMALE,NON_BINARY,LGBTQ
     }
 
-    public enum UserFields {
-        NAME,EMAIL,GENDER,LAST_SEEN,ABOUT
+    public enum USER_FIELDS {
+        USER_NAME,FIRST_NAME,LAST_NAME,PRIMARY_EMAIL,SECONDARY_EMAIL,GENDER,LAST_SEEN,ABOUT,PASSWORD,PROFILE_IMAGE
     }
 
+    public enum USER_VALIDATION{
+        CREATE_USER,
+        UPDATE_USER_BY_USER_ID_OR_USER_NAME,
+        DELETE_USER_BY_USER_ID_OR_USER_NAME,
+        GET_ALL_USERS,
+        GET_USER_INFO_BY_EMAIL_USER_NAME,
+        GET_USER_INFO_BY_USERID_USER_NAME,
+        SEARCH_ALL_USERS_BY_USER_NAME,
+        SEARCH_USER_BY_EMAIL,
+        SEARCH_USER_BY_USER_NAME,
+        SEARCH_ALL_USERS_BY_GENDER,
+        SEARCH_ALL_USERS_BY_FIRST_NAME,
+        SEARCH_ALL_USERS_BY_LAST_NAME,
+        NULL_OBJECT,
+        UPDATE_PRIMARY_EMAIL,
+        UPDATE_SECONDARY_EMAIL,
+        UPDATE_FIRST_NAME,
+        UPDATE_LAST_NAME,
+        UPDATE_PASSWORD,
+        UPDATE_ABOUT,
+        UPDATE_PROFILE_IMAGE,
+        UPDATE_GENDER,
+        UPDATE_USERNAME
+    }
+
+    public enum USER_FIELD_VALIDATION{
+        VALIDATE_USER_ID_OR_USER_NAME,
+        VALIDATE_USER_NAME_OR_EMAIL
+    }
+    public enum EXCEPTION_CODES{
+        USER_EXEC,BAD_API_EXEC,USER_NOT_FOUND_EXEC
+    }
 }
