@@ -19,13 +19,12 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_F
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELD_VALIDATION.VALIDATE_USER_ID_OR_USER_NAME;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_USER_INFO_BY_EMAIL_USER_NAME;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_USER_INFO_BY_USERID_USER_NAME;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_ALL_USERS_BY_USER_NAME;
 
 public abstract class AbstractService {
     private final IUserRepository userRepository;
     private final IUserValidationService userValidationService;
 
-    protected AbstractService(IUserRepository userRepository, IUserValidationService userValidationService) {
+    protected AbstractService(final IUserRepository userRepository, final IUserValidationService userValidationService) {
         this.userRepository = userRepository;
         this.userValidationService = userValidationService;
     }
@@ -53,11 +52,11 @@ public abstract class AbstractService {
         switch (loadType) {
             case LU1 -> {
                 users = userRepository.findByUserIdOrUserName(userId, userName);
-                userValidationService.validateUser(Optional.empty(),users, methodName, GET_USER_INFO_BY_USERID_USER_NAME);
+                userValidationService.validateUser(Optional.empty(), users, methodName, GET_USER_INFO_BY_USERID_USER_NAME);
             }
             case LU2 -> {
                 users = userRepository.findByPrimaryEmailAndUserName(email, userName);
-                userValidationService.validateUser(Optional.empty(),users, methodName, GET_USER_INFO_BY_EMAIL_USER_NAME);
+                userValidationService.validateUser(Optional.empty(), users, methodName, GET_USER_INFO_BY_EMAIL_USER_NAME);
             }
         }
         return users.get();
@@ -86,17 +85,6 @@ public abstract class AbstractService {
     }
 
     /**
-     * @param userNameLike - keyword to search for all similar user name
-     * @param methodName   - origin of requesting method
-     * @return Set<Users> - set of all found users
-     **/
-    protected Set<Users> loadAllUserByUserNameMatched(final String userNameLike, final String methodName) throws UserNotFoundExceptions {
-        Set<Users> allUsersWithNearlyUserName = userRepository.findAllByUserNameContaining(userNameLike).get();
-        userValidationService.validateUserList(allUsersWithNearlyUserName, methodName, SEARCH_ALL_USERS_BY_USER_NAME);
-        return allUsersWithNearlyUserName;
-    }
-
-    /**
      * no setter in entity class to stop partial initialization
      * so we need constructUser
      **/
@@ -107,7 +95,7 @@ public abstract class AbstractService {
      * @param fields  - field of user entity
      * @return Users
      **/
-    protected Users constructUser(Users oldUser, Users newUser, USER_FIELDS fields) {
+    protected Users constructUser(final Users oldUser, final Users newUser, final USER_FIELDS fields) {
         switch (fields) {
             case USER_NAME -> {
                 return new Users.builder()
@@ -217,9 +205,9 @@ public abstract class AbstractService {
                         .build();
             }
             case PASSWORD -> {
-                Set<PassWordSet> oldPassWordSet=oldUser.getPrevious_password_set();
-                if(CollectionUtils.isEmpty(oldPassWordSet)) oldPassWordSet=new HashSet<>();
-                PassWordSet newPassWordSet=new PassWordSet.builder()
+                Set<PassWordSet> oldPassWordSet = oldUser.getPrevious_password_set();
+                if (CollectionUtils.isEmpty(oldPassWordSet)) oldPassWordSet = new HashSet<>();
+                PassWordSet newPassWordSet = new PassWordSet.builder()
                         .password_id(UUID.randomUUID().toString())
                         .passwords(newUser.getPassword())
                         .users(oldUser).build();

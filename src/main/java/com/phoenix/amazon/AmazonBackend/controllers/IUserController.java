@@ -23,55 +23,66 @@ import java.util.Set;
 @RequestMapping("/api/users")
 public interface IUserController {
     /**
-     * @param user - User Object
-     * @return ResponseEntity<UserDto>
+     * @param user                     - User Object
+     * @return ResponseEntity<UserDto> - UserDto Object
      */
     @PostMapping("/v1/create")
     ResponseEntity<UserDto> createUser(@Valid @RequestBody final UserDto user) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions;
 
     /**
-     * @param user     - User Object
-     * @param userId   - User Id
-     * @param userName - userName of user
-     * @return ResponseEntity<UserDto>
+     * @param user                     - User Object
+     * @param userId                   - User Id
+     * @param userName                 - userName of user
+     * @return ResponseEntity<UserDto> - UserDto Object
      */
     @PutMapping("/v1/update")
     ResponseEntity<UserDto> updateUserByUserIdOrUserName(@Valid @RequestBody final UserDto user, @RequestParam(required = false) final String userId, @RequestParam(required = false) final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions;
 
     /**
-     * @param userId   - User Id
-     * @param userName - userName of user
-     * @return ResponseEntity<ApiResponse>
+     * @param userId                       - User Id
+     * @param userName                     - userName of user
+     * @return ResponseEntity<ApiResponse> - ApiResponse Object
      */
     @DeleteMapping("/v1/delete")
     ResponseEntity<ApiResponse> deleteUserByUserIdOrUserName(@RequestParam(required = false) final String userId, @RequestParam(required = false) final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions;
 
     /**
-     * @return ResponseEntity<List < UserDTo>>
+     * @param pageNumber                       - index value of page
+     * @param pageSize                         - size of page
+     * @return ResponseEntity<List < UserDTo>> - list of userDtp
      */
     @GetMapping("/v1/getAll")
-    ResponseEntity<Set<UserDto>> getALlUsers() throws UserNotFoundExceptions;
+    ResponseEntity<Set<UserDto>> getAllUsers(@RequestParam(defaultValue = "0",required = false) final int pageNumber,
+                                             @RequestParam(defaultValue = "5",required = false) final int pageSize) throws UserNotFoundExceptions;
 
     /**
-     * @param email    - email of user
-     * @param userName - username of user
-     * @return ResponseEntity<UserDto>
+     * @param email                    - email of user
+     * @param userName                 - username of user
+     * @return ResponseEntity<UserDto> - userDto Object
      */
     @GetMapping("/v1/info")
     ResponseEntity<UserDto> getUserInformationByEmailOrUserName(@RequestParam(required = false) final String email, @RequestParam(required = false) final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions;
 
     /**
-     * @param field - field of User Entity
-     * @param value - value of field
-     * @return ResponseEntity<List < UserDto>>
+     * @param field                            - field of User Entity
+     * @param value                            - value of field
+     * @param pageNumber                       - index value of page
+     * @param pageSize                         - size of page
+     * @return ResponseEntity<List < UserDto>> - list of UserDto
      */
     @GetMapping("/v1/search_by_field")
-    ResponseEntity<Set<UserDto>> searchUserByFieldAndValue(@RequestParam final USER_FIELDS field, @RequestParam final String value) throws UserNotFoundExceptions;
+    ResponseEntity<Set<UserDto>> searchUserByFieldAndValue(@RequestParam final USER_FIELDS field, @RequestParam final String value,
+                                                           @RequestParam(defaultValue = "0",required = false) final int pageNumber,
+                                                           @RequestParam(defaultValue = "5",required = false) final int pageSize) throws UserNotFoundExceptions;
 
     /**
-     * @param userNameWord - Keyword to get multiple users with almost same name initials
-     * @return ResponseEntity<List < UserDto>>
+     * @param userNameWord                     - Keyword to get multiple users with almost same name initials
+     * @param pageNumber                       - index value of page
+     * @param pageSize                         - size of page
+     * @return ResponseEntity<List < UserDto>> - list of userDto
      */
     @GetMapping("/v1/search_by_username/{userNameWord}")
-    ResponseEntity<Set<UserDto>> searchAllUsersByUserName(@PathVariable("userNameWord") final String userNameWord) throws UserNotFoundExceptions;
+    ResponseEntity<Set<UserDto>> searchAllUsersByUserName(@PathVariable("userNameWord") final String userNameWord,
+                                                          @RequestParam(defaultValue = "0",required = false) final int pageNumber,
+                                                          @RequestParam(defaultValue = "5",required = false) final int pageSize) throws UserNotFoundExceptions;
 }

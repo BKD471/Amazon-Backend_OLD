@@ -23,8 +23,8 @@ public class UserControllerImpl implements IUserController {
     }
 
     /**
-     * @param user - User Object
-     * @return ResponseEntity<UserDto>
+     * @param user                     - User Object
+     * @return ResponseEntity<UserDto> - UserDto Object
      */
     @Override
     public ResponseEntity<UserDto> createUser(final UserDto user) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
@@ -33,10 +33,10 @@ public class UserControllerImpl implements IUserController {
     }
 
     /**
-     * @param user     - User Object
-     * @param userId   - User Id
-     * @param userName - userName of user
-     * @return ResponseEntity<UserDto>
+     * @param user                     - User Object
+     * @param userId                   - User Id
+     * @param userName                 - userName of user
+     * @return ResponseEntity<UserDto> - UserDto Object
      */
     @Override
     public ResponseEntity<UserDto> updateUserByUserIdOrUserName(final UserDto user, final String userId, final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
@@ -45,9 +45,9 @@ public class UserControllerImpl implements IUserController {
     }
 
     /**
-     * @param userId   - User Id
-     * @param userName - userName of user
-     * @return ResponseEntity<ApiResponse>
+     * @param userId                       - User Id
+     * @param userName                     - userName of user
+     * @return ResponseEntity<ApiResponse> - ApiResponse Object
      */
     @Override
     public ResponseEntity<ApiResponse> deleteUserByUserIdOrUserName(final String userId, final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
@@ -62,18 +62,20 @@ public class UserControllerImpl implements IUserController {
     }
 
     /**
-     * @return ResponseEntity<List < UserDTo>>
+     * @param pageNumber                       - index value of page
+     * @param pageSize                         - size of page
+     * @return ResponseEntity<List < UserDTo>> - list of userDtp
      */
     @Override
-    public ResponseEntity<Set<UserDto>> getALlUsers() throws UserNotFoundExceptions {
-        Set<UserDto> userDtoSet = userService.getALlUsers();
+    public ResponseEntity<Set<UserDto>> getAllUsers(final int pageNumber,final int pageSize) throws UserNotFoundExceptions {
+        Set<UserDto> userDtoSet = userService.getAllUsers(pageNumber,pageSize);
         return new ResponseEntity<>(userDtoSet, HttpStatus.OK);
     }
 
     /**
-     * @param email    - email of user
-     * @param userName - username of user
-     * @return ResponseEntity<UserDto>
+     * @param email                    - email of user
+     * @param userName                 - username of user
+     * @return ResponseEntity<UserDto> - userDto Object
      */
     @Override
     public ResponseEntity<UserDto> getUserInformationByEmailOrUserName(final String email, final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
@@ -82,23 +84,27 @@ public class UserControllerImpl implements IUserController {
     }
 
     /**
-     * @param field - field of User Entity
-     * @param value - value of field
-     * @return ResponseEntity<List < UserDto>>
+     * @param field                            - field of User Entity
+     * @param value                            - value of field
+     * @param pageNumber                       - index value of page
+     * @param pageSize                         - size of page
+     * @return ResponseEntity<List < UserDto>> - list of UserDto
      */
     @Override
-    public ResponseEntity<Set<UserDto>> searchUserByFieldAndValue(final USER_FIELDS field, final String value) throws UserNotFoundExceptions {
-        Set<UserDto> userDtoSet = userService.searchUserByFieldAndValue(field, value);
+    public ResponseEntity<Set<UserDto>> searchUserByFieldAndValue(final USER_FIELDS field, final String value,final int pageNumber,final int pageSize) throws UserNotFoundExceptions {
+        Set<UserDto> userDtoSet = userService.searchUserByFieldAndValue(field, value,pageNumber,pageSize);
         return new ResponseEntity<>(userDtoSet, HttpStatus.OK);
     }
 
     /**
-     * @param userNameWord - Keyword to get multiple users with almost same name initials
-     * @return ResponseEntity<List < UserDto>>
+     * @param userNameWord                     - Keyword to get multiple users with almost same name initials
+     * @param pageNumber                       - index value of page
+     * @param pageSize                         - size of page
+     * @return ResponseEntity<List < UserDto>> - list of userDto
      */
     @Override
-    public ResponseEntity<Set<UserDto>> searchAllUsersByUserName(final String userNameWord) throws UserNotFoundExceptions {
-        Set<UserDto> userDtoSet = userService.searchAllUsersByUserName(userNameWord);
+    public ResponseEntity<Set<UserDto>> searchAllUsersByUserName(final String userNameWord,final int pageNumber,final int pageSize) throws UserNotFoundExceptions {
+        Set<UserDto> userDtoSet = userService.searchAllUsersByUserName(userNameWord,pageNumber,pageSize);
         return new ResponseEntity<>(userDtoSet, HttpStatus.OK);
     }
 }
