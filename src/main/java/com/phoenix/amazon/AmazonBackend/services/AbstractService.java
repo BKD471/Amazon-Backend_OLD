@@ -19,7 +19,6 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_F
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELD_VALIDATION.VALIDATE_USER_ID_OR_USER_NAME;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_USER_INFO_BY_EMAIL_USER_NAME;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_USER_INFO_BY_USERID_USER_NAME;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_ALL_USERS_BY_USER_NAME;
 
 public abstract class AbstractService {
     private final IUserRepository userRepository;
@@ -83,17 +82,6 @@ public abstract class AbstractService {
     protected Users loadUserByUserIdOrUserName(final String userId, final String userName, final String methodName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
         userValidationService.validateFields(userId, userName, null, methodName, VALIDATE_USER_ID_OR_USER_NAME);
         return loadUserByUserNameOrEmailOrUserId(userId, userName, null, methodName, UserLoadType.LU1);
-    }
-
-    /**
-     * @param userNameLike - keyword to search for all similar user name
-     * @param methodName   - origin of requesting method
-     * @return Set<Users> - set of all found users
-     **/
-    protected Set<Users> loadAllUserByUserNameMatched(final String userNameLike, final String methodName) throws UserNotFoundExceptions {
-        Set<Users> allUsersWithNearlyUserName = userRepository.findAllByUserNameContaining(userNameLike).get();
-        userValidationService.validateUserList(allUsersWithNearlyUserName, methodName, SEARCH_ALL_USERS_BY_USER_NAME);
-        return allUsersWithNearlyUserName;
     }
 
     /**

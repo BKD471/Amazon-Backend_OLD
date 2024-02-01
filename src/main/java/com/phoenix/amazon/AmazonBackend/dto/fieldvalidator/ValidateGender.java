@@ -1,11 +1,9 @@
 package com.phoenix.amazon.AmazonBackend.dto.fieldvalidator;
 
-import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.GENDER;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Objects;
 import java.util.Set;
 
 

@@ -10,8 +10,8 @@ import com.phoenix.amazon.AmazonBackend.services.IUserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.util.Set;
+
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
 
 @RestController("UserControllerMain")
@@ -65,8 +65,8 @@ public class UserControllerImpl implements IUserController {
      * @return ResponseEntity<List < UserDTo>>
      */
     @Override
-    public ResponseEntity<Set<UserDto>> getALlUsers() throws UserNotFoundExceptions {
-        Set<UserDto> userDtoSet = userService.getALlUsers();
+    public ResponseEntity<Set<UserDto>> getALlUsers(final int pageNumber, final int pageSize) throws UserNotFoundExceptions {
+        Set<UserDto> userDtoSet = userService.getALlUsers(pageNumber, pageSize);
         return new ResponseEntity<>(userDtoSet, HttpStatus.OK);
     }
 
@@ -87,8 +87,8 @@ public class UserControllerImpl implements IUserController {
      * @return ResponseEntity<List < UserDto>>
      */
     @Override
-    public ResponseEntity<Set<UserDto>> searchUserByFieldAndValue(final USER_FIELDS field, final String value) throws UserNotFoundExceptions {
-        Set<UserDto> userDtoSet = userService.searchUserByFieldAndValue(field, value);
+    public ResponseEntity<Set<UserDto>> searchUserByFieldAndValue(final USER_FIELDS field, final String value, final int pageNumber, final int pageSize) throws UserNotFoundExceptions {
+        Set<UserDto> userDtoSet = userService.searchUserByFieldAndValue(field, value, pageNumber, pageSize);
         return new ResponseEntity<>(userDtoSet, HttpStatus.OK);
     }
 
@@ -97,8 +97,8 @@ public class UserControllerImpl implements IUserController {
      * @return ResponseEntity<List < UserDto>>
      */
     @Override
-    public ResponseEntity<Set<UserDto>> searchAllUsersByUserName(final String userNameWord) throws UserNotFoundExceptions {
-        Set<UserDto> userDtoSet = userService.searchAllUsersByUserName(userNameWord);
+    public ResponseEntity<Set<UserDto>> searchAllUsersByUserName(final String userNameWord,final int pageNumber,final int pageSize) throws UserNotFoundExceptions {
+        Set<UserDto> userDtoSet = userService.searchAllUsersByUserName(userNameWord,pageNumber,pageSize);
         return new ResponseEntity<>(userDtoSet, HttpStatus.OK);
     }
 }

@@ -7,7 +7,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.RegexMatchersHelpers.PATTERN_FOR_PASSWORD;
 import static com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.RegexMatchersHelpers.PATTERN_FOR_USERNAME;
 
 public class ValidateUserName implements ConstraintValidator<ValidName,String> {

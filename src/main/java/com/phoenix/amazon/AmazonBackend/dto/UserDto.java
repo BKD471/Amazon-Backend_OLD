@@ -1,6 +1,10 @@
 package com.phoenix.amazon.AmazonBackend.dto;
 
-import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.*;
+import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.ValidUserName;
+import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.ValidName;
+import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.NullOrEmail;
+import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.ValidPassword;
+import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.ValidGender;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

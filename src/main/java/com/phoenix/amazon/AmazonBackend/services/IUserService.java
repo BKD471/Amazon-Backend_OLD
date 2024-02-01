@@ -4,7 +4,6 @@ import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
-import static  com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
 
 import java.util.Set;
 
@@ -34,7 +33,7 @@ public interface IUserService {
     /**
      * @return Set<userDto>
      **/
-    Set<UserDto> getALlUsers() throws UserNotFoundExceptions;
+    Set<UserDto> getALlUsers(final int pageNumber, final int pageSize) throws UserNotFoundExceptions;
 
     /**
      * @param email    - email of user
@@ -44,15 +43,19 @@ public interface IUserService {
     UserDto getUserInformationByEmailOrUserName(final String email, final String userName) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions;
 
     /**
-     * @param field - field of user entity
-     * @param value - value to query the field
+     * @param field      - field of user entity
+     * @param value      - value to query the field
+     * @param pageNumber - index value of current page
+     * @param pageSize   - size of current page
      * @return Set<UserDto>
      **/
-    Set<UserDto> searchUserByFieldAndValue(final USER_FIELDS field, final String value) throws UserNotFoundExceptions;
+    Set<UserDto> searchUserByFieldAndValue(final USER_FIELDS field, final String value, final int pageNumber, final int pageSize) throws UserNotFoundExceptions;
 
     /**
      * @param userNameWord - username of user
+     * @param pageNumber   - index value of page
+     * @param pageSize     - size of page
      * @return Set<UserDto>
      */
-    Set<UserDto> searchAllUsersByUserName(final String userNameWord) throws UserNotFoundExceptions;
+    Set<UserDto> searchAllUsersByUserName(final String userNameWord, final int pageNumber, final int pageSize) throws UserNotFoundExceptions;
 }

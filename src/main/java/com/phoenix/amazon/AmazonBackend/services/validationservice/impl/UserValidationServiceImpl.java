@@ -12,7 +12,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Collection;
+import java.util.Objects;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
@@ -68,12 +72,12 @@ public class UserValidationServiceImpl implements IUserValidationService {
     }
 
     /**
-     * @param oldUsersOptional - old user object
      * @param newUsersOptional - new user object
+     * @param oldUsersOptional - old user object
      * @param userValidation   - user validation field
      */
     @Override
-    public void validateUser(Optional<Users> newUsersOptional, Optional<Users> oldUsersOptional, String methodName, USER_VALIDATION userValidation) throws UserExceptions, BadApiRequestExceptions, UserNotFoundExceptions {
+    public void validateUser(final Optional<Users> newUsersOptional, final Optional<Users> oldUsersOptional, String methodName, USER_VALIDATION userValidation) throws UserExceptions, BadApiRequestExceptions, UserNotFoundExceptions {
         // Get all users
         final Set<Users> userDtoList = new HashSet<>(userRepository.findAll());
         Users newUser = null;
