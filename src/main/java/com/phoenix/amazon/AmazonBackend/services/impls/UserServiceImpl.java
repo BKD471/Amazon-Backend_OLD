@@ -1,5 +1,6 @@
 package com.phoenix.amazon.AmazonBackend.services.impls;
 
+import com.phoenix.amazon.AmazonBackend.dto.PageableResponse;
 import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 import com.phoenix.amazon.AmazonBackend.entity.Users;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
@@ -14,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -55,6 +57,7 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_V
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_ALL_USERS_BY_GENDER;
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UserDtoToUsers;
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UsersToUsersDto;
+import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.getPageableResponse;
 
 
 @Service("UserServiceMain")
@@ -70,7 +73,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
 
     private UserDto initializeUserId(final UserDto userDto) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions {
         final String methodName = "initializeUserId";
-        if (Objects.isNull(userDto)) userValidationService.validateUser(Optional.empty(),Optional.empty(),
+        if (Objects.isNull(userDto)) userValidationService.validateUser(Optional.empty(), Optional.empty(),
                 "initializeUserId in UserService", NULL_OBJECT);
 
         final String userIdUUID = UUID.randomUUID().toString();
@@ -92,12 +95,12 @@ public class UserServiceImpl extends AbstractService implements IUserService {
                 .build();
     }
 
-    private Pageable getPageableObject(final int pageNumber,final int pageSize){
-        return PageRequest.of(pageNumber,pageSize);
+    private Pageable getPageableObject(final int pageNumber, final int pageSize, final Sort sort) {
+        return PageRequest.of(pageNumber-1, pageSize, sort);
     }
 
     /**
-     * @param userDto  - userDto object
+     * @param userDto - userDto object
      * @return UserDto - userDto Object
      **/
     @Override
@@ -165,12 +168,12 @@ public class UserServiceImpl extends AbstractService implements IUserService {
         }
         if (isNotBlankField.test(userDetails.getPassword()) &&
                 !checkFieldEquality.test(userDetails.getPassword(), fetchedUser.getPassword())) {
-            userValidationService.validateUser(Optional.of(userDetails),Optional.of(fetchedUser), methodName, UPDATE_PASSWORD);
+            userValidationService.validateUser(Optional.of(userDetails), Optional.of(fetchedUser), methodName, UPDATE_PASSWORD);
             fetchedUser = constructUser(fetchedUser, userDetails, PASSWORD);
         }
         if (isNotBlankField.test(userDetails.getProfileImage()) &&
                 !checkFieldEquality.test(userDetails.getProfileImage(), fetchedUser.getProfileImage())) {
-            userValidationService.validateUser(Optional.of(userDetails),Optional.of(fetchedUser), methodName, UPDATE_PROFILE_IMAGE);
+            userValidationService.validateUser(Optional.of(userDetails), Optional.of(fetchedUser), methodName, UPDATE_PROFILE_IMAGE);
             fetchedUser = constructUser(fetchedUser, userDetails, PROFILE_IMAGE);
         }
         Users savedUser = userRepository.save(fetchedUser);
@@ -185,25 +188,25 @@ public class UserServiceImpl extends AbstractService implements IUserService {
     public void deleteUserByUserIdOrUserName(final String userId, final String userName) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions {
         final String methodName = "deleteUserByUserIdOrUserName(string) in UserServiceImpl";
         Users fetchedUser = loadUserByUserIdOrUserName(userId, userName, methodName);
-        userValidationService.validateUser(Optional.empty(),Optional.of(fetchedUser), methodName, DELETE_USER_BY_USER_ID_OR_USER_NAME);
+        userValidationService.validateUser(Optional.empty(), Optional.of(fetchedUser), methodName, DELETE_USER_BY_USER_ID_OR_USER_NAME);
         userRepository.deleteByUserIdOrUserName(userId, userName);
     }
 
     /**
-     * @param pageNumber    - index value of page
-     * @param pageSize      - size of page
-     * @return Set<userDto> - set of userDto
+     * @param pageNumber                 - index value of page
+     * @param pageSize                   - size of page
+     * @param sortBy                     - sort column
+     * @param sortDir                    - direction of sorting
+     * @return PageableResponse<userDto> - page of userDto
      **/
     @Override
-    public Set<UserDto> getAllUsers(final int pageNumber,final int pageSize) throws UserNotFoundExceptions {
+    public PageableResponse<UserDto> getAllUsers(final int pageNumber, final int pageSize, final String sortBy, final String sortDir) throws UserNotFoundExceptions {
         final String methodName = "getALlUsers() in UserServiceImpl";
-
-        final Pageable pageableObject=getPageableObject(pageNumber,pageSize);
-        Page<Users> userPage=userRepository.findAll(pageableObject);
-
-        Set<Users> usersSet = new HashSet<>(userPage.getContent());
-        userValidationService.validateUserList(usersSet, methodName, GET_ALL_USERS);
-        return usersSet.stream().map(MappingHelpers::UsersToUsersDto).collect(Collectors.toSet());
+        final Sort sort = sortDir.equals("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        final Pageable pageableObject = getPageableObject(pageNumber, pageSize, sort);
+        Page<Users> userPage = userRepository.findAll(pageableObject);
+        userValidationService.validateUserList(userPage.getContent(), methodName, GET_ALL_USERS);
+        return getPageableResponse(userPage,UserDto.class);
     }
 
     /**
@@ -219,56 +222,62 @@ public class UserServiceImpl extends AbstractService implements IUserService {
     }
 
     /**
-     * @param field         - field of user entity
-     * @param value         - value to query the field
-     * @param pageNumber    - index value of page
-     * @param pageSize      - size of page
-     * @return Set<UserDto> - set of userDto
+     * @param field                      - field of user entity
+     * @param value                      - value to query the field
+     * @param pageNumber                 - index value of page
+     * @param pageSize                   - size of page
+     * @param sortBy                     - sort column
+     * @param sortDir                    - direction of sorting
+     * @return PageableResponse<UserDto> - page of userDto
      **/
     @Override
-    public Set<UserDto> searchUserByFieldAndValue(final USER_FIELDS field, final String value,final int pageNumber,final int pageSize) throws UserNotFoundExceptions {
+    public PageableResponse<UserDto> searchUserByFieldAndValue(final USER_FIELDS field, final String value, final int pageNumber, final int pageSize, final String sortBy, final String sortDir) throws UserNotFoundExceptions {
         final String methodName = "searchUserByFieldAndValue(field,String) in UserServiceImpl";
 
-        final Pageable pageableObject=getPageableObject(pageNumber,pageSize);
-        Page<Users> usersPage=Page.empty();
+        final Sort sort = sortDir.equals("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        final Pageable pageableObject = getPageableObject(pageNumber, pageSize, sort);
+        Page<Users> usersPage = Page.empty();
         switch (field) {
             case PRIMARY_EMAIL -> {
-                usersPage=userRepository.searchUserByPrimaryEmail(value,pageableObject).get();
+                usersPage = userRepository.searchUserByPrimaryEmail(value, pageableObject).get();
                 userValidationService.validateUserList(usersPage.getContent(), methodName, SEARCH_USER_BY_EMAIL);
             }
             case USER_NAME -> {
-                usersPage = userRepository.searchUserByUserName(value,pageableObject).get();
+                usersPage = userRepository.searchUserByUserName(value, pageableObject).get();
                 userValidationService.validateUserList(usersPage.getContent(), methodName, SEARCH_USER_BY_USER_NAME);
             }
             case GENDER -> {
-                usersPage = userRepository.searchUserByGender(value,pageableObject).get();
+                usersPage = userRepository.searchUserByGender(value, pageableObject).get();
                 userValidationService.validateUserList(usersPage.getContent(), methodName, SEARCH_ALL_USERS_BY_GENDER);
             }
             case FIRST_NAME -> {
-                usersPage = userRepository.searchUserByFirstName(value,pageableObject).get();
+                usersPage = userRepository.searchUserByFirstName(value, pageableObject).get();
                 userValidationService.validateUserList(usersPage.getContent(), methodName, SEARCH_ALL_USERS_BY_FIRST_NAME);
             }
             case LAST_NAME -> {
-                usersPage = userRepository.searchUserByLastName(value,pageableObject).get();
+                usersPage = userRepository.searchUserByLastName(value, pageableObject).get();
                 userValidationService.validateUserList(usersPage.getContent(), methodName, SEARCH_ALL_USERS_BY_LAST_NAME);
             }
         }
-        return usersPage.getContent().stream().map(MappingHelpers::UsersToUsersDto).collect(Collectors.toSet());
+        return getPageableResponse(usersPage,UserDto.class);
     }
 
     /**
-     * @param userNameWord  - username of user
-     * @param pageNumber    - index value of page
-     * @param pageSize      - size of page
-     * @return Set<UserDto> - set of userDto
+     * @param userNameWord               - username of user
+     * @param pageNumber                 - index value of page
+     * @param pageSize                   - size of page
+     * @param sortBy                     - sort column
+     * @param sortDir                    - direction of sorting
+     * @return PageableResponse<UserDto> - page of userDto
      */
     @Override
-    public Set<UserDto> searchAllUsersByUserName(final String userNameWord,final int pageNumber,final int pageSize) throws UserNotFoundExceptions {
+    public PageableResponse<UserDto> searchAllUsersByUserName(final String userNameWord, final int pageNumber, final int pageSize, final String sortBy, final String sortDir) throws UserNotFoundExceptions {
         final String methodName = "searchAllUsersByUserName(string) in UsersServiceImpl";
 
-        final Pageable pageableObject=getPageableObject(pageNumber,pageSize);
-        Page<Users> allUsersWithNearlyUserNamePage = userRepository.findAllByUserNameContaining(userNameWord,pageableObject).get();
+        final Sort sort = sortDir.equals("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        final Pageable pageableObject = getPageableObject(pageNumber, pageSize, sort);
+        Page<Users> allUsersWithNearlyUserNamePage = userRepository.findAllByUserNameContaining(userNameWord, pageableObject).get();
         userValidationService.validateUserList(allUsersWithNearlyUserNamePage.getContent(), methodName, SEARCH_ALL_USERS_BY_USER_NAME);
-        return allUsersWithNearlyUserNamePage.getContent().stream().map(MappingHelpers::UsersToUsersDto).collect(Collectors.toSet());
+        return getPageableResponse(allUsersWithNearlyUserNamePage,UserDto.class);
     }
 }

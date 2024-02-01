@@ -8,12 +8,12 @@ import java.util.regex.Pattern;
 
 import static com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.RegexMatchersHelpers.PATTERN_FOR_USERNAME;
 
-public class ValidateUserName implements ConstraintValidator<ValidName,String> {
+public class ValidateUserName implements ConstraintValidator<ValidUserName,String> {
     /**
-     * @param constraintAnnotation - constraint annotation
+     * @param constraintAnnotation 
      */
     @Override
-    public void initialize(ValidName constraintAnnotation) {
+    public void initialize(ValidUserName constraintAnnotation) {
         ConstraintValidator.super.initialize(constraintAnnotation);
     }
 

@@ -38,8 +38,8 @@ public class UserValidationServiceImpl implements IUserValidationService {
         // Check for previous existing
         Predicate<Users> checkEmailExist = null;
         if (checkFor.equalsIgnoreCase("primary"))
-            checkEmailExist = (Users user) -> user.getPrimaryEmail().equalsIgnoreCase(new_email);
-        else checkEmailExist = (Users user) -> user.getSecondaryEmail().equalsIgnoreCase(new_email);
+            checkEmailExist = (Users user) -> new_email.equalsIgnoreCase(user.getPrimaryEmail());
+        else checkEmailExist = (Users user) -> new_email.equalsIgnoreCase(user.getSecondaryEmail());
 
         boolean isEmailPresent = usersSet.stream().anyMatch(checkEmailExist);
         if (isEmailPresent) throw (UserExceptions) ExceptionBuilder.builder()
@@ -50,9 +50,9 @@ public class UserValidationServiceImpl implements IUserValidationService {
         // for primary check for existing in secondary,
         // for secondary check for existing in primary
         if (checkFor.equalsIgnoreCase("primary"))
-            checkEmailExist = (Users user) -> user.getSecondaryEmail().equalsIgnoreCase(new_email);
+            checkEmailExist = (Users user) ->  new_email.equalsIgnoreCase(user.getSecondaryEmail());
         if (checkFor.equalsIgnoreCase("secondary"))
-            checkEmailExist = (Users user) -> user.getPrimaryEmail().equalsIgnoreCase(new_email);
+            checkEmailExist = (Users user) -> new_email.equalsIgnoreCase(user.getPrimaryEmail());
 
         isEmailPresent = usersSet.stream().anyMatch(checkEmailExist);
         if (isEmailPresent) throw (UserExceptions) ExceptionBuilder.builder()
