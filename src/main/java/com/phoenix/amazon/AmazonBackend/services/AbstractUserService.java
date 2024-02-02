@@ -5,6 +5,7 @@ import com.phoenix.amazon.AmazonBackend.entity.Users;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
+import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers;
 import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
 import org.springframework.util.CollectionUtils;
@@ -20,11 +21,11 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_F
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_USER_INFO_BY_EMAIL_USER_NAME;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_USER_INFO_BY_USERID_USER_NAME;
 
-public abstract class AbstractService {
+public abstract class AbstractUserService {
     private final IUserRepository userRepository;
     private final IUserValidationService userValidationService;
 
-    protected AbstractService(final IUserRepository userRepository, final IUserValidationService userValidationService) {
+    protected AbstractUserService(final IUserRepository userRepository, final IUserValidationService userValidationService) {
         this.userRepository = userRepository;
         this.userValidationService = userValidationService;
     }
@@ -55,7 +56,7 @@ public abstract class AbstractService {
                 userValidationService.validateUser(Optional.empty(), users, methodName, GET_USER_INFO_BY_USERID_USER_NAME);
             }
             case LU2 -> {
-                users = userRepository.findByPrimaryEmailAndUserName(email, userName);
+                users = userRepository.findByPrimaryEmailOrUserName(email, userName);
                 userValidationService.validateUser(Optional.empty(), users, methodName, GET_USER_INFO_BY_EMAIL_USER_NAME);
             }
         }
@@ -82,6 +83,23 @@ public abstract class AbstractService {
     protected Users loadUserByUserIdOrUserName(final String userId, final String userName, final String methodName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
         userValidationService.validateFields(userId, userName, null, methodName, VALIDATE_USER_ID_OR_USER_NAME);
         return loadUserByUserNameOrEmailOrUserId(userId, userName, null, methodName, UserLoadType.LU1);
+    }
+
+    protected StringBuffer getUserDbField(AllConstantHelpers.User_DB_FIELDS sortBy){
+        StringBuffer sortByColumn=new StringBuffer();
+        switch (sortBy){
+            case USER_NAME -> sortByColumn.append("user_name");
+            case FNAME -> sortByColumn.append("first_name");
+            case LNAME -> sortByColumn.append("last_name");
+            case PR_EMAIL -> sortByColumn.append("user_primary_email");
+            case SEC_EMAIL -> sortByColumn.append("user_secondary_email");
+            case PASSWORD -> sortByColumn.append("user_password");
+            case GENDER -> sortByColumn.append("gender");
+            case IMAGE -> sortByColumn.append("user_image_name");
+            case LAST_SEEN -> sortByColumn.append("last_seen");
+            case ABOUT -> sortByColumn.append("about");
+        }
+        return sortByColumn;
     }
 
     /**

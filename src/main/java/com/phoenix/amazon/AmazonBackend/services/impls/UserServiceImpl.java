@@ -6,10 +6,9 @@ import com.phoenix.amazon.AmazonBackend.entity.Users;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
-import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers;
-import com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers;
+import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.User_DB_FIELDS;
 import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
-import com.phoenix.amazon.AmazonBackend.services.AbstractService;
+import com.phoenix.amazon.AmazonBackend.services.AbstractUserService;
 import com.phoenix.amazon.AmazonBackend.services.IUserService;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
 import org.apache.commons.lang3.StringUtils;
@@ -60,7 +59,7 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.Destin
 
 
 @Service("UserServiceMain")
-public class UserServiceImpl extends AbstractService implements IUserService {
+public class UserServiceImpl extends AbstractUserService implements IUserService {
     private final IUserRepository userRepository;
     private final IUserValidationService userValidationService;
 
@@ -230,10 +229,11 @@ public class UserServiceImpl extends AbstractService implements IUserService {
      * @return PageableResponse<UserDto> - page of userDto
      **/
     @Override
-    public PageableResponse<UserDto> searchUserByFieldAndValue(final USER_FIELDS field, final String value, final int pageNumber, final int pageSize, final String sortBy, final String sortDir) throws UserNotFoundExceptions {
+    public PageableResponse<UserDto> searchUserByFieldAndValue(final USER_FIELDS field, final String value, final int pageNumber, final int pageSize, final User_DB_FIELDS sortBy, final String sortDir) throws UserNotFoundExceptions {
         final String methodName = "searchUserByFieldAndValue(field,String) in UserServiceImpl";
 
-        final Sort sort = sortDir.equals("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        final StringBuffer sortByColumn = getUserDbField(sortBy);
+        final Sort sort = sortDir.equals("desc") ? Sort.by(sortByColumn.toString()).descending() : Sort.by(sortByColumn.toString()).ascending();
         final Pageable pageableObject = getPageableObject(pageNumber, pageSize, sort);
         Page<Users> usersPage = Page.empty();
         switch (field) {

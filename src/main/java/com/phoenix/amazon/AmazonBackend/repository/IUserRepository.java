@@ -18,7 +18,7 @@ public interface IUserRepository extends JpaRepository<Users, String> {
      * @param userName - userName of user
      * @return Optional<Users> - optional users
      */
-    Optional<Users> findByPrimaryEmailAndUserName(final String email, final String userName);
+    Optional<Users> findByPrimaryEmailOrUserName(final String email, final String userName);
 
     /**
      * @param userId   - id of user
@@ -45,7 +45,7 @@ public interface IUserRepository extends JpaRepository<Users, String> {
      * @param pageable - pageable object
      * @return Set<Users> - set of users
      **/
-    @Query(value = "SELECT * FROM Users WHERE first_name=?1", nativeQuery = true)
+    @Query(value = "SELECT * FROM users WHERE first_name=?1", nativeQuery = true)
     Optional<Page<Users>> searchUserByFirstName(final String value, final Pageable pageable);
 
     /**
@@ -53,7 +53,7 @@ public interface IUserRepository extends JpaRepository<Users, String> {
      * @param pageable - pageable object
      * @return Set<Users> - set of users
      **/
-    @Query(value = "SELECT * FROM Users WHERE last_name=?1", nativeQuery = true)
+    @Query(value = "SELECT * FROM users WHERE last_name=?1", nativeQuery = true)
     Optional<Page<Users>> searchUserByLastName(final String value, final Pageable pageable);
 
     /**
@@ -61,7 +61,7 @@ public interface IUserRepository extends JpaRepository<Users, String> {
      * @param pageable - pageable object
      * @return Set<Users> - set of users
      **/
-    @Query(value = "SELECT * FROM Users WHERE gender=?1", nativeQuery = true)
+    @Query(value = "SELECT * FROM users WHERE gender=?1", nativeQuery = true)
     Optional<Page<Users>> searchUserByGender(final String value, final Pageable pageable);
 
     /**
@@ -69,7 +69,7 @@ public interface IUserRepository extends JpaRepository<Users, String> {
      * @param pageable - pageable object
      * @return Set<Users> - set of users
      **/
-    @Query(value = "SELECT * FROM Users WHERE user_name=?1", nativeQuery = true)
+    @Query(value = "SELECT * FROM users WHERE user_name=?1", nativeQuery = true)
     Optional<Page<Users>> searchUserByUserName(final String value, final Pageable pageable);
 
     /**
@@ -77,6 +77,6 @@ public interface IUserRepository extends JpaRepository<Users, String> {
      * @param pageable - pageable object
      * @return Set<Users> - set of users
      **/
-    @Query(value = "SELECT * FROM Users WHERE user_primary_email=?1", nativeQuery = true)
+    @Query(value = "SELECT * FROM users WHERE user_primary_email=?1", nativeQuery = true)
     Optional<Page<Users>> searchUserByPrimaryEmail(final String value, final Pageable pageable);
 }
