@@ -5,11 +5,8 @@ import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
-import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.User_DB_FIELDS;
 
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
-
-import java.util.Set;
 
 public interface IUserService {
     /**
@@ -57,7 +54,7 @@ public interface IUserService {
      * @param sortDir                    - direction of sorting
      * @return PageableResponse<UserDto> - set of userDto
      **/
-    PageableResponse<UserDto> searchUserByFieldAndValue(final USER_FIELDS field, final String value, final int pageNumber, final int pageSize, final User_DB_FIELDS sortBy, final String sortDir) throws UserNotFoundExceptions;
+    PageableResponse<UserDto> searchUserByFieldAndValue(final USER_FIELDS field, final String value, final int pageNumber, final int pageSize, final USER_FIELDS sortBy, final String sortDir) throws UserNotFoundExceptions;
 
     /**
      * @param userNameWord               - username of user

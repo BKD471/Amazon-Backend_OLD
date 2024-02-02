@@ -7,7 +7,7 @@ import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
-import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.User_DB_FIELDS;
+import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
 import com.phoenix.amazon.AmazonBackend.services.IUserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -96,7 +96,7 @@ public class UserControllerImpl implements IUserController {
      * @return ResponseEntity<PageableResponse < UserDto>> - list of UserDto
      */
     @Override
-    public ResponseEntity<PageableResponse<UserDto>> searchUserByFieldAndValue(final USER_FIELDS field, final String value, final int pageNumber, final int pageSize, final User_DB_FIELDS sortBy, final String sortDir) throws UserNotFoundExceptions {
+    public ResponseEntity<PageableResponse<UserDto>> searchUserByFieldAndValue(final USER_FIELDS field, final String value, final int pageNumber, final int pageSize, final USER_FIELDS sortBy, final String sortDir) throws UserNotFoundExceptions {
         PageableResponse<UserDto> userDtoSet = userService.searchUserByFieldAndValue(field, value, pageNumber, pageSize, sortBy, sortDir);
         return new ResponseEntity<>(userDtoSet, HttpStatus.OK);
     }

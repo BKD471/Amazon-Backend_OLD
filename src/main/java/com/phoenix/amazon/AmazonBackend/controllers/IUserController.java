@@ -6,7 +6,6 @@ import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
-import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.User_DB_FIELDS;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -82,7 +81,7 @@ public interface IUserController {
     ResponseEntity<PageableResponse<UserDto>> searchUserByFieldAndValue(@RequestParam final USER_FIELDS field, @RequestParam final String value,
                                                                         @RequestParam(value = "pageNumber", defaultValue = "1", required = false) final int pageNumber,
                                                                         @RequestParam(value = "pageSize", defaultValue = "5", required = false) final int pageSize,
-                                                                        @RequestParam(value = "sortBy", defaultValue = "FNAME", required = false) final User_DB_FIELDS sortBy,
+                                                                        @RequestParam(value = "sortBy", defaultValue = "FIRST_NAME", required = false) final USER_FIELDS sortBy,
                                                                         @RequestParam(value = "sortDir", defaultValue = "asc", required = false) final String sortDir) throws UserNotFoundExceptions;
 
     /**

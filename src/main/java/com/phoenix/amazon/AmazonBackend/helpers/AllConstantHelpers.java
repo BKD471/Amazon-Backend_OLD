@@ -19,9 +19,6 @@ public class AllConstantHelpers {
 
     }
 
-    public enum User_DB_FIELDS{
-        USER_NAME,FNAME,LNAME,PR_EMAIL,SEC_EMAIL,PASSWORD,GENDER,IMAGE,LAST_SEEN,ABOUT
-    }
 
     public enum USER_VALIDATION{
         CREATE_USER,

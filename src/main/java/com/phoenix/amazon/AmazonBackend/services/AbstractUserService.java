@@ -85,17 +85,17 @@ public abstract class AbstractUserService {
         return loadUserByUserNameOrEmailOrUserId(userId, userName, null, methodName, UserLoadType.LU1);
     }
 
-    protected StringBuffer getUserDbField(AllConstantHelpers.User_DB_FIELDS sortBy){
+    protected StringBuffer getUserDbField(USER_FIELDS sortBy){
         StringBuffer sortByColumn=new StringBuffer();
         switch (sortBy){
             case USER_NAME -> sortByColumn.append("user_name");
-            case FNAME -> sortByColumn.append("first_name");
-            case LNAME -> sortByColumn.append("last_name");
-            case PR_EMAIL -> sortByColumn.append("user_primary_email");
-            case SEC_EMAIL -> sortByColumn.append("user_secondary_email");
+            case FIRST_NAME -> sortByColumn.append("first_name");
+            case LAST_NAME -> sortByColumn.append("last_name");
+            case PRIMARY_EMAIL -> sortByColumn.append("user_primary_email");
+            case SECONDARY_EMAIL -> sortByColumn.append("user_secondary_email");
             case PASSWORD -> sortByColumn.append("user_password");
             case GENDER -> sortByColumn.append("gender");
-            case IMAGE -> sortByColumn.append("user_image_name");
+            case PROFILE_IMAGE -> sortByColumn.append("user_image_name");
             case LAST_SEEN -> sortByColumn.append("last_seen");
             case ABOUT -> sortByColumn.append("about");
         }
