@@ -46,4 +46,8 @@ public class AllConstantHelpers {
     public enum EXCEPTION_CODES{
         USER_EXEC,BAD_API_EXEC,USER_NOT_FOUND_EXEC
     }
+
+    public enum DestinationDtoType{
+        USER_DTO
+    }
 }

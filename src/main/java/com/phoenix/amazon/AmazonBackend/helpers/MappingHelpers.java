@@ -3,14 +3,14 @@ package com.phoenix.amazon.AmazonBackend.helpers;
 import com.phoenix.amazon.AmazonBackend.dto.PageableResponse;
 import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 import com.phoenix.amazon.AmazonBackend.entity.Users;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.record.RecordModule;
 import org.springframework.data.domain.Page;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.phoenix.amazon.AmazonBackend.helpers.GenderMapHelpers.getGender;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.DestinationDtoType;
 
 public class MappingHelpers<U,V> {
     public static UserDto UsersToUsersDto(final Users users) {
@@ -44,12 +44,18 @@ public class MappingHelpers<U,V> {
     }
 
 
-    public static <U,V> PageableResponse<U> getPageableResponse(Page<V> page,Class<U> type){
+    public static <U,V> PageableResponse<U> getPageableResponse(final Page<V> page,final DestinationDtoType destinationDtoType){
          List<V> entityList=page.getContent();
-         ModelMapper modelMapper = new ModelMapper().registerModule(new RecordModule());
-
-         List<U> dtoList=entityList.stream()
-                 .map(object-> modelMapper.map(object,type)).collect(Collectors.toList());
+         List<U> dtoList=new ArrayList<>();
+         switch (destinationDtoType){
+             case USER_DTO -> {
+                 if(!entityList.isEmpty() && entityList.getFirst() instanceof Users){
+                     dtoList=(List<U>) entityList.stream()
+                             .map(object->UsersToUsersDto((Users)object))
+                             .collect(Collectors.toList());
+                 }
+             }
+         }
 
          return new PageableResponse.Builder<U>()
                  .content(dtoList)

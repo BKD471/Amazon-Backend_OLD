@@ -21,7 +21,7 @@ public class PassWordSet extends Audit{
     @JoinColumn(name="user_id",nullable = false)
     private Users users;
 
-    public PassWordSet(){}
+    protected PassWordSet(){}
 
     public PassWordSet(builder builder){
         this.password_id=builder.password_id;

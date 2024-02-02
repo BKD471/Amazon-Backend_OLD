@@ -6,6 +6,7 @@ import com.phoenix.amazon.AmazonBackend.entity.Users;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
+import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers;
 import com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers;
 import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
 import com.phoenix.amazon.AmazonBackend.services.AbstractService;
@@ -21,13 +22,10 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
-import java.util.HashSet;
 
 import java.util.UUID;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.GENDER;
@@ -58,6 +56,7 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_V
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UserDtoToUsers;
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UsersToUsersDto;
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.getPageableResponse;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.DestinationDtoType.USER_DTO;
 
 
 @Service("UserServiceMain")
@@ -96,7 +95,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
     }
 
     private Pageable getPageableObject(final int pageNumber, final int pageSize, final Sort sort) {
-        return PageRequest.of(pageNumber-1, pageSize, sort);
+        return PageRequest.of(pageNumber - 1, pageSize, sort);
     }
 
     /**
@@ -193,10 +192,10 @@ public class UserServiceImpl extends AbstractService implements IUserService {
     }
 
     /**
-     * @param pageNumber                 - index value of page
-     * @param pageSize                   - size of page
-     * @param sortBy                     - sort column
-     * @param sortDir                    - direction of sorting
+     * @param pageNumber - index value of page
+     * @param pageSize   - size of page
+     * @param sortBy     - sort column
+     * @param sortDir    - direction of sorting
      * @return PageableResponse<userDto> - page of userDto
      **/
     @Override
@@ -206,7 +205,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
         final Pageable pageableObject = getPageableObject(pageNumber, pageSize, sort);
         Page<Users> userPage = userRepository.findAll(pageableObject);
         userValidationService.validateUserList(userPage.getContent(), methodName, GET_ALL_USERS);
-        return getPageableResponse(userPage,UserDto.class);
+        return getPageableResponse(userPage, USER_DTO);
     }
 
     /**
@@ -222,12 +221,12 @@ public class UserServiceImpl extends AbstractService implements IUserService {
     }
 
     /**
-     * @param field                      - field of user entity
-     * @param value                      - value to query the field
-     * @param pageNumber                 - index value of page
-     * @param pageSize                   - size of page
-     * @param sortBy                     - sort column
-     * @param sortDir                    - direction of sorting
+     * @param field      - field of user entity
+     * @param value      - value to query the field
+     * @param pageNumber - index value of page
+     * @param pageSize   - size of page
+     * @param sortBy     - sort column
+     * @param sortDir    - direction of sorting
      * @return PageableResponse<UserDto> - page of userDto
      **/
     @Override
@@ -259,15 +258,15 @@ public class UserServiceImpl extends AbstractService implements IUserService {
                 userValidationService.validateUserList(usersPage.getContent(), methodName, SEARCH_ALL_USERS_BY_LAST_NAME);
             }
         }
-        return getPageableResponse(usersPage,UserDto.class);
+        return getPageableResponse(usersPage, USER_DTO);
     }
 
     /**
-     * @param userNameWord               - username of user
-     * @param pageNumber                 - index value of page
-     * @param pageSize                   - size of page
-     * @param sortBy                     - sort column
-     * @param sortDir                    - direction of sorting
+     * @param userNameWord - username of user
+     * @param pageNumber   - index value of page
+     * @param pageSize     - size of page
+     * @param sortBy       - sort column
+     * @param sortDir      - direction of sorting
      * @return PageableResponse<UserDto> - page of userDto
      */
     @Override
@@ -278,6 +277,6 @@ public class UserServiceImpl extends AbstractService implements IUserService {
         final Pageable pageableObject = getPageableObject(pageNumber, pageSize, sort);
         Page<Users> allUsersWithNearlyUserNamePage = userRepository.findAllByUserNameContaining(userNameWord, pageableObject).get();
         userValidationService.validateUserList(allUsersWithNearlyUserNamePage.getContent(), methodName, SEARCH_ALL_USERS_BY_USER_NAME);
-        return getPageableResponse(allUsersWithNearlyUserNamePage,UserDto.class);
+        return getPageableResponse(allUsersWithNearlyUserNamePage, USER_DTO);
     }
 }

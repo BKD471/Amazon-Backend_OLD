@@ -3,12 +3,12 @@ package com.phoenix.amazon.AmazonBackend.dto;
 import java.util.List;
 
 public class PageableResponse<T> {
-    private List<T> content;
-    private int pageNumber;
-    private int pageSize;
-    private int totalPages;
-    private long totalElements;
-    private boolean isLastPage;
+    private final List<T> content;
+    private final int pageNumber;
+    private final int pageSize;
+    private final int totalPages;
+    private final long totalElements;
+    private final boolean isLastPage;
 
     public PageableResponse(Builder<T> tBuilder) {
         this.content = tBuilder.content;

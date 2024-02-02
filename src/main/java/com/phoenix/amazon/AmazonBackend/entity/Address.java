@@ -18,26 +18,21 @@ public class Address {
     private String addressId;
     @Column(name = "user_mobile", nullable = false, unique = true)
     private String mobileNumber;
-
     @Column(name = "pin_code", nullable = false)
     private String pinCode;
-
     @Column(name = "address1", nullable = false)
     private String addressLine1;
     private String addressLine2;
     @Column(name = "house_apartment_no", nullable = false)
     private String houseOrApartmentNumber;
-
     @Column(name = "town", nullable = false)
     private String townOrCity;
-
     @Enumerated(value = EnumType.STRING)
     private COUNTRY country;
-
     @Enumerated(value = EnumType.STRING)
     private STATE state;
 
-    public Address() {
+    protected Address() {
     }
 
     public Address(builder builder) {
