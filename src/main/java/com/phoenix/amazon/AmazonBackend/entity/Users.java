@@ -1,13 +1,19 @@
 package com.phoenix.amazon.AmazonBackend.entity;
 
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.Id;
+import jakarta.persistence.Column;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.CascadeType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Set;
-
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.GENDER;
 
 @Entity
@@ -15,7 +21,6 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.GENDER
 public class Users extends Audit {
     @Id
     private String userId;
-
     @Column(name = "user_name")
     private String userName;
     @Column(name = "first_name", nullable = false)
@@ -43,8 +48,7 @@ public class Users extends Audit {
 
     @OneToMany(mappedBy = "users",cascade = CascadeType.ALL)
     private Set<PassWordSet> previous_password_set=new LinkedHashSet<>();
-
-    public Users() {}
+    protected Users(){}
     public Users(builder builder) {
         this.userId = builder.userId;
         this.userName = builder.userName;

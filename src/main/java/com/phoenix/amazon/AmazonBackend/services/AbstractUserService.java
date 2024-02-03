@@ -5,6 +5,7 @@ import com.phoenix.amazon.AmazonBackend.entity.Users;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
+import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers;
 import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
 import org.springframework.util.CollectionUtils;
@@ -19,13 +20,12 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_F
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELD_VALIDATION.VALIDATE_USER_ID_OR_USER_NAME;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_USER_INFO_BY_EMAIL_USER_NAME;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_USER_INFO_BY_USERID_USER_NAME;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_ALL_USERS_BY_USER_NAME;
 
-public abstract class AbstractService {
+public abstract class AbstractUserService {
     private final IUserRepository userRepository;
     private final IUserValidationService userValidationService;
 
-    protected AbstractService(IUserRepository userRepository, IUserValidationService userValidationService) {
+    protected AbstractUserService(final IUserRepository userRepository, final IUserValidationService userValidationService) {
         this.userRepository = userRepository;
         this.userValidationService = userValidationService;
     }
@@ -53,11 +53,11 @@ public abstract class AbstractService {
         switch (loadType) {
             case LU1 -> {
                 users = userRepository.findByUserIdOrUserName(userId, userName);
-                userValidationService.validateUser(Optional.empty(),users, methodName, GET_USER_INFO_BY_USERID_USER_NAME);
+                userValidationService.validateUser(Optional.empty(), users, methodName, GET_USER_INFO_BY_USERID_USER_NAME);
             }
             case LU2 -> {
                 users = userRepository.findByPrimaryEmailOrUserName(email, userName);
-                userValidationService.validateUser(Optional.empty(),users, methodName, GET_USER_INFO_BY_EMAIL_USER_NAME);
+                userValidationService.validateUser(Optional.empty(), users, methodName, GET_USER_INFO_BY_EMAIL_USER_NAME);
             }
         }
         return users.get();
@@ -85,15 +85,21 @@ public abstract class AbstractService {
         return loadUserByUserNameOrEmailOrUserId(userId, userName, null, methodName, UserLoadType.LU1);
     }
 
-    /**
-     * @param userNameLike - keyword to search for all similar user name
-     * @param methodName   - origin of requesting method
-     * @return Set<Users> - set of all found users
-     **/
-    protected Set<Users> loadAllUserByUserNameMatched(final String userNameLike, final String methodName) throws UserNotFoundExceptions {
-        Set<Users> allUsersWithNearlyUserName = userRepository.findAllByUserNameContaining(userNameLike).get();
-        userValidationService.validateUserList(allUsersWithNearlyUserName, methodName, SEARCH_ALL_USERS_BY_USER_NAME);
-        return allUsersWithNearlyUserName;
+    protected StringBuffer getUserDbField(USER_FIELDS sortBy){
+        StringBuffer sortByColumn=new StringBuffer();
+        switch (sortBy){
+            case USER_NAME -> sortByColumn.append("user_name");
+            case FIRST_NAME -> sortByColumn.append("first_name");
+            case LAST_NAME -> sortByColumn.append("last_name");
+            case PRIMARY_EMAIL -> sortByColumn.append("user_primary_email");
+            case SECONDARY_EMAIL -> sortByColumn.append("user_secondary_email");
+            case PASSWORD -> sortByColumn.append("user_password");
+            case GENDER -> sortByColumn.append("gender");
+            case PROFILE_IMAGE -> sortByColumn.append("user_image_name");
+            case LAST_SEEN -> sortByColumn.append("last_seen");
+            case ABOUT -> sortByColumn.append("about");
+        }
+        return sortByColumn;
     }
 
     /**
@@ -107,7 +113,7 @@ public abstract class AbstractService {
      * @param fields  - field of user entity
      * @return Users
      **/
-    protected Users constructUser(Users oldUser, Users newUser, USER_FIELDS fields) {
+    protected Users constructUser(final Users oldUser, final Users newUser, final USER_FIELDS fields) {
         switch (fields) {
             case USER_NAME -> {
                 return new Users.builder()
@@ -217,9 +223,9 @@ public abstract class AbstractService {
                         .build();
             }
             case PASSWORD -> {
-                Set<PassWordSet> oldPassWordSet=oldUser.getPrevious_password_set();
-                if(CollectionUtils.isEmpty(oldPassWordSet)) oldPassWordSet=new HashSet<>();
-                PassWordSet newPassWordSet=new PassWordSet.builder()
+                Set<PassWordSet> oldPassWordSet = oldUser.getPrevious_password_set();
+                if (CollectionUtils.isEmpty(oldPassWordSet)) oldPassWordSet = new HashSet<>();
+                PassWordSet newPassWordSet = new PassWordSet.builder()
                         .password_id(UUID.randomUUID().toString())
                         .passwords(newUser.getPassword())
                         .users(oldUser).build();

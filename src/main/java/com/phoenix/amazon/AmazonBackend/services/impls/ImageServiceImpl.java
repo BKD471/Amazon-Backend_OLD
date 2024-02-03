@@ -9,7 +9,7 @@ import com.phoenix.amazon.AmazonBackend.exceptions.builder.ExceptionBuilder;
 import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers;
 import com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers;
 import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
-import com.phoenix.amazon.AmazonBackend.services.AbstractService;
+import com.phoenix.amazon.AmazonBackend.services.AbstractUserService;
 import com.phoenix.amazon.AmazonBackend.services.IImageService;
 import com.phoenix.amazon.AmazonBackend.services.IUserService;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
@@ -28,7 +28,7 @@ import java.nio.file.Paths;
 import java.util.UUID;
 
 @Service
-public class ImageServiceImpl extends AbstractService implements IImageService {
+public class ImageServiceImpl extends AbstractUserService implements IImageService {
     @Value("${user.profile.images.path}")
     private String path;
 

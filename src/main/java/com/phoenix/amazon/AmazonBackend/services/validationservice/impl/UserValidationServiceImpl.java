@@ -12,7 +12,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Collection;
+import java.util.Objects;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
@@ -34,8 +38,8 @@ public class UserValidationServiceImpl implements IUserValidationService {
         // Check for previous existing
         Predicate<Users> checkEmailExist = null;
         if (checkFor.equalsIgnoreCase("primary"))
-            checkEmailExist = (Users user) -> user.getPrimaryEmail().equalsIgnoreCase(new_email);
-        else checkEmailExist = (Users user) -> user.getSecondaryEmail().equalsIgnoreCase(new_email);
+            checkEmailExist = (Users user) -> new_email.equalsIgnoreCase(user.getPrimaryEmail());
+        else checkEmailExist = (Users user) -> new_email.equalsIgnoreCase(user.getSecondaryEmail());
 
         boolean isEmailPresent = usersSet.stream().anyMatch(checkEmailExist);
         if (isEmailPresent) throw (UserExceptions) ExceptionBuilder.builder()
@@ -46,9 +50,9 @@ public class UserValidationServiceImpl implements IUserValidationService {
         // for primary check for existing in secondary,
         // for secondary check for existing in primary
         if (checkFor.equalsIgnoreCase("primary"))
-            checkEmailExist = (Users user) -> user.getSecondaryEmail().equalsIgnoreCase(new_email);
+            checkEmailExist = (Users user) ->  new_email.equalsIgnoreCase(user.getSecondaryEmail());
         if (checkFor.equalsIgnoreCase("secondary"))
-            checkEmailExist = (Users user) -> user.getPrimaryEmail().equalsIgnoreCase(new_email);
+            checkEmailExist = (Users user) -> new_email.equalsIgnoreCase(user.getPrimaryEmail());
 
         isEmailPresent = usersSet.stream().anyMatch(checkEmailExist);
         if (isEmailPresent) throw (UserExceptions) ExceptionBuilder.builder()
@@ -73,7 +77,7 @@ public class UserValidationServiceImpl implements IUserValidationService {
      * @param userValidation   - user validation field
      */
     @Override
-    public void validateUser(Optional<Users> newUsersOptional, Optional<Users> oldUsersOptional, String methodName, USER_VALIDATION userValidation) throws UserExceptions, BadApiRequestExceptions, UserNotFoundExceptions {
+    public void validateUser(final Optional<Users> newUsersOptional,final Optional<Users> oldUsersOptional, String methodName, USER_VALIDATION userValidation) throws UserExceptions, BadApiRequestExceptions, UserNotFoundExceptions {
         // Get all users
         final Set<Users> userDtoList = new HashSet<>(userRepository.findAll());
         Users newUser = null;
@@ -164,7 +168,7 @@ public class UserValidationServiceImpl implements IUserValidationService {
      * @param userValidation - user validation field
      */
     @Override
-    public void validateUserList(Collection<Users> userSet, String methodName, USER_VALIDATION userValidation) throws UserNotFoundExceptions {
+    public void validateUserList(final Collection<Users> userSet,final String methodName,final USER_VALIDATION userValidation) throws UserNotFoundExceptions {
         switch (userValidation) {
             case GET_ALL_USERS -> {
                 if (CollectionUtils.isEmpty(userSet)) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
