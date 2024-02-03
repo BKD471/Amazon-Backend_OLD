@@ -7,7 +7,6 @@ import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
 
 import java.util.Collection;
 import java.util.Optional;
-import java.util.Set;
 
 import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
 import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION;
@@ -15,11 +14,12 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_F
 
 public interface IUserValidationService {
     /**
-     * @param users - user object
+     * @param newUsersOptional - new user object
+     * @param oldUsersOptional - old user object
      * @param methodName - origin method
      * @param userValidation - user validation type
      */
-    void validateUser(Optional<Users> newusersOptional,Optional<Users> oldusersOptional,final String methodName, final USER_VALIDATION userValidation) throws UserExceptions, BadApiRequestExceptions, UserNotFoundExceptions;
+    void validateUser(final Optional<Users> newUsersOptional,final Optional<Users> oldUsersOptional,final String methodName, final USER_VALIDATION userValidation) throws UserExceptions, BadApiRequestExceptions, UserNotFoundExceptions;
 
     /**
      * @param usersList - set of users

@@ -1,45 +1,64 @@
 package com.phoenix.amazon.AmazonBackend.services.impls;
 
+import com.phoenix.amazon.AmazonBackend.dto.PageableResponse;
 import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 import com.phoenix.amazon.AmazonBackend.entity.Users;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
-import com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers;
+import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
 import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
-import com.phoenix.amazon.AmazonBackend.services.AbstractService;
+import com.phoenix.amazon.AmazonBackend.services.AbstractUserService;
 import com.phoenix.amazon.AmazonBackend.services.IUserService;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
-import java.util.HashSet;
-import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
 
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.GENDER;
-
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.*;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.*;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.PASSWORD;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.USER_NAME;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.FIRST_NAME;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.LAST_NAME;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.ABOUT;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.PRIMARY_EMAIL;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.SECONDARY_EMAIL;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.PROFILE_IMAGE;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.GENDER;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.NULL_OBJECT;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.CREATE_USER;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.UPDATE_USERNAME;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.UPDATE_PRIMARY_EMAIL;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.UPDATE_SECONDARY_EMAIL;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.UPDATE_PASSWORD;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.UPDATE_PROFILE_IMAGE;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.DELETE_USER_BY_USER_ID_OR_USER_NAME;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_ALL_USERS;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_USER_BY_EMAIL;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_ALL_USERS_BY_USER_NAME;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_USER_BY_USER_NAME;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_ALL_USERS_BY_FIRST_NAME;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_ALL_USERS_BY_LAST_NAME;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_ALL_USERS_BY_GENDER;
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UserDtoToUsers;
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UsersToUsersDto;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_USER_INFO_BY_EMAIL_USER_NAME;
+import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.getPageableResponse;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.DestinationDtoType.USER_DTO;
 
 
 @Service("UserServiceMain")
-public class UserServiceImpl extends AbstractService implements IUserService {
+public class UserServiceImpl extends AbstractUserService implements IUserService {
     private final IUserRepository userRepository;
     private final IUserValidationService userValidationService;
 
@@ -51,7 +70,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
 
     private UserDto initializeUserId(final UserDto userDto) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions {
         final String methodName = "initializeUserId";
-        if (Objects.isNull(userDto)) userValidationService.validateUser(Optional.empty(),Optional.empty(),
+        if (Objects.isNull(userDto)) userValidationService.validateUser(Optional.empty(), Optional.empty(),
                 "initializeUserId in UserService", NULL_OBJECT);
 
         final String userIdUUID = UUID.randomUUID().toString();
@@ -73,10 +92,14 @@ public class UserServiceImpl extends AbstractService implements IUserService {
                 .build();
     }
 
-     /**
-     * @param userDto - User Object
-     * @return UserDTo
-     */
+    private Pageable getPageableObject(final int pageNumber, final int pageSize, final Sort sort) {
+        return PageRequest.of(pageNumber - 1, pageSize, sort);
+    }
+
+    /**
+     * @param userDto - userDto object
+     * @return UserDto - userDto Object
+     **/
     @Override
     public UserDto createUser(final UserDto userDto) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions {
         final String methodName = "createUser(UserDto) in UserServiceImpl";
@@ -92,12 +115,11 @@ public class UserServiceImpl extends AbstractService implements IUserService {
     }
 
     /**
-<<<<<<< HEAD
-     * @param user     - Incoming User Object from client
-     * @param userId   - User Id
-     * @param userName - userName of user
-     * @return UserDto
-     */
+     * @param user     - user object
+     * @param userId   - id of user
+     * @param userName - username of user
+     * @return UserDto - userDto Object
+     **/
     @Override
     public UserDto updateUserByUserIdOrUserName(final UserDto user, final String userId, final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
         final String methodName = "updateUserByUserIdOrUserName(UserDto,String) in UserServiceImpl";
@@ -143,12 +165,12 @@ public class UserServiceImpl extends AbstractService implements IUserService {
         }
         if (isNotBlankField.test(userDetails.getPassword()) &&
                 !checkFieldEquality.test(userDetails.getPassword(), fetchedUser.getPassword())) {
-            userValidationService.validateUser(Optional.of(userDetails),Optional.of(fetchedUser), methodName, UPDATE_PASSWORD);
+            userValidationService.validateUser(Optional.of(userDetails), Optional.of(fetchedUser), methodName, UPDATE_PASSWORD);
             fetchedUser = constructUser(fetchedUser, userDetails, PASSWORD);
         }
         if (isNotBlankField.test(userDetails.getProfileImage()) &&
                 !checkFieldEquality.test(userDetails.getProfileImage(), fetchedUser.getProfileImage())) {
-            userValidationService.validateUser(Optional.of(userDetails),Optional.of(fetchedUser), methodName, UPDATE_PROFILE_IMAGE);
+            userValidationService.validateUser(Optional.of(userDetails), Optional.of(fetchedUser), methodName, UPDATE_PROFILE_IMAGE);
             fetchedUser = constructUser(fetchedUser, userDetails, PROFILE_IMAGE);
         }
         Users savedUser = userRepository.save(fetchedUser);
@@ -156,86 +178,104 @@ public class UserServiceImpl extends AbstractService implements IUserService {
     }
 
     /**
-     * @param userId   - User Id
-     * @param userName - userName of user
-     */
+     * @param userId   - id of user
+     * @param userName - username of user
+     **/
     @Override
     public void deleteUserByUserIdOrUserName(final String userId, final String userName) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions {
         final String methodName = "deleteUserByUserIdOrUserName(string) in UserServiceImpl";
         Users fetchedUser = loadUserByUserIdOrUserName(userId, userName, methodName);
-        userValidationService.validateUser(Optional.empty(),Optional.of(fetchedUser), methodName, DELETE_USER_BY_USER_ID_OR_USER_NAME);
+        userValidationService.validateUser(Optional.empty(), Optional.of(fetchedUser), methodName, DELETE_USER_BY_USER_ID_OR_USER_NAME);
         userRepository.deleteByUserIdOrUserName(userId, userName);
     }
 
     /**
-     * @return Set<UserDto> - List Of all Users
-     */
+     * @param pageNumber - index value of page
+     * @param pageSize   - size of page
+     * @param sortBy     - sort column
+     * @param sortDir    - direction of sorting
+     * @return PageableResponse<userDto> - page of userDto
+     **/
     @Override
-    public Set<UserDto> getALlUsers() throws UserNotFoundExceptions {
+    public PageableResponse<UserDto> getAllUsers(final int pageNumber, final int pageSize, final String sortBy, final String sortDir) throws UserNotFoundExceptions {
         final String methodName = "getALlUsers() in UserServiceImpl";
-
-        Set<Users> usersSet = new HashSet<>(userRepository.findAll());
-        userValidationService.validateUserList(usersSet, methodName, GET_ALL_USERS);
-        return usersSet.stream().map(MappingHelpers::UsersToUsersDto).collect(Collectors.toSet());
+        final Sort sort = sortDir.equals("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        final Pageable pageableObject = getPageableObject(pageNumber, pageSize, sort);
+        Page<Users> userPage = userRepository.findAll(pageableObject);
+        userValidationService.validateUserList(userPage.getContent(), methodName, GET_ALL_USERS);
+        return getPageableResponse(userPage, USER_DTO);
     }
 
     /**
-<<<<<<< HEAD
-     * @param email    - email of User
-     * @param userName - userName of user
-     * @return UserDTo
-     */
+     * @param email    - email of user
+     * @param userName - username of user
+     * @return UserDto - userDto Object
+     **/
     @Override
     public UserDto getUserInformationByEmailOrUserName(final String email, final String userName) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions {
         final String methodName = "getUserInformationByEmailOrUserName(String) in UserServiceImpl";
-
         Users users = loadUserByEmailOrUserName(email, userName, methodName);
         return UsersToUsersDto(users);
     }
 
     /**
-     * @param field - field of User Entity
-     * @param value - value of field
-     * @return List<UserDTo>
-     */
+     * @param field      - field of user entity
+     * @param value      - value to query the field
+     * @param pageNumber - index value of page
+     * @param pageSize   - size of page
+     * @param sortBy     - sort column
+     * @param sortDir    - direction of sorting
+     * @return PageableResponse<UserDto> - page of userDto
+     **/
     @Override
-    public Set<UserDto> searchUserByFieldAndValue(final USER_FIELDS field, final String value) throws UserNotFoundExceptions {
+    public PageableResponse<UserDto> searchUserByFieldAndValue(final USER_FIELDS field, final String value, final int pageNumber, final int pageSize, final USER_FIELDS sortBy, final String sortDir) throws UserNotFoundExceptions {
         final String methodName = "searchUserByFieldAndValue(field,String) in UserServiceImpl";
-        Set<Users> users = null;
+
+        final StringBuffer sortByColumn = getUserDbField(sortBy);
+        final Sort sort = sortDir.equals("desc") ? Sort.by(sortByColumn.toString()).descending() : Sort.by(sortByColumn.toString()).ascending();
+        final Pageable pageableObject = getPageableObject(pageNumber, pageSize, sort);
+        Page<Users> usersPage = Page.empty();
         switch (field) {
             case PRIMARY_EMAIL -> {
-                users = userRepository.searchUserByPrimaryEmail(value).get();
-                userValidationService.validateUserList(users, methodName, SEARCH_USER_BY_EMAIL);
+                usersPage = userRepository.searchUserByPrimaryEmail(value, pageableObject).get();
+                userValidationService.validateUserList(usersPage.getContent(), methodName, SEARCH_USER_BY_EMAIL);
             }
             case USER_NAME -> {
-                users = userRepository.searchUserByUserName(value).get();
-                userValidationService.validateUserList(users, methodName, SEARCH_USER_BY_USER_NAME);
+                usersPage = userRepository.searchUserByUserName(value, pageableObject).get();
+                userValidationService.validateUserList(usersPage.getContent(), methodName, SEARCH_USER_BY_USER_NAME);
             }
             case GENDER -> {
-                users = userRepository.searchUserByGender(value).get();
-                userValidationService.validateUserList(users, methodName, SEARCH_ALL_USERS_BY_GENDER);
+                usersPage = userRepository.searchUserByGender(value, pageableObject).get();
+                userValidationService.validateUserList(usersPage.getContent(), methodName, SEARCH_ALL_USERS_BY_GENDER);
             }
             case FIRST_NAME -> {
-                users = userRepository.searchUserByFirstName(value).get();
-                userValidationService.validateUserList(users, methodName, SEARCH_ALL_USERS_BY_FIRST_NAME);
+                usersPage = userRepository.searchUserByFirstName(value, pageableObject).get();
+                userValidationService.validateUserList(usersPage.getContent(), methodName, SEARCH_ALL_USERS_BY_FIRST_NAME);
             }
             case LAST_NAME -> {
-                users = userRepository.searchUserByLastName(value).get();
-                userValidationService.validateUserList(users, methodName, SEARCH_ALL_USERS_BY_LAST_NAME);
+                usersPage = userRepository.searchUserByLastName(value, pageableObject).get();
+                userValidationService.validateUserList(usersPage.getContent(), methodName, SEARCH_ALL_USERS_BY_LAST_NAME);
             }
         }
-        return users.stream().map(MappingHelpers::UsersToUsersDto).collect(Collectors.toSet());
+        return getPageableResponse(usersPage, USER_DTO);
     }
 
     /**
-     * @param userNameWord - Keyword to get multiple users with almost same name initials
-     * @return Set<UserDto>
+     * @param userNameWord - username of user
+     * @param pageNumber   - index value of page
+     * @param pageSize     - size of page
+     * @param sortBy       - sort column
+     * @param sortDir      - direction of sorting
+     * @return PageableResponse<UserDto> - page of userDto
      */
     @Override
-    public Set<UserDto> searchAllUsersByUserName(final String userNameWord) throws UserNotFoundExceptions {
+    public PageableResponse<UserDto> searchAllUsersByUserName(final String userNameWord, final int pageNumber, final int pageSize, final String sortBy, final String sortDir) throws UserNotFoundExceptions {
         final String methodName = "searchAllUsersByUserName(string) in UsersServiceImpl";
 
-        Set<Users> usersSet = loadAllUserByUserNameMatched(userNameWord, methodName);
-        return usersSet.stream().map(MappingHelpers::UsersToUsersDto).collect(Collectors.toSet());
+        final Sort sort = sortDir.equals("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        final Pageable pageableObject = getPageableObject(pageNumber, pageSize, sort);
+        Page<Users> allUsersWithNearlyUserNamePage = userRepository.findAllByUserNameContaining(userNameWord, pageableObject).get();
+        userValidationService.validateUserList(allUsersWithNearlyUserNamePage.getContent(), methodName, SEARCH_ALL_USERS_BY_USER_NAME);
+        return getPageableResponse(allUsersWithNearlyUserNamePage, USER_DTO);
     }
 }

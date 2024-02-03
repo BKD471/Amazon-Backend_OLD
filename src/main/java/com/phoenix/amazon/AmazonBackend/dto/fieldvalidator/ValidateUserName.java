@@ -3,19 +3,17 @@ package com.phoenix.amazon.AmazonBackend.dto.fieldvalidator;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.apache.commons.lang3.StringUtils;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.RegexMatchersHelpers.PATTERN_FOR_PASSWORD;
 import static com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.RegexMatchersHelpers.PATTERN_FOR_USERNAME;
 
-public class ValidateUserName implements ConstraintValidator<ValidName,String> {
+public class ValidateUserName implements ConstraintValidator<ValidUserName,String> {
     /**
-     * @param constraintAnnotation - constraint annotation
+     * @param constraintAnnotation 
      */
     @Override
-    public void initialize(ValidName constraintAnnotation) {
+    public void initialize(ValidUserName constraintAnnotation) {
         ConstraintValidator.super.initialize(constraintAnnotation);
     }
 
