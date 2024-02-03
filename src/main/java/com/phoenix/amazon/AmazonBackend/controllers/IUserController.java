@@ -110,8 +110,8 @@ public interface IUserController {
                                                               @RequestParam(value = "userName",required = false) final String userName) throws IOException, BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions;
 
     @GetMapping("/v1/serve/image")
-    void serveUserImage(@RequestParam(value = "email",required = false) final String email,
+    void serveUserImage(@RequestParam(value = "primaryEmail",required = false) final String primaryEmail,
                         @RequestParam(value = "userName",required = false) final String userName,
-                        final HttpServletResponse response) throws IOException;
+                        final HttpServletResponse response) throws IOException, UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions;
 
 }

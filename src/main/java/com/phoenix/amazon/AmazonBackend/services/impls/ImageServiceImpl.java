@@ -35,9 +35,9 @@ public class ImageServiceImpl extends AbstractUserService implements IImageServi
     private final IUserService userService;
 
     protected ImageServiceImpl(IUserRepository userRepository,
-                               IUserValidationService userValidationService,IUserService userService) {
+                               IUserValidationService userValidationService, IUserService userService) {
         super(userRepository, userValidationService);
-        this.userService=userService;
+        this.userService = userService;
     }
 
     /**
@@ -45,10 +45,10 @@ public class ImageServiceImpl extends AbstractUserService implements IImageServi
      * @return
      */
     @Override
-    public String upload(final MultipartFile file,final String primaryEmail,final String userName) throws BadApiRequestExceptions, IOException, UserNotFoundExceptions, UserExceptions {
+    public String upload(final MultipartFile file, final String primaryEmail, final String userName) throws BadApiRequestExceptions, IOException, UserNotFoundExceptions, UserExceptions {
         final String methodName = "upload(MultipartFile) in ImageServiceImpl";
         final String originalFileName = file.getOriginalFilename();
-        Users oldUser=loadUserByEmailOrUserName(primaryEmail,userName,methodName);
+        Users oldUser = loadUserByEmailOrUserName(primaryEmail, userName, methodName);
 
         if (StringUtils.isBlank(originalFileName)) ;
         final String fileName = UUID.randomUUID().toString();
@@ -65,8 +65,8 @@ public class ImageServiceImpl extends AbstractUserService implements IImageServi
             Files.copy(file.getInputStream(), Paths.get(fullPathWithFileName));
 
 
-            UserDto newUser=new UserDto.builder().profileImage(fileNameWithExtension).build();
-            userService.updateUserByUserIdOrUserName(newUser,oldUser.getUserId(),oldUser.getUserName());
+            UserDto newUser = new UserDto.builder().profileImage(fileNameWithExtension).build();
+            userService.updateUserByUserIdOrUserName(newUser, oldUser.getUserId(), oldUser.getUserName());
             return fileNameWithExtension;
         } else throw (BadApiRequestExceptions) ExceptionBuilder.builder()
                 .className(BadApiRequestExceptions.class)
@@ -81,8 +81,10 @@ public class ImageServiceImpl extends AbstractUserService implements IImageServi
      * @return
      */
     @Override
-    public InputStream getResource(String name) throws FileNotFoundException {
-        final String fullPath = path + File.separator + name;
+    public InputStream getResource(final String primaryEmail, final String userName) throws FileNotFoundException, UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
+        final String methodName = "getResource(String,String) in ImageServiceImpl";
+        Users oldUser = loadUserByEmailOrUserName(primaryEmail, userName, methodName);
+        final String fullPath = path + File.separator + oldUser.getProfileImage();
         return new FileInputStream(fullPath);
     }
 }

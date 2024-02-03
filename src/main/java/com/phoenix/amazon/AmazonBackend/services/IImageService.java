@@ -11,5 +11,5 @@ import java.io.InputStream;
 
 public interface IImageService {
     String upload(final MultipartFile multipartFile,final String primaryEmail,final String userName) throws BadApiRequestExceptions, IOException, UserNotFoundExceptions, UserExceptions;
-    InputStream getResource(final String name) throws FileNotFoundException;
+    InputStream getResource(final String primaryEmail,final String userName) throws FileNotFoundException, UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions;
 }

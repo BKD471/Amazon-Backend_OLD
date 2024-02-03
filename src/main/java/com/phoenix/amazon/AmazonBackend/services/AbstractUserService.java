@@ -245,6 +245,21 @@ public abstract class AbstractUserService {
                         .lastSeen(oldUser.getLastSeen())
                         .build();
             }
+            case PROFILE_IMAGE -> {
+                return new Users.builder()
+                        .profileImage(newUser.getProfileImage())
+                        .gender(oldUser.getGender())
+                        .lastName(oldUser.getLastName())
+                        .firstName(oldUser.getFirstName())
+                        .userId(oldUser.getUserId())
+                        .userName(oldUser.getUserName())
+                        .primaryEmail(oldUser.getPrimaryEmail())
+                        .secondaryEmail(oldUser.getSecondaryEmail())
+                        .password(oldUser.getPassword())
+                        .about(oldUser.getAbout())
+                        .lastSeen(oldUser.getLastSeen())
+                        .build();
+            }
 
         }
         return oldUser;
