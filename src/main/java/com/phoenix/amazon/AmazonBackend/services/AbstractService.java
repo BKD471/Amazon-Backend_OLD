@@ -56,7 +56,7 @@ public abstract class AbstractService {
                 userValidationService.validateUser(Optional.empty(),users, methodName, GET_USER_INFO_BY_USERID_USER_NAME);
             }
             case LU2 -> {
-                users = userRepository.findByPrimaryEmailAndUserName(email, userName);
+                users = userRepository.findByPrimaryEmailOrUserName(email, userName);
                 userValidationService.validateUser(Optional.empty(),users, methodName, GET_USER_INFO_BY_EMAIL_USER_NAME);
             }
         }

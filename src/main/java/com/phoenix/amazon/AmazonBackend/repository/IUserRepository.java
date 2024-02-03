@@ -17,7 +17,7 @@ public interface IUserRepository extends JpaRepository<Users, String> {
      * @param userName - userName of user
      * @return Optional<Users>
      */
-    Optional<Users> findByPrimaryEmailAndUserName(final String email, final String userName);
+    Optional<Users> findByPrimaryEmailOrUserName(final String email, final String userName);
 
     /**
      * @param userId   - id of user

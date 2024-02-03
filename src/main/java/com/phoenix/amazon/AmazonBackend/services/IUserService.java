@@ -8,8 +8,6 @@ import static  com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_
 
 import java.util.Set;
 
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
-
 public interface IUserService {
     /**
      * @param user - user object

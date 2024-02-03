@@ -1,10 +1,12 @@
 package com.phoenix.amazon.AmazonBackend.controllers;
 
 import com.phoenix.amazon.AmazonBackend.dto.ApiResponse;
+import com.phoenix.amazon.AmazonBackend.dto.ImageResponseMessages;
 import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,7 +19,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Set;
 
 @RequestMapping("/api/users")
@@ -74,4 +78,14 @@ public interface IUserController {
      */
     @GetMapping("/v1/search_by_username/{userNameWord}")
     ResponseEntity<Set<UserDto>> searchAllUsersByUserName(@PathVariable("userNameWord") final String userNameWord) throws UserNotFoundExceptions;
+
+    @PutMapping("/v1/upload/image")
+    ResponseEntity<ImageResponseMessages> uploadCustomerImage(@RequestParam("userImage") final MultipartFile image,
+                                                              @RequestParam(value = "primaryEmail",required = false) final String primaryEmail,
+                                                              @RequestParam(value = "userName",required = false) final String userName) throws IOException, BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions;
+
+    @GetMapping("/v1/serve/image")
+    void serveUserImage(@RequestParam(value = "email",required = false) final String email,
+                        @RequestParam(value = "userName",required = false) final String userName,
+                        final HttpServletResponse response) throws IOException;
 }
