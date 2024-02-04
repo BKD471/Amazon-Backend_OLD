@@ -12,12 +12,18 @@ import com.phoenix.amazon.AmazonBackend.services.AbstractUserService;
 import com.phoenix.amazon.AmazonBackend.services.IUserService;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
@@ -53,12 +59,14 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_V
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_ALL_USERS_BY_GENDER;
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UserDtoToUsers;
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UsersToUsersDto;
-import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.getPageableResponse;
+import static com.phoenix.amazon.AmazonBackend.helpers.PagingHelpers.getPageableResponse;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.DestinationDtoType.USER_DTO;
 
 
 @Service("UserServiceMain")
 public class UserServiceImpl extends AbstractUserService implements IUserService {
+    @Value("${user.profile.images.path}")
+    private String imagePath;
     private final IUserRepository userRepository;
     private final IUserValidationService userValidationService;
 
@@ -68,7 +76,7 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
         this.userValidationService = userValidationService;
     }
 
-    private UserDto initializeUserId(final UserDto userDto) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions {
+    private UserDto initializeUserId(final UserDto userDto) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions, IOException {
         final String methodName = "initializeUserId";
         if (Objects.isNull(userDto)) userValidationService.validateUser(Optional.empty(), Optional.empty(),
                 "initializeUserId in UserService", NULL_OBJECT);
@@ -99,9 +107,10 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
     /**
      * @param userDto - userDto object
      * @return UserDto - userDto Object
+     * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      **/
     @Override
-    public UserDto createUser(final UserDto userDto) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions {
+    public UserDto createUser(final UserDto userDto) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions, IOException {
         final String methodName = "createUser(UserDto) in UserServiceImpl";
 
         UserDto userDtoWithId = initializeUserId(userDto);
@@ -119,9 +128,10 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
      * @param userId   - id of user
      * @param userName - username of user
      * @return UserDto - userDto Object
+     * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      **/
     @Override
-    public UserDto updateUserByUserIdOrUserName(final UserDto user, final String userId, final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
+    public UserDto updateUserByUserIdOrUserName(final UserDto user, final String userId, final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
         final String methodName = "updateUserByUserIdOrUserName(UserDto,String) in UserServiceImpl";
 
         Users userDetails = UserDtoToUsers(user);
@@ -180,12 +190,20 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
     /**
      * @param userId   - id of user
      * @param userName - username of user
+     * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      **/
     @Override
-    public void deleteUserByUserIdOrUserName(final String userId, final String userName) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions {
+    public void deleteUserByUserIdOrUserName(final String userId, final String userName) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions, IOException {
         final String methodName = "deleteUserByUserIdOrUserName(string) in UserServiceImpl";
         Users fetchedUser = loadUserByUserIdOrUserName(userId, userName, methodName);
         userValidationService.validateUser(Optional.empty(), Optional.of(fetchedUser), methodName, DELETE_USER_BY_USER_ID_OR_USER_NAME);
+
+        if (!StringUtils.isBlank(fetchedUser.getProfileImage())) {
+            final String pathToProfileIMage = imagePath + File.separator + fetchedUser.getProfileImage();
+            Path paths = Paths.get(pathToProfileIMage);
+            Files.delete(paths);
+        }
+
         userRepository.deleteByUserIdOrUserName(userId, userName);
     }
 
@@ -195,6 +213,7 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
      * @param sortBy     - sort column
      * @param sortDir    - direction of sorting
      * @return PageableResponse<userDto> - page of userDto
+     * @throws UserNotFoundExceptions - list of exceptions being thrown
      **/
     @Override
     public PageableResponse<UserDto> getAllUsers(final int pageNumber, final int pageSize, final String sortBy, final String sortDir) throws UserNotFoundExceptions {
@@ -210,9 +229,10 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
      * @param email    - email of user
      * @param userName - username of user
      * @return UserDto - userDto Object
+     * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      **/
     @Override
-    public UserDto getUserInformationByEmailOrUserName(final String email, final String userName) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions {
+    public UserDto getUserInformationByEmailOrUserName(final String email, final String userName) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions, IOException {
         final String methodName = "getUserInformationByEmailOrUserName(String) in UserServiceImpl";
         Users users = loadUserByEmailOrUserName(email, userName, methodName);
         return UsersToUsersDto(users);
@@ -226,6 +246,7 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
      * @param sortBy     - sort column
      * @param sortDir    - direction of sorting
      * @return PageableResponse<UserDto> - page of userDto
+     * @throws UserNotFoundExceptions - list of exceptions being thrown
      **/
     @Override
     public PageableResponse<UserDto> searchUserByFieldAndValue(final USER_FIELDS field, final String value, final int pageNumber, final int pageSize, final USER_FIELDS sortBy, final String sortDir) throws UserNotFoundExceptions {
@@ -267,6 +288,7 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
      * @param sortBy       - sort column
      * @param sortDir      - direction of sorting
      * @return PageableResponse<UserDto> - page of userDto
+     * @throws UserNotFoundExceptions - list of exceptions being thrown
      */
     @Override
     public PageableResponse<UserDto> searchAllUsersByUserName(final String userNameWord, final int pageNumber, final int pageSize, final String sortBy, final String sortDir) throws UserNotFoundExceptions {

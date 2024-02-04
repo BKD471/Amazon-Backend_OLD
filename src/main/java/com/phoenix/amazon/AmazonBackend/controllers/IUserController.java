@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 
 
@@ -30,33 +29,37 @@ public interface IUserController {
     /**
      * @param user - User Object
      * @return ResponseEntity<UserDto> - UserDto Object
+     * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      */
     @PostMapping("/v1/create")
-    ResponseEntity<UserDto> createUser(@Valid @RequestBody final UserDto user) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions;
+    ResponseEntity<UserDto> createUser(@Valid @RequestBody final UserDto user) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException;
 
     /**
      * @param user     - User Object
      * @param userId   - User Id
      * @param userName - userName of user
      * @return ResponseEntity<UserDto> - UserDto Object
+     * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      */
     @PutMapping("/v1/update")
-    ResponseEntity<UserDto> updateUserByUserIdOrUserName(@Valid @RequestBody final UserDto user, @RequestParam(required = false) final String userId, @RequestParam(required = false) final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions;
+    ResponseEntity<UserDto> updateUserByUserIdOrUserName(@Valid @RequestBody final UserDto user, @RequestParam(required = false) final String userId, @RequestParam(required = false) final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException;
 
     /**
      * @param userId   - User Id
      * @param userName - userName of user
      * @return ResponseEntity<ApiResponse> - ApiResponse Object
+     * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      */
     @DeleteMapping("/v1/delete")
-    ResponseEntity<ApiResponse> deleteUserByUserIdOrUserName(@RequestParam(required = false) final String userId, @RequestParam(required = false) final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions;
+    ResponseEntity<ApiResponse> deleteUserByUserIdOrUserName(@RequestParam(required = false) final String userId, @RequestParam(required = false) final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException;
 
     /**
      * @param pageNumber - index value of page
      * @param pageSize   - size of page
      * @param sortBy     - sort column
      * @param sortDir    - direction of sorting
-     * @return ResponseEntity<List < UserDTo>> - list of userDtp
+     * @return ResponseEntity<PageableResponse < UserDTo>> - page of userDtp
+     * @throws UserNotFoundExceptions -list of exceptions being thrown
      */
     @GetMapping("/v1/getAll")
     ResponseEntity<PageableResponse<UserDto>> getAllUsers(@RequestParam(value = "pageNumber", defaultValue = "1", required = false) final int pageNumber,
@@ -65,13 +68,14 @@ public interface IUserController {
                                                           @RequestParam(value = "sortDir", defaultValue = "asc", required = false) final String sortDir) throws UserNotFoundExceptions;
 
     /**
-     * @param primaryEmail -  primary email of user
+     * @param primaryEmail - primary email of user
      * @param userName     - username of user
      * @return ResponseEntity<UserDto> - userDto Object
+     * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      */
     @GetMapping("/v1/info")
     ResponseEntity<UserDto> getUserInformationByPrimaryEmailOrUserName(@RequestParam(value = "primaryEmail", required = false) final String primaryEmail,
-                                                                       @RequestParam(value = "userName", required = false) final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions;
+                                                                       @RequestParam(value = "userName", required = false) final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException;
 
     /**
      * @param field      - field of User Entity
@@ -80,7 +84,8 @@ public interface IUserController {
      * @param pageSize   - size of page
      * @param sortBy     - sort column
      * @param sortDir    - direction of sorting
-     * @return ResponseEntity<PageableResponse < UserDto>> - page of UserDto
+     * @return ResponseEntity<PageableResponse < UserDto>> - list of UserDto
+     * @throws UserNotFoundExceptions -list of exceptions being thrown
      */
     @GetMapping("/v1/search_by_field")
     ResponseEntity<PageableResponse<UserDto>> searchUserByFieldAndValue(@RequestParam final USER_FIELDS field, @RequestParam final String value,
@@ -95,7 +100,8 @@ public interface IUserController {
      * @param pageSize     - size of page
      * @param sortBy       - sort column
      * @param sortDir      - direction of sorting
-     * @return ResponseEntity<PageableResponse < UserDto>> - page of userDto
+     * @return ResponseEntity<PageableResponse < UserDto>> - list of userDto
+     * @throws UserNotFoundExceptions -list of exceptions being thrown
      */
     @GetMapping("/v1/search_by_username/{userNameWord}")
     ResponseEntity<PageableResponse<UserDto>> searchAllUsersByUserName(@PathVariable("userNameWord") final String userNameWord,
@@ -104,14 +110,27 @@ public interface IUserController {
                                                                        @RequestParam(value = "sortBy", defaultValue = "firstName", required = false) final String sortBy,
                                                                        @RequestParam(value = "sortDir", defaultValue = "asc", required = false) final String sortDir) throws UserNotFoundExceptions;
 
+    /**
+     * @param image        - profile image of user
+     * @param primaryEmail - primary eMail of user
+     * @param userName     - userName of user
+     * @return ResponseEntity<ImageResponseMessages> - image response
+     * @throws IOException,BadApiRequestExceptions,UserNotFoundExceptions,UserExceptions - list of exceptions being thrown
+     */
     @PutMapping("/v1/upload/image")
     ResponseEntity<ImageResponseMessages> uploadCustomerImage(@RequestParam("userImage") final MultipartFile image,
-                                                              @RequestParam(value = "primaryEmail",required = false) final String primaryEmail,
-                                                              @RequestParam(value = "userName",required = false) final String userName) throws IOException, BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions;
+                                                              @RequestParam(value = "primaryEmail", required = false) final String primaryEmail,
+                                                              @RequestParam(value = "userName", required = false) final String userName) throws IOException, BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions;
 
+    /**
+     * @param primaryEmail - primary email of user
+     * @param userName     - userName of user
+     * @param response     - http response
+     * @throws IOException,UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions - list of exceptions being thrown
+     */
     @GetMapping("/v1/serve/image")
-    void serveUserImage(@RequestParam(value = "primaryEmail",required = false) final String primaryEmail,
-                        @RequestParam(value = "userName",required = false) final String userName,
+    void serveUserImage(@RequestParam(value = "primaryEmail", required = false) final String primaryEmail,
+                        @RequestParam(value = "userName", required = false) final String userName,
                         final HttpServletResponse response) throws IOException, UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions;
 
 }

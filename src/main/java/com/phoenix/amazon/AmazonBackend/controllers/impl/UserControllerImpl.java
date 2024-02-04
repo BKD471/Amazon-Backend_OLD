@@ -11,9 +11,7 @@ import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
-
 import com.phoenix.amazon.AmazonBackend.services.IImageService;
-
 import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
 
 import com.phoenix.amazon.AmazonBackend.services.IUserService;
@@ -28,9 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Set;
 
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
 
 @RestController("UserControllerMain")
 public class UserControllerImpl implements IUserController {
@@ -45,9 +41,10 @@ public class UserControllerImpl implements IUserController {
     /**
      * @param user - User Object
      * @return ResponseEntity<UserDto> - UserDto Object
+     * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      */
     @Override
-    public ResponseEntity<UserDto> createUser(final UserDto user) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
+    public ResponseEntity<UserDto> createUser(final UserDto user) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
         UserDto userDto = userService.createUser(user);
         return new ResponseEntity<>(userDto, HttpStatus.CREATED);
     }
@@ -57,9 +54,10 @@ public class UserControllerImpl implements IUserController {
      * @param userId   - User Id
      * @param userName - userName of user
      * @return ResponseEntity<UserDto> - UserDto Object
+     * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      */
     @Override
-    public ResponseEntity<UserDto> updateUserByUserIdOrUserName(final UserDto user, final String userId, final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
+    public ResponseEntity<UserDto> updateUserByUserIdOrUserName(final UserDto user, final String userId, final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
         UserDto userDto = userService.updateUserByUserIdOrUserName(user, userId, userName);
         return new ResponseEntity<>(userDto, HttpStatus.ACCEPTED);
     }
@@ -68,9 +66,10 @@ public class UserControllerImpl implements IUserController {
      * @param userId   - User Id
      * @param userName - userName of user
      * @return ResponseEntity<ApiResponse> - ApiResponse Object
+     * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      */
     @Override
-    public ResponseEntity<ApiResponse> deleteUserByUserIdOrUserName(final String userId, final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
+    public ResponseEntity<ApiResponse> deleteUserByUserIdOrUserName(final String userId, final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
         userService.deleteUserByUserIdOrUserName(userId, userName);
 
         ApiResponse responseMessage = new ApiResponse.builder()
@@ -86,7 +85,8 @@ public class UserControllerImpl implements IUserController {
      * @param pageSize   - size of page
      * @param sortBy     - sort column
      * @param sortDir    - direction of sorting
-     * @return ResponseEntity<PageableResponse < UserDTo>> - list of userDtp
+     * @return ResponseEntity<PageableResponse < UserDTo>> - page of userDtp
+     * @throws UserNotFoundExceptions -list of exceptions being thrown
      */
     @Override
     public ResponseEntity<PageableResponse<UserDto>> getAllUsers(final int pageNumber, final int pageSize, final String sortBy, final String sortDir) throws UserNotFoundExceptions {
@@ -98,9 +98,10 @@ public class UserControllerImpl implements IUserController {
      * @param primaryEmail - primary email of user
      * @param userName     - username of user
      * @return ResponseEntity<UserDto> - userDto Object
+     * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      */
     @Override
-    public ResponseEntity<UserDto> getUserInformationByPrimaryEmailOrUserName(final String primaryEmail, final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
+    public ResponseEntity<UserDto> getUserInformationByPrimaryEmailOrUserName(final String primaryEmail, final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
         UserDto userDto = userService.getUserInformationByEmailOrUserName(primaryEmail, userName);
         return new ResponseEntity<>(userDto, HttpStatus.OK);
     }
@@ -113,6 +114,7 @@ public class UserControllerImpl implements IUserController {
      * @param sortBy     - sort column
      * @param sortDir    - direction of sorting
      * @return ResponseEntity<PageableResponse < UserDto>> - list of UserDto
+     * @throws UserNotFoundExceptions -list of exceptions being thrown
      */
     @Override
     public ResponseEntity<PageableResponse<UserDto>> searchUserByFieldAndValue(final USER_FIELDS field, final String value, final int pageNumber, final int pageSize, final USER_FIELDS sortBy, final String sortDir) throws UserNotFoundExceptions {
@@ -127,6 +129,7 @@ public class UserControllerImpl implements IUserController {
      * @param sortBy       - sort column
      * @param sortDir      - direction of sorting
      * @return ResponseEntity<PageableResponse < UserDto>> - list of userDto
+     * @throws UserNotFoundExceptions -list of exceptions being thrown
      */
     @Override
     public ResponseEntity<PageableResponse<UserDto>> searchAllUsersByUserName(final String userNameWord, final int pageNumber, final int pageSize, final String sortBy, final String sortDir) throws UserNotFoundExceptions {
@@ -135,10 +138,11 @@ public class UserControllerImpl implements IUserController {
     }
 
     /**
-     * @param image
-     * @param userName
-     * @return
-     * @throws IOException
+     * @param image        - profile image of user
+     * @param primaryEmail - primary eMail of user
+     * @param userName     - userName of user
+     * @return ResponseEntity<ImageResponseMessages> - image response
+     * @throws IOException,BadApiRequestExceptions,UserNotFoundExceptions,UserExceptions - list of exceptions being thrown
      */
     @Override
     public ResponseEntity<ImageResponseMessages> uploadCustomerImage(final MultipartFile image,
@@ -156,9 +160,10 @@ public class UserControllerImpl implements IUserController {
     }
 
     /**
-     * @param userName
-     * @param response
-     * @throws IOException
+     * @param primaryEmail - primary email of user
+     * @param userName     - userName of user
+     * @param response     - http response
+     * @throws IOException,UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions - list of exceptions being thrown
      */
     @Override
     public void serveUserImage(final String primaryEmail, final String userName, HttpServletResponse response) throws IOException, UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
