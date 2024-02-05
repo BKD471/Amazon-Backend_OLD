@@ -200,8 +200,7 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
 
         if (!StringUtils.isBlank(fetchedUser.getProfileImage())) {
             final String pathToProfileIMage = imagePath + File.separator + fetchedUser.getProfileImage();
-            Path paths = Paths.get(pathToProfileIMage);
-            Files.delete(paths);
+            Files.delete(Paths.get(pathToProfileIMage));
         }
 
         userRepository.deleteByUserIdOrUserName(userId, userName);
