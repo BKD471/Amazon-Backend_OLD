@@ -5,11 +5,11 @@ import com.phoenix.amazon.AmazonBackend.entity.Users;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
-import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers;
 import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
 import org.springframework.util.CollectionUtils;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -48,7 +48,7 @@ public abstract class AbstractUserService {
      * @return Users
      **/
     private Users loadUserByUserNameOrEmailOrUserId(final String userId, final String userName, final String email,
-                                                    final String methodName, UserLoadType loadType) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
+                                                    final String methodName, UserLoadType loadType) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
         Optional<Users> users = Optional.empty();
         switch (loadType) {
             case LU1 -> {
@@ -70,7 +70,7 @@ public abstract class AbstractUserService {
      * @param methodName - origin of requesting method
      * @return Users
      **/
-    protected Users loadUserByEmailOrUserName(final String email, final String userName, final String methodName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
+    protected Users loadUserByEmailOrUserName(final String email, final String userName, final String methodName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
         userValidationService.validateFields(null, userName, email, methodName, VALIDATE_USER_NAME_OR_EMAIL);
         return loadUserByUserNameOrEmailOrUserId(null, userName, email, methodName, UserLoadType.LU2);
     }
@@ -80,7 +80,7 @@ public abstract class AbstractUserService {
      * @param methodName - origin of requesting method
      * @return Users
      **/
-    protected Users loadUserByUserIdOrUserName(final String userId, final String userName, final String methodName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
+    protected Users loadUserByUserIdOrUserName(final String userId, final String userName, final String methodName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
         userValidationService.validateFields(userId, userName, null, methodName, VALIDATE_USER_ID_OR_USER_NAME);
         return loadUserByUserNameOrEmailOrUserId(userId, userName, null, methodName, UserLoadType.LU1);
     }
@@ -242,6 +242,21 @@ public abstract class AbstractUserService {
                         .about(oldUser.getAbout())
                         .profileImage(oldUser.getProfileImage())
                         .previous_password_set(oldPassWordSet)
+                        .lastSeen(oldUser.getLastSeen())
+                        .build();
+            }
+            case PROFILE_IMAGE -> {
+                return new Users.builder()
+                        .profileImage(newUser.getProfileImage())
+                        .gender(oldUser.getGender())
+                        .lastName(oldUser.getLastName())
+                        .firstName(oldUser.getFirstName())
+                        .userId(oldUser.getUserId())
+                        .userName(oldUser.getUserName())
+                        .primaryEmail(oldUser.getPrimaryEmail())
+                        .secondaryEmail(oldUser.getSecondaryEmail())
+                        .password(oldUser.getPassword())
+                        .about(oldUser.getAbout())
                         .lastSeen(oldUser.getLastSeen())
                         .build();
             }

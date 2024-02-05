@@ -9,9 +9,14 @@ import com.phoenix.amazon.AmazonBackend.exceptions.builder.ExceptionBuilder;
 import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Optional;
@@ -28,6 +33,8 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_F
 
 @Service
 public class UserValidationServiceImpl implements IUserValidationService {
+    @Value("${user.profile.images.path}")
+    private String imagePath;
     private final IUserRepository userRepository;
 
     UserValidationServiceImpl(IUserRepository userRepository) {
@@ -50,7 +57,7 @@ public class UserValidationServiceImpl implements IUserValidationService {
         // for primary check for existing in secondary,
         // for secondary check for existing in primary
         if (checkFor.equalsIgnoreCase("primary"))
-            checkEmailExist = (Users user) ->  new_email.equalsIgnoreCase(user.getSecondaryEmail());
+            checkEmailExist = (Users user) -> new_email.equalsIgnoreCase(user.getSecondaryEmail());
         if (checkFor.equalsIgnoreCase("secondary"))
             checkEmailExist = (Users user) -> new_email.equalsIgnoreCase(user.getPrimaryEmail());
 
@@ -77,7 +84,7 @@ public class UserValidationServiceImpl implements IUserValidationService {
      * @param userValidation   - user validation field
      */
     @Override
-    public void validateUser(final Optional<Users> newUsersOptional,final Optional<Users> oldUsersOptional, String methodName, USER_VALIDATION userValidation) throws UserExceptions, BadApiRequestExceptions, UserNotFoundExceptions {
+    public void validateUser(final Optional<Users> newUsersOptional, final Optional<Users> oldUsersOptional, String methodName, USER_VALIDATION userValidation) throws UserExceptions, BadApiRequestExceptions, UserNotFoundExceptions, IOException {
         // Get all users
         final Set<Users> userDtoList = new HashSet<>(userRepository.findAll());
         Users newUser = null;
@@ -151,7 +158,16 @@ public class UserValidationServiceImpl implements IUserValidationService {
                         .methodName(methodName).build(USER_EXEC);
             }
             case UPDATE_PROFILE_IMAGE -> {
-                // todo
+                final String pathToImage = imagePath + File.separator + newUser.getProfileImage();
+                File file = new File(pathToImage);
+                double fileSizeInKb = (double) (file.length() / 1024);
+
+                if (fileSizeInKb > 100.0d) {
+                    Files.delete(Paths.get(pathToImage));
+                    throw (BadApiRequestExceptions) ExceptionBuilder.builder().className(BadApiRequestExceptions.class)
+                            .description("File should not be greater than 100kb").methodName(methodName)
+                            .build(BAD_API_EXEC);
+                }
             }
             case DELETE_USER_BY_USER_ID_OR_USER_NAME -> {
                 if (oldUsersOptional.isEmpty()) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
@@ -168,7 +184,7 @@ public class UserValidationServiceImpl implements IUserValidationService {
      * @param userValidation - user validation field
      */
     @Override
-    public void validateUserList(final Collection<Users> userSet,final String methodName,final USER_VALIDATION userValidation) throws UserNotFoundExceptions {
+    public void validateUserList(final Collection<Users> userSet, final String methodName, final USER_VALIDATION userValidation) throws UserNotFoundExceptions {
         switch (userValidation) {
             case GET_ALL_USERS -> {
                 if (CollectionUtils.isEmpty(userSet)) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
