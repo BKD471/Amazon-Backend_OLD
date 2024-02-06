@@ -12,7 +12,6 @@ import com.phoenix.amazon.AmazonBackend.services.AbstractUserService;
 import com.phoenix.amazon.AmazonBackend.services.IImageService;
 import com.phoenix.amazon.AmazonBackend.services.IUserService;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,33 +24,37 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.UUID;
 
-@Service
+@Service("ImageServicePrimary")
 public class ImageServiceImpl extends AbstractUserService implements IImageService {
     @Value("${user.profile.images.path}")
     private String imagePath;
 
     private final IUserService userService;
+    private final IUserValidationService userValidationService;
 
     protected ImageServiceImpl(IUserRepository userRepository,
                                IUserValidationService userValidationService, IUserService userService) {
         super(userRepository, userValidationService);
+        this.userValidationService = userValidationService;
         this.userService = userService;
     }
 
     /**
-     * @param file         - profile image of user
+     * @param image        - profile image of user
+     * @param userId       - userId of user
+     * @param userName     - userName of user
      * @param primaryEmail - primary email of user
-     * @param userName     - username of user
      * @return string
      * @throws BadApiRequestExceptions,IOException,UserNotFoundExceptions,UserExceptions - list of exception being thrown
      **/
     @Override
-    public String upload(final MultipartFile file, final String primaryEmail, final String userName) throws BadApiRequestExceptions, IOException, UserNotFoundExceptions, UserExceptions {
+    public String uploadUserImageServiceByUserIdOrUserNameOrPrimaryEmail(final MultipartFile image, final String userId, final String userName, final String primaryEmail) throws BadApiRequestExceptions, IOException, UserNotFoundExceptions, UserExceptions {
         final String methodName = "upload(MultipartFile) in ImageServiceImpl";
-        final String originalFileName = file.getOriginalFilename();
-        Users oldUser = loadUserByEmailOrUserName(primaryEmail, userName, methodName);
+        final String originalFileName = image.getOriginalFilename();
+        Users oldUser = loadUserByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail, methodName);
 
-        if (StringUtils.isBlank(originalFileName)) ;
+        userValidationService.validateNullField(originalFileName, "Something problem with your image!!." +
+                "Its either corrupted or not supported", methodName);
         final String fileName = UUID.randomUUID().toString();
         final String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
         final String fileNameWithExtension = fileName + extension;
@@ -63,11 +66,11 @@ public class ImageServiceImpl extends AbstractUserService implements IImageServi
                 extension.equalsIgnoreCase(".avif")) {
             File folder = new File(imagePath);
             if (!folder.exists()) folder.mkdirs();
-            Files.copy(file.getInputStream(), Paths.get(fullPathWithFileName));
+            Files.copy(image.getInputStream(), Paths.get(fullPathWithFileName));
 
 
             UserDto newUser = new UserDto.builder().profileImage(fileNameWithExtension).build();
-            userService.updateUserByUserIdOrUserName(newUser, oldUser.getUserId(), oldUser.getUserName());
+            userService.updateUserServiceByUserIdOrUserNameOrPrimaryEmail(newUser, oldUser.getUserId(), oldUser.getUserName(), oldUser.getPrimaryEmail());
             return fileNameWithExtension;
         } else throw (BadApiRequestExceptions) ExceptionBuilder.builder()
                 .className(BadApiRequestExceptions.class)
@@ -78,15 +81,16 @@ public class ImageServiceImpl extends AbstractUserService implements IImageServi
     }
 
     /**
+     * @param userId       - userId of user
+     * @param userName     - userName of user
      * @param primaryEmail - primary email of user
-     * @param userName     - username of user
      * @return InputStream
      * @throws BadApiRequestExceptions,IOException,UserNotFoundExceptions,UserExceptions - list of exception being thrown
      **/
     @Override
-    public InputStream getResource(final String primaryEmail, final String userName) throws IOException, UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
+    public InputStream serveUserImageServiceByUserIdOrUserNameOrPrimaryEmail(final String userId, final String userName, final String primaryEmail) throws IOException, UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
         final String methodName = "getResource(String,String) in ImageServiceImpl";
-        Users oldUser = loadUserByEmailOrUserName(primaryEmail, userName, methodName);
+        Users oldUser = loadUserByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail, methodName);
         final String fullPath = imagePath + File.separator + oldUser.getProfileImage();
         return new FileInputStream(fullPath);
     }

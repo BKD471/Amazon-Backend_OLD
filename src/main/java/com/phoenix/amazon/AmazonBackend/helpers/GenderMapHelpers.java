@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GenderMapHelpers {
-    public static final Map<String, AllConstantHelpers.GENDER> genderMap=new HashMap<>();
+    public static final Map<String, AllConstantHelpers.GENDER> genderMap = new HashMap<>();
 
     static {
         genderMap.put("MALE", MALE);
@@ -19,8 +19,9 @@ public class GenderMapHelpers {
         genderMap.put("LGBTQ", LGBTQ);
 
     }
-    public static GENDER getGender(final String gender){
-        if(genderMap.containsKey(gender)) return genderMap.get(gender);
+
+    public static GENDER getGender(final String gender) {
+        if (genderMap.containsKey(gender)) return genderMap.get(gender);
         return null;
     }
 

@@ -11,14 +11,14 @@ import java.util.stream.Collectors;
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UsersToUsersDto;
 
 public class PagingHelpers {
-    public static <U,V> PageableResponse<U> getPageableResponse(final Page<V> page, final AllConstantHelpers.DestinationDtoType destinationDtoType){
-        List<V> entityList=page.getContent();
-        List<U> dtoList=new ArrayList<>();
-        switch (destinationDtoType){
+    public static <U, V> PageableResponse<U> getPageableResponse(final Page<V> page, final AllConstantHelpers.DestinationDtoType destinationDtoType) {
+        List<V> entityList = page.getContent();
+        List<U> dtoList = new ArrayList<>();
+        switch (destinationDtoType) {
             case USER_DTO -> {
-                if(!entityList.isEmpty() && entityList.getFirst() instanceof Users){
-                    dtoList=(List<U>) entityList.stream()
-                            .map(object->UsersToUsersDto((Users)object))
+                if (!entityList.isEmpty() && entityList.getFirst() instanceof Users) {
+                    dtoList = (List<U>) entityList.stream()
+                            .map(object -> UsersToUsersDto((Users) object))
                             .collect(Collectors.toList());
                 }
             }
@@ -26,7 +26,7 @@ public class PagingHelpers {
 
         return new PageableResponse.Builder<U>()
                 .content(dtoList)
-                .pageNumber(page.getNumber()+1)
+                .pageNumber(page.getNumber() + 1)
                 .pageSize(page.getSize())
                 .totalElements(page.getTotalElements())
                 .totalPages(page.getTotalPages())

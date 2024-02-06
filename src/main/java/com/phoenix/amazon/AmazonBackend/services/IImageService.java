@@ -10,19 +10,21 @@ import java.io.InputStream;
 
 public interface IImageService {
     /**
-    *  @param file          - profile image of user
-     * @param primaryEmail  - primary email of user
-     * @param userName      - username of user
+     * @param image        - profile image of user
+     * @param userId       - userId of user
+     * @param userName     - userName of user
+     * @param primaryEmail - primary email of user
      * @return string
      * @throws BadApiRequestExceptions,IOException,UserNotFoundExceptions,UserExceptions - list of exception being thrown
-    **/
-    String upload(final MultipartFile file,final String primaryEmail,final String userName) throws BadApiRequestExceptions, IOException, UserNotFoundExceptions, UserExceptions;
+     **/
+    String uploadUserImageServiceByUserIdOrUserNameOrPrimaryEmail(final MultipartFile image, final String userId, final String userName, final String primaryEmail) throws BadApiRequestExceptions, IOException, UserNotFoundExceptions, UserExceptions;
 
     /**
-     * @param primaryEmail  - primary email of user
-     * @param userName      - username of user
+     * @param userId       - userId of user
+     * @param userName     - userName of user
+     * @param primaryEmail - primary email of user
      * @return InputStream
      * @throws BadApiRequestExceptions,IOException,UserNotFoundExceptions,UserExceptions - list of exception being thrown
      **/
-    InputStream getResource(final String primaryEmail,final String userName) throws IOException, UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions;
+    InputStream serveUserImageServiceByUserIdOrUserNameOrPrimaryEmail(final String userId, final String userName, final String primaryEmail) throws IOException, UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions;
 }

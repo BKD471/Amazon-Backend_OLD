@@ -15,23 +15,25 @@ public interface IUserService {
      * @return UserDto - userDto Object
      * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      **/
-    UserDto createUser(final UserDto userDto) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions, IOException;
+    UserDto createUserService(final UserDto userDto) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions, IOException;
 
     /**
-     * @param user     - user object
-     * @param userId   - id of user
-     * @param userName - username of user
-     * @return UserDto - userDto Object
+     * @param user         - user object
+     * @param userId       - id of user
+     * @param userName     - username of user
+     * @param primaryEmail - primary email of user
+     * @return UserDto     - userDto Object
      * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      **/
-    UserDto updateUserByUserIdOrUserName(final UserDto user, final String userId, final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException;
+    UserDto updateUserServiceByUserIdOrUserNameOrPrimaryEmail(final UserDto user, final String userId, final String userName, final String primaryEmail) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException;
 
     /**
-     * @param userId   - id of user
-     * @param userName - username of user
+     * @param userId       - id of user
+     * @param userName     - username of user
+     * @param primaryEmail - primary email of user
      * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      **/
-    void deleteUserByUserIdOrUserName(final String userId, final String userName) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions, IOException;
+    void deleteUserServiceByUserIdOrUserNameOrPrimaryEmail(final String userId, final String userName, final String primaryEmail) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions, IOException;
 
     /**
      * @param pageNumber - index value of page
@@ -44,12 +46,13 @@ public interface IUserService {
     PageableResponse<UserDto> getAllUsers(final int pageNumber, final int pageSize, final String sortBy, final String sortDir) throws UserNotFoundExceptions;
 
     /**
-     * @param email    - email of user
-     * @param userName - username of user
-     * @return UserDto - userDto Object
+     * @param userId       - id of user
+     * @param userName     - username of user
+     * @param primaryEmail - primary email of user
+     * @return UserDto     - userDto Object
      * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      **/
-    UserDto getUserInformationByEmailOrUserName(final String email, final String userName) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions, IOException;
+    UserDto getUserServiceInformationByUserIdOrUserNameOrPrimaryEmail(final String userId, final String userName, final String primaryEmail) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions, IOException;
 
     /**
      * @param field      - field of user entity

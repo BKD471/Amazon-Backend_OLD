@@ -16,10 +16,8 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELD_VALIDATION.VALIDATE_USER_NAME_OR_EMAIL;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELD_VALIDATION.VALIDATE_USER_ID_OR_USER_NAME;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_USER_INFO_BY_EMAIL_USER_NAME;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_USER_INFO_BY_USERID_USER_NAME;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELD_VALIDATION.VALIDATE_USER_ID_OR_USER_NAME_OR_PRIMARY_EMAIL;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_USER_INFO_BY_USERID_USER_NAME_PRIMARY_EMAIL;
 
 public abstract class AbstractUserService {
     private final IUserRepository userRepository;
@@ -30,61 +28,25 @@ public abstract class AbstractUserService {
         this.userValidationService = userValidationService;
     }
 
-    /**
-     * Depending on type of request
-     * invoke dao impl of load user
-     * <p>
-     * LU1 - to load by userId, userName
-     * LU2 - to load by userName, email
-     */
-    protected enum UserLoadType {LU1, LU2}
 
     /**
-     * @param userId     - id of User
-     * @param userName   - userName of user
-     * @param email      - email of user
-     * @param methodName - origin of requesting method
-     * @param loadType   - type by which we load user
+     * @param userId       - user id of user
+     * @param userName     - userName of user
+     * @param primaryEmail - primary email of user
+     * @param methodName   - origin of requesting method
      * @return Users
+     * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException - list of exceptions being thrown
      **/
-    private Users loadUserByUserNameOrEmailOrUserId(final String userId, final String userName, final String email,
-                                                    final String methodName, UserLoadType loadType) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
-        Optional<Users> users = Optional.empty();
-        switch (loadType) {
-            case LU1 -> {
-                users = userRepository.findByUserIdOrUserName(userId, userName);
-                userValidationService.validateUser(Optional.empty(), users, methodName, GET_USER_INFO_BY_USERID_USER_NAME);
-            }
-            case LU2 -> {
-                users = userRepository.findByPrimaryEmailOrUserName(email, userName);
-                userValidationService.validateUser(Optional.empty(), users, methodName, GET_USER_INFO_BY_EMAIL_USER_NAME);
-            }
-        }
+    protected Users loadUserByUserIdOrUserNameOrPrimaryEmail(final String userId, final String userName,final String primaryEmail, final String methodName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
+        userValidationService.validatePZeroUserFields(userId, userName, primaryEmail, methodName, VALIDATE_USER_ID_OR_USER_NAME_OR_PRIMARY_EMAIL);
+        Optional<Users> users = userRepository.findByUserIdOrUserNameOrPrimaryEmail(userId, userName,primaryEmail);
+        userValidationService.validateUser(Optional.empty(), users, methodName, GET_USER_INFO_BY_USERID_USER_NAME_PRIMARY_EMAIL);
         return users.get();
     }
 
-
     /**
-     * @param email      - email of user
-     * @param userName   - userName of user
-     * @param methodName - origin of requesting method
-     * @return Users
-     **/
-    protected Users loadUserByEmailOrUserName(final String email, final String userName, final String methodName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
-        userValidationService.validateFields(null, userName, email, methodName, VALIDATE_USER_NAME_OR_EMAIL);
-        return loadUserByUserNameOrEmailOrUserId(null, userName, email, methodName, UserLoadType.LU2);
-    }
-
-    /**
-     * @param userName   - userName of user
-     * @param methodName - origin of requesting method
-     * @return Users
-     **/
-    protected Users loadUserByUserIdOrUserName(final String userId, final String userName, final String methodName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
-        userValidationService.validateFields(userId, userName, null, methodName, VALIDATE_USER_ID_OR_USER_NAME);
-        return loadUserByUserNameOrEmailOrUserId(userId, userName, null, methodName, UserLoadType.LU1);
-    }
-
+     * @param sortBy - column to sort
+     * */
     protected StringBuffer getUserDbField(USER_FIELDS sortBy){
         StringBuffer sortByColumn=new StringBuffer();
         switch (sortBy){

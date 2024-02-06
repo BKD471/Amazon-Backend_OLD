@@ -5,7 +5,7 @@ import com.phoenix.amazon.AmazonBackend.entity.Users;
 
 import static com.phoenix.amazon.AmazonBackend.helpers.GenderMapHelpers.getGender;
 
-public class MappingHelpers<U,V> {
+public class MappingHelpers{
     public static UserDto UsersToUsersDto(final Users users) {
         return new UserDto.builder()
                 .userId(users.getUserId())
