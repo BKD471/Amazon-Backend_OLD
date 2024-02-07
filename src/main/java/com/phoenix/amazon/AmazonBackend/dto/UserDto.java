@@ -1,11 +1,11 @@
 package com.phoenix.amazon.AmazonBackend.dto;
 
+import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.ValidEmail;
 import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.ValidUserName;
 import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.ValidName;
 import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.NullOrEmail;
 import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.ValidPassword;
 import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.ValidGender;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
@@ -22,12 +22,9 @@ public record UserDto(String userId,
                       @ValidName
                       @NotNull(message = "Please give your lastName")
                       String lastName,
-                      @Email(message = "Please provide a valid primary email")
-                      @Size(min = 1,message = "Please provide a valid primary email")
-                      @NotNull(message = "Please give your email id")
+                      @ValidEmail(message = "Please provide a valid primary email")
                       String primaryEmail,
                       @NullOrEmail
-                      @Size(min = 1,message = "Please provide a valid secondary email")
                       String secondaryEmail,
                       @ValidPassword
                       @NotNull(message = "Please give your password")
