@@ -2,54 +2,54 @@ User Validation TDD
 
 fields             validation                    responsibility               impl     status
 
-username           unique                        custom logic                 done
-                   not null                      spring data validation       done
-                   can be changed but unique     custom logic                 done
+username           unique                        custom logic                 done     todo
+                   not null                      spring data validation       done     todo
+                   can be changed but unique     custom logic                 done     todo
                    no special symbols only
                    letter or number or underscore
                    of size at least 5 to 20
 
-primary email      email but not null            from spring data validation  done
-                   unique, can be changed        custom logic                 done
-				   must not be someone secondary custom logic                 done
+primary email      email but not null            from spring data validation  done     todo
+                   unique, can be changed        custom logic                 done     todo
+				   must not be someone secondary custom logic                 done     todo
 
 
-secondary email	   email but can be null	     spring validation            done
-                   unique can be changed,        custom logic                 done
-				   must not be someone primary   custom logic                 done
+secondary email	   email but can be null	     spring validation            done     todo
+                   unique can be changed,        custom logic                 done     todo
+				   must not be someone primary   custom logic                 done     todo
 
 
 firstName          not null
-                   must not contain whitespace   custom annotation            done
+                   must not contain whitespace   custom annotation            done     todo
                    or number or special
-                   can be changed                custom logic                 done
+                   can be changed                custom logic                 done     todo
 
 
 lastName           not null
-                   must not contain whitespace   custom annotation            done
+                   must not contain whitespace   custom annotation            done     todo
                    or number or special
-                   can be changed                custom logic                 done
+                   can be changed                custom logic                 done     todo
 
 
 gender             not null &
-                   from valid gender list        custom annotation            done
-                   can be changed                custom logic                 done
+                   from valid gender list        custom annotation            done     todo
+                   can be changed                custom logic                 done     todo
 
 
-password           not null                      custom annotation            done    ok
+password           not null                      custom annotation            done     todo
                    1 letter, 1 special
                    1 uppercase, 1 lowercase
                    1 number must be at least 15
                    can be changed,
-                   must not be previous          custom logic                 done
+                   must not be previous          custom logic                 done     todo
 
 
-profile image      can be null                    custom logic                todo
+profile image      can be null                    custom logic                done     todo
                    must not be greater than 100kb
-                   can be changed                 custom logic                todo
+                   can be changed                 custom logic                done     todo
 
 
-bio                can be null                    spring annotation           done
+bio                can be null                    spring annotation           done     todo
                    cannot be more than 500
                    can be changed                 no need
 
