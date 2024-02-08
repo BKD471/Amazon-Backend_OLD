@@ -17,8 +17,6 @@ public @interface NullOrEmail {
     //default error message
     String message() default "Please provide a valid email";
 
-    //
-
     /**
      * @return the groups the constraint belongs to
      */
