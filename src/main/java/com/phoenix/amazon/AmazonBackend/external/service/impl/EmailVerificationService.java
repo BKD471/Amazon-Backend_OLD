@@ -2,25 +2,42 @@ package com.phoenix.amazon.AmazonBackend.external.service.impl;
 
 import com.phoenix.amazon.AmazonBackend.external.client.IEmailClient;
 import com.phoenix.amazon.AmazonBackend.external.service.IEmailVerificationService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 @Service
 public class EmailVerificationService implements IEmailVerificationService {
     private final IEmailClient emailClient;
-    private static final String API_HOST_HEADER_VALUE = "quickemailverification.p.rapidapi.com"; // <-- Or replace with your host name
-    private static final String API_KEY = "e6ea207e0cmsh0cca9b25fd665cap1e5403jsn906fbfacf70f"; // <-- replace with your API key
-    private static final String AUTHORIZATION_KEY = "404a02869683499d77c7dd766e676f3530257faa7ec76bbbd75c45e8179a";
+    private final String API_HOST_HEADER_VALUE;
+    private final String API_KEY;
+    private final String AUTHORIZATION_KEY;
+    private final Properties properties;
+    Logger logger = LoggerFactory.getLogger(EmailVerificationService.class);
 
-
-    EmailVerificationService(IEmailClient emailClient){
-        this.emailClient=emailClient;
+    EmailVerificationService(IEmailClient emailClient,
+                             @Value("${path.user.verification.service.properties}") final String PATH_TO_PROPS_FILE) {
+        properties = new Properties();
+        try {
+            properties.load(new FileInputStream(PATH_TO_PROPS_FILE));
+        } catch (IOException ex) {
+            logger.error("Error in reading the props in {} EmailVerificationService", ex.getMessage());
+        }
+        this.emailClient = emailClient;
+        this.API_HOST_HEADER_VALUE = properties.getProperty("api.host.header.value");
+        this.API_KEY = properties.getProperty("api.key");
+        this.AUTHORIZATION_KEY = properties.getProperty("api.auth.key");
     }
 
     /**
-     * @param email  - email to verify
+     * @param email - email to verify
      * @return Map<String, String>
      */
     @Override
