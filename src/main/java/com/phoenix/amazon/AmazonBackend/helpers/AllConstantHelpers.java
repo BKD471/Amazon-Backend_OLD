@@ -45,7 +45,7 @@ public class AllConstantHelpers {
         VALIDATE_USER_NAME_OR_EMAIL
     }
     public enum EXCEPTION_CODES{
-        USER_EXEC,BAD_API_EXEC,USER_NOT_FOUND_EXEC
+        USER_EXEC,BAD_API_EXEC,USER_NOT_FOUND_EXEC,SERVICE_DOWN_EXEC
     }
 
     public enum DestinationDtoType{

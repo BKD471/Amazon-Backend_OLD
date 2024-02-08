@@ -1,38 +1,28 @@
 package com.phoenix.amazon.AmazonBackend.dto;
 
+import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.ValidEmail;
 import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.ValidUserName;
 import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.ValidName;
 import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.NullOrEmail;
 import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.ValidPassword;
-import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.ValidGender;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 
 public record UserDto(String userId,
-                      @Size(min = 3, max = 10, message = "UserName must be at least 3 chars long and 10 chars at max")
-                      @NotNull(message = "Please give your userName")
                       @ValidUserName
                       String userName,
                       @ValidName
-                      @NotNull(message = "Please give your firstName")
                       String firstName,
                       @ValidName
-                      @NotNull(message = "Please give your lastName")
                       String lastName,
-                      @Email(message = "Please provide a valid primary email")
-                      @Size(min = 1,message = "Please provide a valid primary email")
-                      @NotNull(message = "Please give your email id")
+                      @ValidEmail
                       String primaryEmail,
                       @NullOrEmail
-                      @Size(min = 1,message = "Please provide a valid secondary email")
                       String secondaryEmail,
                       @ValidPassword
-                      @NotNull(message = "Please give your password")
                       String password,
-                      @ValidGender
                       @NotNull(message = "Please give your gender type")
                       String gender,
                       String profileImage,
