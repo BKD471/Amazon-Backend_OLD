@@ -22,8 +22,9 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.function.BiPredicate;
 import java.util.function.Predicate;
+
+import com.phoenix.amazon.AmazonBackend.helpers.TriPredicate;
 
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.EXCEPTION_CODES.BAD_API_EXEC;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.EXCEPTION_CODES.USER_NOT_FOUND_EXEC;
@@ -120,16 +121,10 @@ public class UserValidationServiceImpl implements IUserValidationService {
                         .description("System Error In generating user")
                         .methodName(methodName).build(BAD_API_EXEC);
             }
-            case GET_USER_INFO_BY_EMAIL_USER_NAME -> {
+            case GET_USER_INFO_BY_USERID_USER_NAME_PRIMARY_EMAIL -> {
                 if (oldUsersOptional.isEmpty()) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
                         .className(UserExceptions.class)
-                        .description("No User with this email or UserName")
-                        .methodName(methodName).build(USER_NOT_FOUND_EXEC);
-            }
-            case GET_USER_INFO_BY_USERID_USER_NAME -> {
-                if (oldUsersOptional.isEmpty()) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
-                        .className(UserExceptions.class)
-                        .description("No User with this UserId or UserName")
+                        .description("No User with this userid or UserName or primary email")
                         .methodName(methodName).build(USER_NOT_FOUND_EXEC);
             }
             case UPDATE_USERNAME -> {
@@ -231,32 +226,41 @@ public class UserValidationServiceImpl implements IUserValidationService {
         }
     }
 
+
     /**
      * @param userId              - id of user
      * @param userName            - username of user
-     * @param email               - email of user
+     * @param primaryEmail        - primary email of user
      * @param methodName          - origin method
      * @param userFieldValidation - user validation field
      */
     @Override
-    public void validateFields(final String userId, final String userName, final String email, final String methodName,
-                               final USER_FIELD_VALIDATION userFieldValidation) throws BadApiRequestExceptions {
-        final BiPredicate<String, String> checkBothFieldsNull = (String a, String b) -> Objects.isNull(a) && Objects.isNull(b);
+    public void validatePZeroUserFields(final String userId, final String userName, final String primaryEmail, final String methodName,
+                                        final USER_FIELD_VALIDATION userFieldValidation) throws BadApiRequestExceptions {
+        final TriPredicate<String, String, String> checkAllFieldNull = (String uid, String uname, String email) -> Objects.isNull(uid) && Objects.isNull(uname) && Objects.isNull(email);
         switch (userFieldValidation) {
-            case VALIDATE_USER_ID_OR_USER_NAME -> {
-                if (checkBothFieldsNull.test(userId, userName))
+            case VALIDATE_USER_ID_OR_USER_NAME_OR_PRIMARY_EMAIL -> {
+                if (checkAllFieldNull.test(userId, userName, primaryEmail))
                     throw (BadApiRequestExceptions) ExceptionBuilder.builder()
                             .className(BadApiRequestExceptions.class)
-                            .description("Please provide non null username or user Id")
-                            .methodName(methodName).build(BAD_API_EXEC);
-            }
-            case VALIDATE_USER_NAME_OR_EMAIL -> {
-                if (checkBothFieldsNull.test(userName, email))
-                    throw (BadApiRequestExceptions) ExceptionBuilder.builder()
-                            .className(BadApiRequestExceptions.class)
-                            .description("Please provide non null username or email")
+                            .description("Please provide non null userid or username or primary email")
                             .methodName(methodName).build(BAD_API_EXEC);
             }
         }
+    }
+
+    /**
+     * @param field              - field to test
+     * @param descriptionMessage - description
+     * @param methodName         - place of origin
+     * @throws BadApiRequestExceptions - list of exceptions being thrown
+     **/
+    @Override
+    public void validateNullField(final String field, final String descriptionMessage, final String methodName) throws BadApiRequestExceptions {
+        if (Objects.isNull(field) || StringUtils.isBlank(field))
+            throw (BadApiRequestExceptions) ExceptionBuilder.builder()
+                    .className(BadApiRequestExceptions.class)
+                    .description(descriptionMessage)
+                    .methodName(methodName).build(BAD_API_EXEC);
     }
 }

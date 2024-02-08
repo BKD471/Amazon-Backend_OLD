@@ -29,12 +29,14 @@ public interface IUserValidationService {
      */
     void validateUserList(final Collection<Users> usersList, final String methodName, final USER_VALIDATION userValidation) throws UserNotFoundExceptions;
 
+
+    void validatePZeroUserFields(final String userId, final String userName, final String email, final String methodName, final USER_FIELD_VALIDATION userFieldValidation) throws BadApiRequestExceptions;
+
     /**
-     * @param userId - id of user
-     * @param userName - username of user
-     * @param email - email of user
-     * @param methodName - origin method
-     * @param userFieldValidation - user validation field
-     */
-    void validateFields(final String userId, final String userName, final String email, final String methodName, final USER_FIELD_VALIDATION userFieldValidation) throws BadApiRequestExceptions;
+     * @param field              - field to test
+     * @param descriptionMessage - description
+     * @param methodName         - place of origin
+     * @throws BadApiRequestExceptions - list of exceptions being thrown
+     **/
+    void validateNullField(final String field, final String descriptionMessage, final String methodName) throws BadApiRequestExceptions;
 }
