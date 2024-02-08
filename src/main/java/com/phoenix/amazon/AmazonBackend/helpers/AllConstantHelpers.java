@@ -40,13 +40,10 @@ public class AllConstantHelpers {
     }
 
     public enum USER_FIELD_VALIDATION {
-        VALIDATE_USER_ID_OR_USER_NAME,
-        VALIDATE_USER_NAME_OR_EMAIL,
         VALIDATE_USER_ID_OR_USER_NAME_OR_PRIMARY_EMAIL
     }
-
-    public enum EXCEPTION_CODES {
-        USER_EXEC, BAD_API_EXEC, USER_NOT_FOUND_EXEC
+    public enum EXCEPTION_CODES{
+        USER_EXEC,BAD_API_EXEC,USER_NOT_FOUND_EXEC,SERVICE_DOWN_EXEC
     }
 
     public enum DestinationDtoType {
