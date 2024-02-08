@@ -12,6 +12,10 @@ import com.phoenix.amazon.AmazonBackend.services.AbstractUserService;
 import com.phoenix.amazon.AmazonBackend.services.IUserService;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
 import org.apache.commons.lang3.StringUtils;
+import org.passay.CharacterData;
+import org.passay.CharacterRule;
+import org.passay.EnglishCharacterData;
+import org.passay.PasswordGenerator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -60,6 +64,7 @@ import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UserDtoToU
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UsersToUsersDto;
 import static com.phoenix.amazon.AmazonBackend.helpers.PagingHelpers.getPageableResponse;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.DestinationDtoType.USER_DTO;
+import static org.passay.AllowedRegexRule.ERROR_CODE;
 
 
 @Service("UserServiceMain")
@@ -297,5 +302,39 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
         Page<Users> allUsersWithNearlyUserNamePage = userRepository.findAllByUserNameContaining(userNameWord, pageableObject).get();
         userValidationService.validateUserList(allUsersWithNearlyUserNamePage.getContent(), methodName, SEARCH_ALL_USERS_BY_USER_NAME);
         return getPageableResponse(allUsersWithNearlyUserNamePage, USER_DTO);
+    }
+
+    /**
+     * @return String
+     **/
+    public String generatePasswords() {
+        PasswordGenerator gen = new PasswordGenerator();
+        CharacterData lowerCaseChars = EnglishCharacterData.LowerCase;
+        CharacterRule lowerCaseRule = new CharacterRule(lowerCaseChars);
+        lowerCaseRule.setNumberOfCharacters(4);
+
+        CharacterData upperCaseChars = EnglishCharacterData.UpperCase;
+        CharacterRule upperCaseRule = new CharacterRule(upperCaseChars);
+        upperCaseRule.setNumberOfCharacters(4);
+
+        CharacterData digitChars = EnglishCharacterData.Digit;
+        CharacterRule digitRule = new CharacterRule(digitChars);
+        digitRule.setNumberOfCharacters(4);
+
+        CharacterData specialChars = new CharacterData() {
+            public String getErrorCode() {
+                return ERROR_CODE;
+            }
+
+            public String getCharacters() {
+                return "!@#$%^&*()_-|+?<>~,";
+            }
+        };
+        CharacterRule splCharRule = new CharacterRule(specialChars);
+        splCharRule.setNumberOfCharacters(2);
+
+        String password = gen.generatePassword(16, splCharRule, lowerCaseRule,
+                upperCaseRule, digitRule);
+        return password;
     }
 }

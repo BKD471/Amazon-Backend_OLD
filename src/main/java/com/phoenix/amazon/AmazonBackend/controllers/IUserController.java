@@ -142,4 +142,9 @@ public interface IUserController {
                                                         @RequestParam(value = "primaryEmail", required = false) final String primaryEmail,
                                                         final HttpServletResponse response) throws IOException, UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions;
 
+    /**
+     * @return String
+     **/
+    @GetMapping("/v1/genPassword")
+    String generatePassword();
 }

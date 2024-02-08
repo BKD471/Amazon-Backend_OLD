@@ -178,4 +178,12 @@ public class UserControllerImpl implements IUserController {
         response.setContentType(MediaType.IMAGE_JPEG_VALUE);
         StreamUtils.copy(resource, response.getOutputStream());
     }
+
+    /**
+     * @return String
+     **/
+    @Override
+    public String generatePassword() {
+        return userService.generatePasswords();
+    }
 }
