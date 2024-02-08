@@ -45,7 +45,7 @@ public class UserControllerImpl implements IUserController {
      */
     @Override
     public ResponseEntity<UserDto> createUser(final UserDto user) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
-        UserDto userDto = userService.createUser(user);
+        UserDto userDto = userService.createUserService(user);
         return new ResponseEntity<>(userDto, HttpStatus.CREATED);
     }
 
@@ -57,8 +57,8 @@ public class UserControllerImpl implements IUserController {
      * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      */
     @Override
-    public ResponseEntity<UserDto> updateUserByUserIdOrUserName(final UserDto user, final String userId, final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
-        UserDto userDto = userService.updateUserByUserIdOrUserName(user, userId, userName);
+    public ResponseEntity<UserDto> updateUserByUserIdOrUserNameOrPrimaryEmail(final UserDto user, final String userId, final String userName, final String primaryEmail) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
+        UserDto userDto = userService.updateUserServiceByUserIdOrUserNameOrPrimaryEmail(user, userId, userName, primaryEmail);
         return new ResponseEntity<>(userDto, HttpStatus.ACCEPTED);
     }
 
@@ -69,8 +69,8 @@ public class UserControllerImpl implements IUserController {
      * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      */
     @Override
-    public ResponseEntity<ApiResponse> deleteUserByUserIdOrUserName(final String userId, final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
-        userService.deleteUserByUserIdOrUserName(userId, userName);
+    public ResponseEntity<ApiResponse> deleteUserByUserIdOrUserNameOrPrimaryEmail(final String userId, final String userName, final String primaryEmail) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
+        userService.deleteUserServiceByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail);
 
         ApiResponse responseMessage = new ApiResponse.builder()
                 .message(String.format("User with userName %s deleted successfully!", userName))
@@ -101,8 +101,9 @@ public class UserControllerImpl implements IUserController {
      * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      */
     @Override
-    public ResponseEntity<UserDto> getUserInformationByPrimaryEmailOrUserName(final String primaryEmail, final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
-        UserDto userDto = userService.getUserInformationByEmailOrUserName(primaryEmail, userName);
+    public ResponseEntity<UserDto> getUserInformationByUserIdOrUserNameOrPrimaryEmail(final String userId, final String userName, final String primaryEmail) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
+        UserDto userDto = userService.getUserServiceInformationByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail);
+        ;
         return new ResponseEntity<>(userDto, HttpStatus.OK);
     }
 
@@ -145,10 +146,12 @@ public class UserControllerImpl implements IUserController {
      * @throws IOException,BadApiRequestExceptions,UserNotFoundExceptions,UserExceptions - list of exceptions being thrown
      */
     @Override
-    public ResponseEntity<ImageResponseMessages> uploadCustomerImage(final MultipartFile image,
-                                                                     final String primaryEmail,
-                                                                     final String userName) throws IOException, BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions {
-        final String imageName = imageService.upload(image, primaryEmail, userName);
+    public ResponseEntity<ImageResponseMessages> uploadUserImageByUserIdOrUserNameOrPrimaryEmail(final MultipartFile image,
+                                                                                                 final String userId,
+                                                                                                 final String userName,
+                                                                                                 final String primaryEmail) throws IOException, BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions {
+        final String imageName = imageService.uploadUserImageServiceByUserIdOrUserNameOrPrimaryEmail(image, userId, userName, primaryEmail);
+        ;
         ImageResponseMessages imageResponseMessages =
                 new ImageResponseMessages.Builder()
                         .imageName(imageName)
@@ -166,8 +169,12 @@ public class UserControllerImpl implements IUserController {
      * @throws IOException,UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions - list of exceptions being thrown
      */
     @Override
-    public void serveUserImage(final String primaryEmail, final String userName, HttpServletResponse response) throws IOException, UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
-        InputStream resource = imageService.getResource(primaryEmail, userName);
+    public void serveUserImageByUserIdOrUserNameOrPrimaryEmail(final String userId,
+                                                               final String userName,
+                                                               final String primaryEmail,
+                                                               final HttpServletResponse response) throws IOException, UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
+        InputStream resource = imageService.serveUserImageServiceByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail);
+        ;
         response.setContentType(MediaType.IMAGE_JPEG_VALUE);
         StreamUtils.copy(resource, response.getOutputStream());
     }

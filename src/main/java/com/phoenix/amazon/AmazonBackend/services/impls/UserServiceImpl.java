@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -110,7 +109,7 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
      * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      **/
     @Override
-    public UserDto createUser(final UserDto userDto) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions, IOException {
+    public UserDto createUserService(final UserDto userDto) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions, IOException {
         final String methodName = "createUser(UserDto) in UserServiceImpl";
 
         UserDto userDtoWithId = initializeUserId(userDto);
@@ -131,11 +130,11 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
      * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      **/
     @Override
-    public UserDto updateUserByUserIdOrUserName(final UserDto user, final String userId, final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
+    public UserDto updateUserServiceByUserIdOrUserNameOrPrimaryEmail(final UserDto user, final String userId, final String userName, final String primaryEmail) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
         final String methodName = "updateUserByUserIdOrUserName(UserDto,String) in UserServiceImpl";
 
         Users userDetails = UserDtoToUsers(user);
-        Users fetchedUser = loadUserByUserIdOrUserName(userId, userName, methodName);
+        Users fetchedUser = loadUserByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail, methodName);
 
         Predicate<String> isNotBlankField = StringUtils::isNotBlank;
         BiPredicate<String, String> checkFieldEquality = String::equalsIgnoreCase;
@@ -193,9 +192,9 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
      * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      **/
     @Override
-    public void deleteUserByUserIdOrUserName(final String userId, final String userName) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions, IOException {
+    public void deleteUserServiceByUserIdOrUserNameOrPrimaryEmail(final String userId, final String userName, final String primaryEmail) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions, IOException {
         final String methodName = "deleteUserByUserIdOrUserName(string) in UserServiceImpl";
-        Users fetchedUser = loadUserByUserIdOrUserName(userId, userName, methodName);
+        Users fetchedUser = loadUserByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail, methodName);
         userValidationService.validateUser(Optional.empty(), Optional.of(fetchedUser), methodName, DELETE_USER_BY_USER_ID_OR_USER_NAME);
 
         if (!StringUtils.isBlank(fetchedUser.getProfileImage())) {
@@ -231,9 +230,9 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
      * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      **/
     @Override
-    public UserDto getUserInformationByEmailOrUserName(final String email, final String userName) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions, IOException {
+    public UserDto getUserServiceInformationByUserIdOrUserNameOrPrimaryEmail(final String userId, final String userName, final String primaryEmail) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions, IOException {
         final String methodName = "getUserInformationByEmailOrUserName(String) in UserServiceImpl";
-        Users users = loadUserByEmailOrUserName(email, userName, methodName);
+        Users users = loadUserByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail, methodName);
         return UsersToUsersDto(users);
     }
 

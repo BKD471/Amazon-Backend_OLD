@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
 
 
@@ -42,7 +43,10 @@ public interface IUserController {
      * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      */
     @PutMapping("/v1/update")
-    ResponseEntity<UserDto> updateUserByUserIdOrUserName(@Valid @RequestBody final UserDto user, @RequestParam(required = false) final String userId, @RequestParam(required = false) final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException;
+    ResponseEntity<UserDto> updateUserByUserIdOrUserNameOrPrimaryEmail(@Valid @RequestBody final UserDto user,
+                                                                       @RequestParam(value = "userId", required = false) final String userId,
+                                                                       @RequestParam(value = "userName", required = false) final String userName,
+                                                                       @RequestParam(value = "primaryEmail", required = false) final String primaryEmail) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException;
 
     /**
      * @param userId   - User Id
@@ -51,7 +55,9 @@ public interface IUserController {
      * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      */
     @DeleteMapping("/v1/delete")
-    ResponseEntity<ApiResponse> deleteUserByUserIdOrUserName(@RequestParam(required = false) final String userId, @RequestParam(required = false) final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException;
+    ResponseEntity<ApiResponse> deleteUserByUserIdOrUserNameOrPrimaryEmail(@RequestParam(value = "userId", required = false) final String userId,
+                                                                           @RequestParam(value = "userName", required = false) final String userName,
+                                                                           @RequestParam(value = "primaryEmail", required = false) final String primaryEmail) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException;
 
     /**
      * @param pageNumber - index value of page
@@ -74,8 +80,9 @@ public interface IUserController {
      * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      */
     @GetMapping("/v1/info")
-    ResponseEntity<UserDto> getUserInformationByPrimaryEmailOrUserName(@RequestParam(value = "primaryEmail", required = false) final String primaryEmail,
-                                                                       @RequestParam(value = "userName", required = false) final String userName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException;
+    ResponseEntity<UserDto> getUserInformationByUserIdOrUserNameOrPrimaryEmail(@RequestParam(value = "userId", required = false) final String userId,
+                                                                               @RequestParam(value = "userName", required = false) final String userName,
+                                                                               @RequestParam(value = "primaryEmail", required = false) final String primaryEmail) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException;
 
     /**
      * @param field      - field of User Entity
@@ -118,9 +125,10 @@ public interface IUserController {
      * @throws IOException,BadApiRequestExceptions,UserNotFoundExceptions,UserExceptions - list of exceptions being thrown
      */
     @PutMapping("/v1/upload/image")
-    ResponseEntity<ImageResponseMessages> uploadCustomerImage(@RequestParam("userImage") final MultipartFile image,
-                                                              @RequestParam(value = "primaryEmail", required = false) final String primaryEmail,
-                                                              @RequestParam(value = "userName", required = false) final String userName) throws IOException, BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions;
+    ResponseEntity<ImageResponseMessages> uploadUserImageByUserIdOrUserNameOrPrimaryEmail(@RequestParam("userImage") final MultipartFile image,
+                                                                                          @RequestParam(value = "userId", required = false) final String userId,
+                                                                                          @RequestParam(value = "userName", required = false) final String userName,
+                                                                                          @RequestParam(value = "primaryEmail", required = false) final String primaryEmail) throws IOException, BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions;
 
     /**
      * @param primaryEmail - primary email of user
@@ -129,8 +137,9 @@ public interface IUserController {
      * @throws IOException,UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions - list of exceptions being thrown
      */
     @GetMapping("/v1/serve/image")
-    void serveUserImage(@RequestParam(value = "primaryEmail", required = false) final String primaryEmail,
-                        @RequestParam(value = "userName", required = false) final String userName,
-                        final HttpServletResponse response) throws IOException, UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions;
+    void serveUserImageByUserIdOrUserNameOrPrimaryEmail(@RequestParam(value = "userId", required = false) final String userId,
+                                                        @RequestParam(value = "userName", required = false) final String userName,
+                                                        @RequestParam(value = "primaryEmail", required = false) final String primaryEmail,
+                                                        final HttpServletResponse response) throws IOException, UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions;
 
 }
