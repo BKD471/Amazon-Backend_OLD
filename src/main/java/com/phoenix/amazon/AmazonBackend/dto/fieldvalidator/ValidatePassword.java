@@ -24,9 +24,19 @@ public class ValidatePassword implements ConstraintValidator<ValidPassword,Strin
      * @param constraintValidatorContext - constraint validator context
      * @return - boolean
      */
+    /**
+     * UserDto is used by both createUser & UpdateUser
+     * we want password to be mandatory for createUser
+     * but not for updateUser
+     *
+     * since UserDto is common so will get exception during updateUser
+     * so pass true for null password, put null check during user Creation
+     *
+     * password reset should be handled by separate service
+     * **/
     @Override
     public boolean isValid(String s, ConstraintValidatorContext constraintValidatorContext) {
-        if(StringUtils.isBlank(s)) return false;
+        if(StringUtils.isBlank(s)) return true;
 
         Pattern pattern=Pattern.compile(PATTERN_FOR_PASSWORD);
         Matcher matcher=pattern.matcher(s);

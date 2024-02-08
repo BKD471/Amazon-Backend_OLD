@@ -12,6 +12,10 @@ import com.phoenix.amazon.AmazonBackend.services.AbstractUserService;
 import com.phoenix.amazon.AmazonBackend.services.IUserService;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
 import org.apache.commons.lang3.StringUtils;
+import org.passay.CharacterData;
+import org.passay.CharacterRule;
+import org.passay.EnglishCharacterData;
+import org.passay.PasswordGenerator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -60,6 +64,7 @@ import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UserDtoToU
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UsersToUsersDto;
 import static com.phoenix.amazon.AmazonBackend.helpers.PagingHelpers.getPageableResponse;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.DestinationDtoType.USER_DTO;
+import static org.passay.AllowedRegexRule.ERROR_CODE;
 
 
 @Service("UserServicePrimary")
@@ -79,11 +84,11 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
         final String methodName = "initializeUserId";
         if (Objects.isNull(userDto)) userValidationService.validateUser(Optional.empty(), Optional.empty(),
                 "initializeUserId in UserService", NULL_OBJECT);
+        userValidationService.validateNullField(userDto.password(),"Please provide password",methodName);
 
         final String userIdUUID = UUID.randomUUID().toString();
         final String secondaryEmail = StringUtils.isBlank(userDto.secondaryEmail()) ? userDto.secondaryEmail() : userDto.secondaryEmail().trim();
         final String about = StringUtils.isBlank(userDto.about()) ? userDto.about() : userDto.about().trim();
-        final String profileImage = StringUtils.isBlank(userDto.profileImage()) ? userDto.profileImage() : userDto.profileImage().trim();
         return new UserDto.builder()
                 .userId(userIdUUID)
                 .userName(userDto.userName().trim())
@@ -92,7 +97,6 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
                 .primaryEmail(userDto.primaryEmail().trim())
                 .secondaryEmail(secondaryEmail)
                 .gender(userDto.gender())
-                .profileImage(profileImage)
                 .password(userDto.password().trim())
                 .about(about)
                 .lastSeen(LocalDateTime.now())
@@ -172,11 +176,6 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
         if (isNotBlankFieldEnum.test(userDetails.getGender()) &&
                 !checkEqualEnumValues.test(userDetails.getGender(), fetchedUser.getGender())) {
             fetchedUser = constructUser(fetchedUser, userDetails, GENDER);
-        }
-        if (isNotBlankField.test(userDetails.getPassword()) &&
-                !checkFieldEquality.test(userDetails.getPassword(), fetchedUser.getPassword())) {
-            userValidationService.validateUser(Optional.of(userDetails), Optional.of(fetchedUser), methodName, UPDATE_PASSWORD);
-            fetchedUser = constructUser(fetchedUser, userDetails, PASSWORD);
         }
         if (isNotBlankField.test(userDetails.getProfileImage()) &&
                 !checkFieldEquality.test(userDetails.getProfileImage(), fetchedUser.getProfileImage())) {
@@ -300,5 +299,39 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
         Page<Users> allUsersWithNearlyUserNamePage = userRepository.findAllByUserNameContaining(userNameWord, pageableObject).get();
         userValidationService.validateUserList(allUsersWithNearlyUserNamePage.getContent(), methodName, SEARCH_ALL_USERS_BY_USER_NAME);
         return getPageableResponse(allUsersWithNearlyUserNamePage, USER_DTO);
+    }
+
+    /**
+     * @return String
+     * **/
+    public String generatePasswords(){
+        PasswordGenerator gen = new PasswordGenerator();
+        CharacterData lowerCaseChars = EnglishCharacterData.LowerCase;
+        CharacterRule lowerCaseRule = new CharacterRule(lowerCaseChars);
+        lowerCaseRule.setNumberOfCharacters(4);
+
+        CharacterData upperCaseChars = EnglishCharacterData.UpperCase;
+        CharacterRule upperCaseRule = new CharacterRule(upperCaseChars);
+        upperCaseRule.setNumberOfCharacters(4);
+
+        CharacterData digitChars = EnglishCharacterData.Digit;
+        CharacterRule digitRule = new CharacterRule(digitChars);
+        digitRule.setNumberOfCharacters(4);
+
+        CharacterData specialChars = new CharacterData() {
+            public String getErrorCode() {
+                return ERROR_CODE;
+            }
+
+            public String getCharacters() {
+                return "!@#$%^&*()_-|+?<>~,";
+            }
+        };
+        CharacterRule splCharRule = new CharacterRule(specialChars);
+        splCharRule.setNumberOfCharacters(2);
+
+        String password = gen.generatePassword(16, splCharRule, lowerCaseRule,
+                upperCaseRule, digitRule);
+        return password;
     }
 }

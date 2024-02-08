@@ -104,8 +104,15 @@ public class UserValidationServiceImpl implements IUserValidationService {
 
                 // Existing primary & secondary email
                 checkEmails(userDtoList, newUser.getPrimaryEmail(), methodName, "primary");
-                if (!StringUtils.isBlank(newUser.getSecondaryEmail()))
+                if (!StringUtils.isBlank(newUser.getSecondaryEmail())) {
+                    if(newUser.getSecondaryEmail().equalsIgnoreCase(newUser.getPrimaryEmail())){
+                        throw (UserExceptions) ExceptionBuilder.builder()
+                                .className(UserExceptions.class)
+                                .description("Primary & Secondary email must not be same")
+                                .methodName(methodName).build(USER_EXEC);
+                    }
                     checkEmails(userDtoList, newUser.getSecondaryEmail(), methodName, "secondary");
+                }
 
                 // Existing userName
                 checkUserName(userDtoList, newUser.getUserName(), methodName);

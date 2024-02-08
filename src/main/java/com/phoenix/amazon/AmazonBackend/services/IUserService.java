@@ -76,4 +76,9 @@ public interface IUserService {
      * @throws UserNotFoundExceptions - list of exceptions being thrown
      */
     PageableResponse<UserDto> searchAllUsersByUserName(final String userNameWord, final int pageNumber, final int pageSize, final String sortBy, final String sortDir) throws UserNotFoundExceptions;
+
+    /**
+     * @return String
+     * **/
+    String generatePasswords();
 }
