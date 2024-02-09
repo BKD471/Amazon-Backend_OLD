@@ -24,7 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.UUID;
 
-@Service
+@Service("ImageServicePrimary")
 public class ImageServiceImpl extends AbstractUserService implements IImageService {
     @Value("${user.profile.images.path}")
     private String imagePath;

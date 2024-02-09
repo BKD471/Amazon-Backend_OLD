@@ -3,6 +3,8 @@ package com.phoenix.amazon.AmazonBackend.controllers;
 import com.phoenix.amazon.AmazonBackend.dto.ApiResponse;
 import com.phoenix.amazon.AmazonBackend.dto.ImageResponseMessages;
 import com.phoenix.amazon.AmazonBackend.dto.PageableResponse;
+import com.phoenix.amazon.AmazonBackend.dto.PasswordResponseMessages;
+import com.phoenix.amazon.AmazonBackend.dto.PasswordUpdateDto;
 import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
@@ -10,6 +12,7 @@ import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -142,4 +145,12 @@ public interface IUserController {
                                                         @RequestParam(value = "primaryEmail", required = false) final String primaryEmail,
                                                         final HttpServletResponse response) throws IOException, UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions;
 
+    /**
+     * @return String
+     **/
+    @GetMapping("/v1/genPassword")
+    ResponseEntity<PasswordResponseMessages> generatePassword();
+
+    @PatchMapping("/v1/reset/password")
+    ResponseEntity<PasswordResponseMessages> resetMyPassword(@Valid @RequestBody final PasswordUpdateDto passwordUpdateDto) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException;
 }

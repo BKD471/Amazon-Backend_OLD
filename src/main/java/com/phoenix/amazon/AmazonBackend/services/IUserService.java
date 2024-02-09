@@ -1,6 +1,7 @@
 package com.phoenix.amazon.AmazonBackend.services;
 
 import com.phoenix.amazon.AmazonBackend.dto.PageableResponse;
+import com.phoenix.amazon.AmazonBackend.dto.PasswordUpdateDto;
 import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
@@ -73,4 +74,12 @@ public interface IUserService {
      * @throws UserNotFoundExceptions - list of exceptions being thrown
      */
     PageableResponse<UserDto> searchAllUsersByUserName(final String userNameWord, final int pageNumber, final int pageSize, final String sortBy, final String sortDir) throws UserNotFoundExceptions;
+
+    /**
+     * @return String
+     * **/
+    String generatePasswordService();
+
+
+    void resetPasswordService(final PasswordUpdateDto passwordUpdateDto) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException;
 }

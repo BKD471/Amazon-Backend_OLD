@@ -170,6 +170,14 @@ public class UserValidationServiceImpl implements IUserValidationService {
                         .description("No User Found")
                         .methodName(methodName).build(USER_NOT_FOUND_EXEC);
             }
+            case VALIDATE_PASSWORD -> {
+                //null check is already done for old & new password using annotation
+
+                if(oldUser.getPassword().equals(newUser.getPassword())) throw (UserExceptions) ExceptionBuilder.builder()
+                        .className(UserExceptions.class)
+                        .description("Old Password didn't matched")
+                        .methodName(methodName).build(USER_EXEC);
+            }
         }
     }
 

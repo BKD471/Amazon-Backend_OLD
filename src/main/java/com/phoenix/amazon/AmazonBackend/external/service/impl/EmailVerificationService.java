@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-@Service
+@Service("EmailVerificationServicePrimary")
 public class EmailVerificationService implements IEmailVerificationService {
     private final IEmailClient emailClient;
     private final String API_HOST_HEADER_VALUE;
