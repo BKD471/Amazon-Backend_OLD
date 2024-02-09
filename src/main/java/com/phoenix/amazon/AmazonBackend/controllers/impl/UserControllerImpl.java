@@ -4,7 +4,6 @@ import com.phoenix.amazon.AmazonBackend.controllers.IUserController;
 import com.phoenix.amazon.AmazonBackend.dto.ApiResponse;
 
 import com.phoenix.amazon.AmazonBackend.dto.ImageResponseMessages;
-
 import com.phoenix.amazon.AmazonBackend.dto.PageableResponse;
 
 import com.phoenix.amazon.AmazonBackend.dto.PasswordResponseMessages;
@@ -22,7 +21,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StreamUtils;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -196,6 +194,11 @@ public class UserControllerImpl implements IUserController {
         return new ResponseEntity<>(passwordResponseMessages,HttpStatus.OK);
     }
 
+    /**
+     * currently resetting password when password is lost is not developed
+     * you have to know your old password to reset it
+     * OTP/email based password resetting will be done later
+     * */
     @Override
     public ResponseEntity<PasswordResponseMessages> resetMyPassword(final PasswordUpdateDto passwordUpdateDto) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
         userService.resetPasswordService(passwordUpdateDto);

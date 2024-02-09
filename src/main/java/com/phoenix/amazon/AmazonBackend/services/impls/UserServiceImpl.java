@@ -7,17 +7,12 @@ import com.phoenix.amazon.AmazonBackend.entity.Users;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
-import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers;
 import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
 import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
 import com.phoenix.amazon.AmazonBackend.services.AbstractUserService;
 import com.phoenix.amazon.AmazonBackend.services.IUserService;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
 import org.apache.commons.lang3.StringUtils;
-import org.passay.CharacterData;
-import org.passay.CharacterRule;
-import org.passay.EnglishCharacterData;
-import org.passay.PasswordGenerator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -67,10 +62,9 @@ import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UserDtoToU
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UsersToUsersDto;
 import static com.phoenix.amazon.AmazonBackend.helpers.PagingHelpers.getPageableResponse;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.DestinationDtoType.USER_DTO;
-import static org.passay.AllowedRegexRule.ERROR_CODE;
 
 
-@Service("UserServiceMain")
+@Service("UserServicePrimary")
 public class UserServiceImpl extends AbstractUserService implements IUserService {
     @Value("${user.profile.images.path}")
     private String imagePath;
@@ -351,7 +345,7 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
         final String methodName="resetPasswordService(primaryEmail) in UserServiceImpl";
 
         final String primaryEmail=passwordUpdateDto.primaryEmail();
-        Users fetchedUser=loadUserByUserIdOrUserNameOrPrimaryEmail(null,null,primaryEmail,methodName);
+        Users fetchedUser=loadUserByUserIdOrUserNameOrPrimaryEmail(primaryEmail,primaryEmail,primaryEmail,methodName);
 
         // check is the old password , the current password of user
         final String oldPassword=passwordUpdateDto.oldPassword();
