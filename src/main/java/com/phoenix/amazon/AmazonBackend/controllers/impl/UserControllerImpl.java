@@ -7,6 +7,8 @@ import com.phoenix.amazon.AmazonBackend.dto.ImageResponseMessages;
 
 import com.phoenix.amazon.AmazonBackend.dto.PageableResponse;
 
+import com.phoenix.amazon.AmazonBackend.dto.PasswordResponseMessages;
+import com.phoenix.amazon.AmazonBackend.dto.PasswordUpdateDto;
 import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
@@ -20,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StreamUtils;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -183,7 +186,24 @@ public class UserControllerImpl implements IUserController {
      * @return String
      **/
     @Override
-    public String generatePassword() {
-        return userService.generatePasswords();
+    public ResponseEntity<PasswordResponseMessages> generatePassword() {
+        final String password=userService.generatePasswordService();
+        PasswordResponseMessages passwordResponseMessages= new PasswordResponseMessages.Builder()
+                .password(password)
+                .message("Gen password")
+                .success(true)
+                .status(HttpStatus.OK).build();
+        return new ResponseEntity<>(passwordResponseMessages,HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<PasswordResponseMessages> resetMyPassword(final PasswordUpdateDto passwordUpdateDto) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
+        userService.resetPasswordService(passwordUpdateDto);
+        PasswordResponseMessages passwordResponseMessages=new PasswordResponseMessages.Builder()
+                .message("Your password has been updated successfully")
+                .success(true)
+                .status(HttpStatus.ACCEPTED)
+                .build();
+        return new ResponseEntity<>(passwordResponseMessages,HttpStatus.ACCEPTED);
     }
 }

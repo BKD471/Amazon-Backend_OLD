@@ -1,11 +1,13 @@
 package com.phoenix.amazon.AmazonBackend.services.impls;
 
 import com.phoenix.amazon.AmazonBackend.dto.PageableResponse;
+import com.phoenix.amazon.AmazonBackend.dto.PasswordUpdateDto;
 import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 import com.phoenix.amazon.AmazonBackend.entity.Users;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
+import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers;
 import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
 import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
 import com.phoenix.amazon.AmazonBackend.services.AbstractUserService;
@@ -60,6 +62,7 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_V
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_ALL_USERS_BY_FIRST_NAME;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_ALL_USERS_BY_LAST_NAME;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_ALL_USERS_BY_GENDER;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.VALIDATE_PASSWORD;
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UserDtoToUsers;
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UsersToUsersDto;
 import static com.phoenix.amazon.AmazonBackend.helpers.PagingHelpers.getPageableResponse;
@@ -307,34 +310,57 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
     /**
      * @return String
      **/
-    public String generatePasswords() {
-        PasswordGenerator gen = new PasswordGenerator();
-        CharacterData lowerCaseChars = EnglishCharacterData.LowerCase;
-        CharacterRule lowerCaseRule = new CharacterRule(lowerCaseChars);
-        lowerCaseRule.setNumberOfCharacters(4);
+    public String generatePasswordService() {
+        final String lowerCase="abcdefghijklmnopqrstuvwxyz";
+        final String upperCase="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        final String specialCase="!@#$%^&*()-_+/<>()?=|";
+        final String numbers="0123456789";
 
-        CharacterData upperCaseChars = EnglishCharacterData.UpperCase;
-        CharacterRule upperCaseRule = new CharacterRule(upperCaseChars);
-        upperCaseRule.setNumberOfCharacters(4);
+        StringBuffer password= new StringBuffer();
+        int capacity=4,randomId=-1;
+        for(int i=0;i<16;i++){
+            int k=i%capacity;
 
-        CharacterData digitChars = EnglishCharacterData.Digit;
-        CharacterRule digitRule = new CharacterRule(digitChars);
-        digitRule.setNumberOfCharacters(4);
-
-        CharacterData specialChars = new CharacterData() {
-            public String getErrorCode() {
-                return ERROR_CODE;
+            switch (k){
+                case 0:{
+                    randomId= (int) (Math.random() * lowerCase.length());
+                    password.append(lowerCase.charAt(randomId));
+                    break;
+                }
+                case 1:{
+                    randomId= (int) (Math.random() * upperCase.length());
+                    password.append(upperCase.charAt(randomId));
+                    break;
+                }
+                case 2:{
+                    randomId= (int) (Math.random() * specialCase.length());
+                    password.append(specialCase.charAt(randomId));
+                    break;
+                }
+                case 3:{
+                    randomId= (int) (Math.random() * numbers.length());
+                    password.append(numbers.charAt(randomId));
+                    break;
+                }
             }
+        }
+        return password.toString();
+    }
 
-            public String getCharacters() {
-                return "!@#$%^&*()_-|+?<>~,";
-            }
-        };
-        CharacterRule splCharRule = new CharacterRule(specialChars);
-        splCharRule.setNumberOfCharacters(2);
+    public void resetPasswordService(final PasswordUpdateDto passwordUpdateDto) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
+        final String methodName="resetPasswordService(primaryEmail) in UserServiceImpl";
 
-        String password = gen.generatePassword(16, splCharRule, lowerCaseRule,
-                upperCaseRule, digitRule);
-        return password;
+        final String primaryEmail=passwordUpdateDto.primaryEmail();
+        Users fetchedUser=loadUserByUserIdOrUserNameOrPrimaryEmail(null,null,primaryEmail,methodName);
+
+        // check is the old password , the current password of user
+        final String oldPassword=passwordUpdateDto.oldPassword();
+        Users newUser=new Users.builder().password(oldPassword).build();
+        userValidationService.validateUser(Optional.of(newUser),Optional.of(fetchedUser),methodName, VALIDATE_PASSWORD);
+
+        //update password & save
+        userValidationService.validateUser(Optional.of(newUser), Optional.of(fetchedUser), methodName, UPDATE_PASSWORD);
+        fetchedUser = constructUser(fetchedUser, newUser, PASSWORD);
+        userRepository.save(fetchedUser);
     }
 }
