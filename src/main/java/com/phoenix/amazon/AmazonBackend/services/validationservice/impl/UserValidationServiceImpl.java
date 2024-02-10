@@ -20,7 +20,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Set;
 import java.util.HashSet;
@@ -41,14 +40,13 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_F
 public class UserValidationServiceImpl implements IUserValidationService {
     private final String imagePath;
     private final IUserRepository userRepository;
-    private final Properties properties;
     Logger logger= LoggerFactory.getLogger(UserValidationServiceImpl.class);
 
     UserValidationServiceImpl(IUserRepository userRepository,
                               @Value("${path.services.user.image.properties}") final String PATH_TO_PROPS) {
         this.userRepository = userRepository;
 
-        properties=new Properties();
+        final Properties properties=new Properties();
         try {
             properties.load(new FileInputStream(PATH_TO_PROPS));
         }catch (IOException e){
