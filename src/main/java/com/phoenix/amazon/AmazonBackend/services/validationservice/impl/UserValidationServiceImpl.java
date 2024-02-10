@@ -9,15 +9,19 @@ import com.phoenix.amazon.AmazonBackend.exceptions.builder.ExceptionBuilder;
 import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Properties;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Optional;
@@ -35,12 +39,22 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_F
 
 @Service
 public class UserValidationServiceImpl implements IUserValidationService {
-    @Value("${user.profile.images.path}")
-    private String imagePath;
+    private final String imagePath;
     private final IUserRepository userRepository;
+    private final Properties properties;
+    Logger logger= LoggerFactory.getLogger(UserValidationServiceImpl.class);
 
-    UserValidationServiceImpl(IUserRepository userRepository) {
+    UserValidationServiceImpl(IUserRepository userRepository,
+                              @Value("${path.services.user.image.properties}") final String PATH_TO_PROPS) {
         this.userRepository = userRepository;
+
+        properties=new Properties();
+        try {
+            properties.load(new FileInputStream(PATH_TO_PROPS));
+        }catch (IOException e){
+            logger.error("Error in reading the props in {} UserValidationService", e.getMessage());
+        }
+        this.imagePath=properties.getProperty("user.profile.images.path");
     }
 
     private void checkEmails(final Set<Users> usersSet, final String new_email, final String methodName, final String checkFor) throws UserExceptions {
