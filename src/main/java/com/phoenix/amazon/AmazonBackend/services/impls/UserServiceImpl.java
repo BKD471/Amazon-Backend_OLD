@@ -85,7 +85,6 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
         final String userIdUUID = UUID.randomUUID().toString();
         final String secondaryEmail = StringUtils.isBlank(userDto.secondaryEmail()) ? userDto.secondaryEmail() : userDto.secondaryEmail().trim();
         final String about = StringUtils.isBlank(userDto.about()) ? userDto.about() : userDto.about().trim();
-        final String profileImage = StringUtils.isBlank(userDto.profileImage()) ? userDto.profileImage() : userDto.profileImage().trim();
         return new UserDto.builder()
                 .userId(userIdUUID)
                 .userName(userDto.userName().trim())
@@ -94,7 +93,6 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
                 .primaryEmail(userDto.primaryEmail().trim())
                 .secondaryEmail(secondaryEmail)
                 .gender(userDto.gender())
-                .profileImage(profileImage)
                 .password(userDto.password().trim())
                 .about(about)
                 .lastSeen(LocalDateTime.now())
@@ -173,11 +171,6 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
         if (isNotBlankFieldEnum.test(userDetails.getGender()) &&
                 !checkEqualEnumValues.test(userDetails.getGender(), fetchedUser.getGender())) {
             fetchedUser = constructUser(fetchedUser, userDetails, GENDER);
-        }
-        if (isNotBlankField.test(userDetails.getPassword()) &&
-                !checkFieldEquality.test(userDetails.getPassword(), fetchedUser.getPassword())) {
-            userValidationService.validateUser(Optional.of(userDetails), Optional.of(fetchedUser), methodName, UPDATE_PASSWORD);
-            fetchedUser = constructUser(fetchedUser, userDetails, PASSWORD);
         }
         if (isNotBlankField.test(userDetails.getProfileImage()) &&
                 !checkFieldEquality.test(userDetails.getProfileImage(), fetchedUser.getProfileImage())) {
