@@ -24,7 +24,8 @@ public class ValidateGender implements ConstraintValidator<ValidGender, String> 
     public boolean isValid(final String gender, ConstraintValidatorContext constraintValidatorContext) {
         if (StringUtils.isBlank(gender)) return false;
 
-        final Set<String> validGenderSet = Set.of("MALE", "FEMALE", "NON_BINARY", "LGBTQ");
-        return validGenderSet.contains(gender);
+        final String genderLowerCase=gender.toLowerCase();
+        final Set<String> validGenderSet = Set.of("male", "female", "non_binary", "lgbtq");
+        return validGenderSet.contains(genderLowerCase);
     }
 }

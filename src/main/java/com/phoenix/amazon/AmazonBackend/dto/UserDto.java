@@ -1,6 +1,7 @@
 package com.phoenix.amazon.AmazonBackend.dto;
 
 import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.ValidEmail;
+import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.ValidGender;
 import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.ValidUserName;
 import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.ValidName;
 import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.NullOrEmail;
@@ -23,7 +24,7 @@ public record UserDto(String userId,
                       String secondaryEmail,
                       @ValidPassword
                       String password,
-                      @NotNull(message = "Please give your gender type")
+                      @ValidGender
                       String gender,
                       String profileImage,
                       @Size(max = 500, message = "Please kept it below 500 characters")
