@@ -14,6 +14,8 @@ import com.phoenix.amazon.AmazonBackend.services.AbstractUserService;
 import com.phoenix.amazon.AmazonBackend.services.IUserService;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +24,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -29,6 +32,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
+import java.util.Properties;
 import java.util.UUID;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
@@ -66,15 +70,25 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.Destin
 
 @Service("UserServicePrimary")
 public class UserServiceImpl extends AbstractUserService implements IUserService {
-    @Value("${user.profile.images.path}")
-    private String imagePath;
     private final IUserRepository userRepository;
     private final IUserValidationService userValidationService;
+    private final String imagePath;
+    Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
-    public UserServiceImpl(IUserRepository userRepository, IUserValidationService userValidationService) {
+    public UserServiceImpl(IUserRepository userRepository,
+                           IUserValidationService userValidationService,
+                           @Value("${path.services.user.image.properties}") final String PATH_TO_IMAGE_PROPS) {
         super(userRepository, userValidationService);
         this.userRepository = userRepository;
         this.userValidationService = userValidationService;
+
+        final Properties properties = new Properties();
+        try {
+            properties.load(new FileInputStream(PATH_TO_IMAGE_PROPS));
+        } catch (IOException e) {
+            logger.error("Error in reading the props in {} UserServiceImpl", e.getMessage());
+        }
+        this.imagePath = properties.getProperty("user.profile.images.path");
     }
 
     private UserDto initializeUserId(final UserDto userDto) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions, IOException {
@@ -342,7 +356,7 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
         userValidationService.validateUser(Optional.of(oldUser), Optional.of(fetchedUser), methodName, VALIDATE_PASSWORD);
 
         //update password & save
-        final String newPassword=passwordUpdateDto.newPassword();
+        final String newPassword = passwordUpdateDto.newPassword();
         Users newUser = new Users.builder().password(newPassword).build();
         userValidationService.validateUser(Optional.of(newUser), Optional.of(fetchedUser), methodName, UPDATE_PASSWORD);
         fetchedUser = constructUser(fetchedUser, newUser, PASSWORD);
