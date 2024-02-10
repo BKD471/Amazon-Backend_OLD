@@ -68,7 +68,7 @@ public class ImageServiceImpl extends AbstractUserService implements IImageServi
             Files.copy(image.getInputStream(), Paths.get(fullPathWithFileName));
 
             UserDto newUser = new UserDto.builder().profileImage(fileNameWithExtension).build();
-            userService.updateUserServiceByUserIdOrUserNameOrPrimaryEmail(newUser, oldUser.getUserId(), oldUser.getUserName(), oldUser.getPrimaryEmail());
+            //userService.updateUserServiceByUserIdOrUserNameOrPrimaryEmail(newUser, oldUser.getUserId(), oldUser.getUserName(), oldUser.getPrimaryEmail());
             return fileNameWithExtension;
         } else throw (BadApiRequestExceptions) ExceptionBuilder.builder()
                 .className(BadApiRequestExceptions.class)

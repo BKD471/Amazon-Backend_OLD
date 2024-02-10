@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Optional;
@@ -105,8 +106,15 @@ public class UserValidationServiceImpl implements IUserValidationService {
 
                 // Existing primary & secondary email
                 checkEmails(userDtoList, newUser.getPrimaryEmail(), methodName, "primary");
-                if (!StringUtils.isBlank(newUser.getSecondaryEmail()))
+                if (!StringUtils.isBlank(newUser.getSecondaryEmail())) {
+                    if (newUser.getPrimaryEmail().equalsIgnoreCase(newUser.getSecondaryEmail())) {
+                        throw (UserExceptions) ExceptionBuilder.builder()
+                                .className(UserExceptions.class)
+                                .description("Primary & Secondary email must not be same")
+                                .methodName(methodName).build(USER_EXEC);
+                    }
                     checkEmails(userDtoList, newUser.getSecondaryEmail(), methodName, "secondary");
+                }
 
                 // Existing userName
                 checkUserName(userDtoList, newUser.getUserName(), methodName);
@@ -123,7 +131,7 @@ public class UserValidationServiceImpl implements IUserValidationService {
             }
             case GET_USER_INFO_BY_USERID_USER_NAME_PRIMARY_EMAIL -> {
                 if (oldUsersOptional.isEmpty()) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
-                        .className(UserExceptions.class)
+                        .className(UserNotFoundExceptions.class)
                         .description("No User with this userid or UserName or primary email")
                         .methodName(methodName).build(USER_NOT_FOUND_EXEC);
             }
@@ -173,10 +181,11 @@ public class UserValidationServiceImpl implements IUserValidationService {
             case VALIDATE_PASSWORD -> {
                 //null check is already done for old & new password using annotation
 
-                if(oldUser.getPassword().equals(newUser.getPassword())) throw (UserExceptions) ExceptionBuilder.builder()
-                        .className(UserExceptions.class)
-                        .description("Old Password didn't matched")
-                        .methodName(methodName).build(USER_EXEC);
+                if (oldUser.getPassword().equals(newUser.getPassword()))
+                    throw (UserExceptions) ExceptionBuilder.builder()
+                            .className(UserExceptions.class)
+                            .description("Old Password didn't matched")
+                            .methodName(methodName).build(USER_EXEC);
             }
         }
     }

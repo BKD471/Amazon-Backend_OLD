@@ -25,7 +25,7 @@ public interface IUserRepository extends JpaRepository<Users, String> {
      * @param userId   - id of user
      * @param userName - userName of user
      */
-    void deleteByUserIdOrUserName(final String userId, final String userName);
+    void deleteByUserIdOrUserNameOrPrimaryEmail(final String userId, final String userName,final String primaryEMail);
 
     /**
      * @param userName - userName of user

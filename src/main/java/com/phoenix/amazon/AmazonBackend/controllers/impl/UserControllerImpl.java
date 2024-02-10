@@ -8,6 +8,7 @@ import com.phoenix.amazon.AmazonBackend.dto.PageableResponse;
 
 import com.phoenix.amazon.AmazonBackend.dto.PasswordResponseMessages;
 import com.phoenix.amazon.AmazonBackend.dto.PasswordUpdateDto;
+import com.phoenix.amazon.AmazonBackend.dto.UpdateUserDto;
 import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
@@ -17,6 +18,7 @@ import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
 
 import com.phoenix.amazon.AmazonBackend.services.IUserService;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 
 @RestController("UserControllerMain")
@@ -58,9 +61,26 @@ public class UserControllerImpl implements IUserController {
      * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      */
     @Override
-    public ResponseEntity<UserDto> updateUserByUserIdOrUserNameOrPrimaryEmail(final UserDto user, final String userId, final String userName, final String primaryEmail) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
+    public ResponseEntity<UserDto> updateUserByUserIdOrUserNameOrPrimaryEmail(final UpdateUserDto user, final String userId, final String userName, final String primaryEmail) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
         UserDto userDto = userService.updateUserServiceByUserIdOrUserNameOrPrimaryEmail(user, userId, userName, primaryEmail);
         return new ResponseEntity<>(userDto, HttpStatus.ACCEPTED);
+    }
+
+    private String deleteResponseMessage(final String userId, final String userName, final String primaryEmail) {
+        String field;
+        String value;
+        if (!StringUtils.isEmpty(userId)) {
+            field = "userId";
+            value = userId;
+        } else if (!StringUtils.isEmpty(userName)) {
+            field = "userName";
+            value = userName;
+        } else {
+            field = "primaryEmail";
+            value = primaryEmail;
+        }
+
+        return String.format("User with %s : %s is deleted successfully ", field, value);
     }
 
     /**
@@ -73,8 +93,9 @@ public class UserControllerImpl implements IUserController {
     public ResponseEntity<ApiResponse> deleteUserByUserIdOrUserNameOrPrimaryEmail(final String userId, final String userName, final String primaryEmail) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
         userService.deleteUserServiceByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail);
 
+
         ApiResponse responseMessage = new ApiResponse.builder()
-                .message(String.format("User with userName %s deleted successfully!", userName))
+                .message(deleteResponseMessage(userId,userName,primaryEmail))
                 .success(true)
                 .status(HttpStatus.OK)
                 .build();
@@ -185,28 +206,28 @@ public class UserControllerImpl implements IUserController {
      **/
     @Override
     public ResponseEntity<PasswordResponseMessages> generatePassword() {
-        final String password=userService.generatePasswordService();
-        PasswordResponseMessages passwordResponseMessages= new PasswordResponseMessages.Builder()
+        final String password = userService.generatePasswordService();
+        PasswordResponseMessages passwordResponseMessages = new PasswordResponseMessages.Builder()
                 .password(password)
                 .message("Gen password")
                 .success(true)
                 .status(HttpStatus.OK).build();
-        return new ResponseEntity<>(passwordResponseMessages,HttpStatus.OK);
+        return new ResponseEntity<>(passwordResponseMessages, HttpStatus.OK);
     }
 
     /**
      * currently resetting password when password is lost is not developed
      * you have to know your old password to reset it
      * OTP/email based password resetting will be done later
-     * */
+     */
     @Override
     public ResponseEntity<PasswordResponseMessages> resetMyPassword(final PasswordUpdateDto passwordUpdateDto) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
         userService.resetPasswordService(passwordUpdateDto);
-        PasswordResponseMessages passwordResponseMessages=new PasswordResponseMessages.Builder()
+        PasswordResponseMessages passwordResponseMessages = new PasswordResponseMessages.Builder()
                 .message("Your password has been updated successfully")
                 .success(true)
                 .status(HttpStatus.ACCEPTED)
                 .build();
-        return new ResponseEntity<>(passwordResponseMessages,HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(passwordResponseMessages, HttpStatus.ACCEPTED);
     }
 }

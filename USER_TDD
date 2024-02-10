@@ -3,67 +3,70 @@
 ########################################################################################################################
 
 1) @PostMapping("/v1/create")
-   createUser(@RequestBody final UserDto user)                                                  ========== checked
+   createUser(@RequestBody final UserDto user)                                                  ========= checked
 
    Acceptance Criteria :)
-       1) Create user with all fields                                                            ------- ok
-       2) Duplicate userName must throw UserException                                            ------- ok
-       3) Primary & Secondary email must not be same                                             ------- ok
-       4) Duplicate primary Email                                                                ------- ok
+       1) Create user with all fields                                                           ------- ok
+       2) Duplicate userName must throw UserException                                           ------- ok
+       3) Primary & Secondary email must not be same                                            ------- ok
+       4) Duplicate primary Email                                                               ------- ok
           or primary email used in some one's secondary email
           must throw UserException
-       5) Duplicate secondary email                                                              ------- ok
+       5) Duplicate secondary email                                                             ------- ok
           or secondary email used in some one's primary email
           must throw UserException
 
 ------------------------------------------------------------------------------------------------------------------------
 
 2) @PutMapping("/v1/update")
-   updateUserByUserIdOrUserNameOrPrimaryEmail(UserDto user,userId,userName,primaryEmail);       ============= ?
+   updateUserByUserIdOrUserNameOrPrimaryEmail(UserDto user,userId,userName,primaryEmail);       =========== checked
 
    Acceptance Criteria :)
       1) give Invalid userId or userName or prEmail must throw UserNotFoundException            -------- ok
       2) Don't give any userId and username and prEmail must throw BadApiRequestException       -------- ok
-      3) update
-         userName                                                                               --------
-         firstname
-         lastname
-         about
-         primary  email
-         secondary email
-         gender
-         profile_image                                                                          -------- ?
-      4) update to existing email in db must throw UserExceptions                               -------- ?
-      5) update to existing username in db must throw UserExceptions                            -------- ?
+      3) update User:
+         userName                                                                               -------- ok
+         firstname                                                                              -------- ok
+         lastname                                                                               -------- ok
+         primary  email                                                                         -------- ok
+         secondary email                                                                        -------- ok
+         gender                                                                                 -------- ok
+         about                                                                                  -------- ok
+
+      4) update to existing email in db must throw UserExceptions                               -------- ok
+      5) update to existing username in db must throw UserExceptions                            -------- ok
 
 ------------------------------------------------------------------------------------------------------------------------
 
 3) @DeleteMapping("/v1/delete")
-   deleteUserByUserIdOrUserNameOrPrimaryEmail(userId,userName,primaryEmail);                   ============= ?
+   deleteUserByUserIdOrUserNameOrPrimaryEmail(userId,userName,primaryEmail);                   ============= checked
 
    Acceptance Criteria :)
-      1) Give invalid userId or userName or email must throw UserNotFoundException             --------- ?
-      2) don't give any userId and username must throw BadApiException                         --------- ?
-      3) give valid userid/userName must delete                                                --------- ?
+      1) Give invalid userId or userName or email must throw UserNotFoundException             -------- ok
+      2) don't give any userId and username and email                                          -------- ok
+         must throw BadApiException
+      3) give valid userid/userName/email must delete                                          -------- ok
+      4) Re delete a user , must throw UserNotFoundException                                   -------- ok
 
 ------------------------------------------------------------------------------------------------------------------------
 
 4) @GetMapping("/v1/getAll")
-   getALlUsers();                                                                               ============= ?
+   getALlUsers();                                                                              ============= checked
 
    Acceptance Criteria :)
-      1) Get all users                                                                          ----------?
-      2) must throw exceptions, if no records in database                                       ----------?
+      1) Get all users                                                                         -------- ok
+      2) must throw exceptions, if no records in database                                      -------- ok
 
 ------------------------------------------------------------------------------------------------------------------------
 
 5) @GetMapping("/v1/info")
-   getUserInformationByUserIdOrUserNameOrPrimaryEmail(userId,userName,primaryEmail);            ============= ?
+   getUserInformationByUserIdOrUserNameOrPrimaryEmail(userId,userName,primaryEmail);            ============= ok
 
    Acceptance Criteria :)
-      1) don't give any email & username must throw BadApiRequestException                      ----------?
-      2) give invalid/not present email/username must throw UserNotFoundException               ----------?
-      3) give valid email/username give the record                                              ----------?
+      1) don't give any userId & username & email
+         must throw BadApiRequestException                                                      ---------- ok
+      2) give invalid/not present email/username must throw UserNotFoundException               ---------- ok
+      3) give valid email/userid/username give the record                                       ---------- ok
 
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -87,12 +90,12 @@
 ------------------------------------------------------------------------------------------------------------------------
 
 8) @PutMapping("/v1/upload/image")
-   uploadUserImageByUserIdOrUserNameOrPrimaryEmail(image,userId,userName,primaryEmail);        ============== ?
+   uploadUserImageByUserIdOrUserNameOrPrimaryEmail(image,userId,userName,primaryEmail);         ======== ?
 
     AC :)
-       1) upload image less<= 100kb                                                             ------------?
-       2) throw BadApiRequestException for images >100kb                                        ------------?
-       3) throw BadApiRequestException for files other than (.png/.jpg/.avif/.jpeg)             ------------?
+       1) upload image less<= 100kb & profile image updated                                     -------- ?                             ------------?
+       2) throw BadApiRequestException for images >100kb                                        -------- ?
+       3) throw BadApiRequestException for files other than (.png/.jpg/.avif/.jpeg)             -------- ?
 
 ------------------------------------------------------------------------------------------------------------------------
 

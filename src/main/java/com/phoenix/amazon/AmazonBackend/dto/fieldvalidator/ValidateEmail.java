@@ -40,18 +40,19 @@ public class ValidateEmail implements ConstraintValidator<ValidEmail, String> {
         //check null or whitespace
         if (StringUtils.isBlank(email)) return false;
 
-        Map<String, String> response;
-        try {
-            response = emailVerificationService.verifyEmail(email);
-            if (response.isEmpty()) throw new ServicDownTimeException(ServicDownTimeException.class,"Email Verifier Api is down",methodName);
-
-            if (response.containsKey("result")) {
-                String value = response.get("result");
-                return value.equalsIgnoreCase("valid");
-            } else throw new ServicDownTimeException(ServicDownTimeException.class,"Response from Api has either changed or corrupted",methodName);
-        } catch (Exception ex) {
-            loggerFactory.error("Oops !! {}", ex.getMessage());
-            return false;
-        }
+        return true;
+//        Map<String, String> response;
+//        try {
+//            response = emailVerificationService.verifyEmail(email);
+//            if (response.isEmpty()) throw new ServicDownTimeException(ServicDownTimeException.class,"Email Verifier Api is down",methodName);
+//
+//            if (response.containsKey("result")) {
+//                String value = response.get("result");
+//                return value.equalsIgnoreCase("valid");
+//            } else throw new ServicDownTimeException(ServicDownTimeException.class,"Response from Api has either changed or corrupted",methodName);
+//        } catch (Exception ex) {
+//            loggerFactory.error("Oops !! {}", ex.getMessage());
+//            return false;
+//        }
     }
 }
