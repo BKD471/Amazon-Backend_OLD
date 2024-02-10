@@ -5,6 +5,7 @@ import com.phoenix.amazon.AmazonBackend.dto.ImageResponseMessages;
 import com.phoenix.amazon.AmazonBackend.dto.PageableResponse;
 import com.phoenix.amazon.AmazonBackend.dto.PasswordResponseMessages;
 import com.phoenix.amazon.AmazonBackend.dto.PasswordUpdateDto;
+import com.phoenix.amazon.AmazonBackend.dto.UpdateUserDto;
 import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
@@ -46,7 +47,7 @@ public interface IUserController {
      * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      */
     @PutMapping("/v1/update")
-    ResponseEntity<UserDto> updateUserByUserIdOrUserNameOrPrimaryEmail(@Valid @RequestBody final UserDto user,
+    ResponseEntity<UserDto> updateUserByUserIdOrUserNameOrPrimaryEmail(@Valid @RequestBody final UpdateUserDto user,
                                                                        @RequestParam(value = "userId", required = false) final String userId,
                                                                        @RequestParam(value = "userName", required = false) final String userName,
                                                                        @RequestParam(value = "primaryEmail", required = false) final String primaryEmail) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException;
@@ -98,7 +99,8 @@ public interface IUserController {
      * @throws UserNotFoundExceptions -list of exceptions being thrown
      */
     @GetMapping("/v1/search_by_field")
-    ResponseEntity<PageableResponse<UserDto>> searchUserByFieldAndValue(@RequestParam final USER_FIELDS field, @RequestParam final String value,
+    ResponseEntity<PageableResponse<UserDto>> searchUserByFieldAndValue(@RequestParam(value = "field") final USER_FIELDS field,
+                                                                        @RequestParam(value = "value") final String value,
                                                                         @RequestParam(value = "pageNumber", defaultValue = "1", required = false) final int pageNumber,
                                                                         @RequestParam(value = "pageSize", defaultValue = "5", required = false) final int pageSize,
                                                                         @RequestParam(value = "sortBy", defaultValue = "FIRST_NAME", required = false) final USER_FIELDS sortBy,

@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidEmail {
     //default error message
-    String message() default "Please provide a valid email address";
+    String message() default "Please provide a valid primary email address";
 
     //
 

@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
+import java.util.Objects;
 
 @Component
 public class ValidateNullOrEmail implements ConstraintValidator<NullOrEmail, String> {
@@ -38,7 +39,7 @@ public class ValidateNullOrEmail implements ConstraintValidator<NullOrEmail, Str
     public boolean isValid(String email, ConstraintValidatorContext constraintValidatorContext) {
         final String methodName = "isValid(email,constraintValidatorContext) in ValidateNullOrEmail";
         // Secondary email is empty, allow it since its optional
-        if (StringUtils.isBlank(email)) return true;
+        if (Objects.isNull(email)) return true;
 
         Map<String, String> response;
         try {

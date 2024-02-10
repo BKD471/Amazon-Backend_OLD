@@ -1,65 +1,134 @@
                              USER SERVICE TDD
 
 ########################################################################################################################
-A) @PostMapping("/v1/create")
-   createUser(@RequestBody final UserDto user)                                     =========== ok
+
+1) @PostMapping("/v1/create")
+   createUser(@RequestBody final UserDto user)                                                  ========== checked
 
    Acceptance Criteria :)
-       1) Create user with all fields                                              ------- checked
-       2) Duplicate userName, email must throw UserException                       ------- checked
+       1) Create user with all fields                                                           ------- ok
+       2) Duplicate userName must throw UserException                                           ------- ok
+       3) Primary & Secondary email must not be same                                            ------- ok
+       4) Duplicate primary Email                                                               ------- ok
+          or primary email used in some one's secondary email
+          must throw UserException
+       5) Duplicate secondary email                                                             ------- ok
+          or secondary email used in some one's primary email
+          must throw UserException
 
+------------------------------------------------------------------------------------------------------------------------
 
-B) @PutMapping("/v1/update")
-   updateUserByUserIdOrUserName(UserDto user,userId,userName);                     ============= ok
-
-   Acceptance Criteria :)
-      1) give Invalid userId or userName must throw UserNotFoundException          -------- checked
-      2) Don't give any userId and password must throw BadApiRequestException      -------- checked
-      3) update firstname,lastname,email,about,gender                              -------- checked
-      4) update to existing email in db must throw UserExceptions                  -------- checked
-
-
-c) @DeleteMapping("/v1/delete")
-   deleteUserByUserIdOrUserName(userId,userName);                                 ============= ok
+2) @PutMapping("/v1/update")
+   updateUserByUserIdOrUserNameOrPrimaryEmail(UserDto user,userId,userName,primaryEmail);       ========== checked
 
    Acceptance Criteria :)
-      1) Give invalid userId or userName must throw UserNotFoundException         --------- checked
-      2) don't give any userId and username must throw BadApiException            --------- checked
-      3) give valid userid/userName must delete                                   --------- checked
+      1) give Invalid userId or userName or prEmail must throw UserNotFoundException            ------- ok
+      2) Don't give any userId and username and prEmail must throw BadApiRequestException       ------- ok
+      3) update User:
+         userName                                                                               ------- ok
+         firstname                                                                              ------- ok
+         lastname                                                                               ------- ok
+         primary  email                                                                         ------- ok
+         secondary email                                                                        ------- ok
+         gender                                                                                 ------- ok
+         about                                                                                  ------- ok
 
+      4) update to existing email in db must throw UserExceptions                               ------- ok
+      5) update to existing username in db must throw UserExceptions                            ------- ok
 
+------------------------------------------------------------------------------------------------------------------------
 
-d) @GetMapping("/v1/getAll")
-   getALlUsers();                                                                 ============= ok
-
-   Acceptance Criteria :)
-      1) Get all users                                                            ----------checked
-      2) must throw exceptions, if no records in database                         ----------checked
-
-
-e) @GetMapping("/v1/info")
-   getUserInformationByEmailOrUserName(email,userName);                           ============= ok
-
-   Acceptance Criteria :)
-      1) don't give any email & username must throw BadApiRequestException        ----------checked
-      2) give invalid/not present email/username must throw UserNotFoundException ----------checked
-      3) give valid email/username give the record                                ----------Checked
-
-f) @GetMapping("/v1/search_by_field/{field}/{value}")
-   searchUserByFieldAndValue(field,value);                                         ============= ok
+3) @DeleteMapping("/v1/delete")
+   deleteUserByUserIdOrUserNameOrPrimaryEmail(userId,userName,primaryEmail);                   ========== checked
 
    Acceptance Criteria :)
-       1) Search By valid fields , found                                           ----------checked
-       2) search by not available records throws UserNotFoundException             ----------checked
-       3) search by not giving requestParam, throws exception with message         ----------checked
+      1) Give invalid userId or userName or email must throw UserNotFoundException             ------- ok
+      2) don't give any userId and username and email                                          ------- ok
+         must throw BadApiException
+      3) give valid userid/userName/email must delete                                          ------- ok
+      4) Re delete a user , must throw UserNotFoundException                                   ------- ok
 
-g) @GetMapping("/v1/search_by_username/{userNameWord}")
-   searchAllUsersByUserName(userNameWord);                                         ============= ok
+------------------------------------------------------------------------------------------------------------------------
+
+4) @GetMapping("/v1/getAll")
+   getALlUsers();                                                                              ========== checked
 
    Acceptance Criteria :)
-       2) give invalid word, throw UserNotFoundException                          -----------checked
-       3) give valid word, give list of found users                               -----------checked
+      1) Get all users                                                                         ------- ok
+      2) must throw exceptions, if no records in database                                      ------- ok
 
+------------------------------------------------------------------------------------------------------------------------
 
+5) @GetMapping("/v1/info")
+   getUserInformationByUserIdOrUserNameOrPrimaryEmail(userId,userName,primaryEmail);            ========== ok
 
+   Acceptance Criteria :)
+      1) don't give any userId & username & email
+         must throw BadApiRequestException                                                      ------- ok
+      2) give invalid/not present email/username must throw UserNotFoundException               ------- ok
+      3) give valid email/userid/username give the record                                       ------- ok
 
+------------------------------------------------------------------------------------------------------------------------
+
+6) @GetMapping("/v1/search_by_field")
+   searchUserByFieldAndValue(field,value);                                                     ========== checked
+
+   Acceptance Criteria :)
+       1) Search By valid fields, found
+          USER_NAME                                                                            ------- ok
+          PRIMARY_EMAIL                                                                        ------- ok
+          FIRST_NAME                                                                           ------- ok
+          LAST_NAME                                                                            ------- ok
+          GENDER                                                                               ------- ok
+       2) search by not available records throws UserNotFoundException                         ------- ok
+       3) search by not giving requestParam, throws exception with message                     ------- ok
+
+------------------------------------------------------------------------------------------------------------------------
+
+7) @GetMapping("/v1/search_by_username/{userNameWord}")
+   searchAllUsersByUserName(userNameWord);                                                     ========== checked
+
+   Acceptance Criteria :)
+       2) give invalid word, throw UserNotFoundException                                       ------- ok
+       3) give valid word, give list of found users                                            ------- ok
+
+------------------------------------------------------------------------------------------------------------------------
+
+8) @PutMapping("/v1/upload/image")
+   uploadUserImageByUserIdOrUserNameOrPrimaryEmail(image,userId,userName,primaryEmail);         ========== checked
+
+    Acceptance Criteria :)
+       1) upload image less<= 100kb & profile image updated                                     ------- ok
+       2) throw BadApiRequestException for images >100kb                                        ------- ok
+       3) throw BadApiRequestException for files other than (.png/.jpg/.avif/.jpeg)             ------- ok
+
+------------------------------------------------------------------------------------------------------------------------
+
+9) @GetMapping("/v1/serve/image")
+   serveUserImageByUserIdOrUserNameOrPrimaryEmail(userId,userName,primaryEmail,                 ========== checked
+   HttpServletResponse response)
+
+   Acceptance Criteria :)
+       1) get the image for valid user                                                          ------- ok
+       2) throw UserNotFoundException for invalid userid/username/prEmail                       ------- ok
+       3) throw UserExceptions for not having any profile image                                 ------- ok
+
+------------------------------------------------------------------------------------------------------------------------
+
+10) @GetMapping("/v1/genPassword")
+    ResponseEntity<PasswordResponseMessages> generatePassword()                                 ========== checked
+
+    Acceptance Criteria :)
+        1) gen strong password which complies password convention                               ------- ok
+
+------------------------------------------------------------------------------------------------------------------------
+
+11) @PatchMapping("/v1/reset/password")
+        ResponseEntity<PasswordResponseMessages> resetMyPassword(
+         PasswordUpdateDto passwordUpdateDto)                                                   ========== checked
+
+    Acceptance Criteria :)
+        1) give primary email,old new & confirm new password                                    ------- ok
+           password gets updated
+        2) give invalid primary email throws UserNotFoundException                              ------- ok
+        3) give incorrect old password throws UserException                                     ------- ok

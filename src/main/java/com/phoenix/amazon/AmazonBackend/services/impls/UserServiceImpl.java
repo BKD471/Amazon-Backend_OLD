@@ -2,6 +2,7 @@ package com.phoenix.amazon.AmazonBackend.services.impls;
 
 import com.phoenix.amazon.AmazonBackend.dto.PageableResponse;
 import com.phoenix.amazon.AmazonBackend.dto.PasswordUpdateDto;
+import com.phoenix.amazon.AmazonBackend.dto.UpdateUserDto;
 import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 import com.phoenix.amazon.AmazonBackend.entity.Users;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
@@ -40,7 +41,6 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_F
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.ABOUT;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.PRIMARY_EMAIL;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.SECONDARY_EMAIL;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.PROFILE_IMAGE;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.GENDER;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.NULL_OBJECT;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.CREATE_USER;
@@ -48,7 +48,6 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_V
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.UPDATE_PRIMARY_EMAIL;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.UPDATE_SECONDARY_EMAIL;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.UPDATE_PASSWORD;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.UPDATE_PROFILE_IMAGE;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.DELETE_USER_BY_USER_ID_OR_USER_NAME;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_ALL_USERS;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_USER_BY_EMAIL;
@@ -59,6 +58,7 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_V
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_ALL_USERS_BY_GENDER;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.VALIDATE_PASSWORD;
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UserDtoToUsers;
+import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UserUpdateDtoToUsers;
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UsersToUsersDto;
 import static com.phoenix.amazon.AmazonBackend.helpers.PagingHelpers.getPageableResponse;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.DestinationDtoType.USER_DTO;
@@ -130,10 +130,10 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
      * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      **/
     @Override
-    public UserDto updateUserServiceByUserIdOrUserNameOrPrimaryEmail(final UserDto user, final String userId, final String userName, final String primaryEmail) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
+    public UserDto updateUserServiceByUserIdOrUserNameOrPrimaryEmail(final UpdateUserDto user, final String userId, final String userName, final String primaryEmail) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
         final String methodName = "updateUserByUserIdOrUserName(UserDto,String) in UserServiceImpl";
 
-        Users userDetails = UserDtoToUsers(user);
+        Users userDetails = UserUpdateDtoToUsers(user);
         Users fetchedUser = loadUserByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail, methodName);
 
         Predicate<String> isNotBlankField = StringUtils::isNotBlank;
@@ -154,10 +154,6 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
                 !checkFieldEquality.test(userDetails.getLastName(), fetchedUser.getLastName())) {
             fetchedUser = constructUser(fetchedUser, userDetails, LAST_NAME);
         }
-        if (isNotBlankField.test(userDetails.getAbout()) &&
-                !checkFieldEquality.test(userDetails.getAbout(), fetchedUser.getAbout())) {
-            fetchedUser = constructUser(fetchedUser, userDetails, ABOUT);
-        }
         if (isNotBlankField.test(userDetails.getPrimaryEmail()) &&
                 !checkFieldEquality.test(userDetails.getPrimaryEmail(), fetchedUser.getPrimaryEmail())) {
             userValidationService.validateUser(Optional.of(userDetails), Optional.of(fetchedUser), methodName, UPDATE_PRIMARY_EMAIL);
@@ -172,11 +168,11 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
                 !checkEqualEnumValues.test(userDetails.getGender(), fetchedUser.getGender())) {
             fetchedUser = constructUser(fetchedUser, userDetails, GENDER);
         }
-        if (isNotBlankField.test(userDetails.getProfileImage()) &&
-                !checkFieldEquality.test(userDetails.getProfileImage(), fetchedUser.getProfileImage())) {
-            userValidationService.validateUser(Optional.of(userDetails), Optional.of(fetchedUser), methodName, UPDATE_PROFILE_IMAGE);
-            fetchedUser = constructUser(fetchedUser, userDetails, PROFILE_IMAGE);
+        if (isNotBlankField.test(userDetails.getAbout()) &&
+                !checkFieldEquality.test(userDetails.getAbout(), fetchedUser.getAbout())) {
+            fetchedUser = constructUser(fetchedUser, userDetails, ABOUT);
         }
+
         Users savedUser = userRepository.save(fetchedUser);
         return UsersToUsersDto(savedUser);
     }
@@ -197,7 +193,7 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
             Files.delete(Paths.get(pathToProfileIMage));
         }
 
-        userRepository.deleteByUserIdOrUserName(userId, userName);
+        userRepository.deleteByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail);
     }
 
     /**
@@ -251,7 +247,7 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
         Page<Users> usersPage = Page.empty();
         switch (field) {
             case PRIMARY_EMAIL -> {
-                usersPage = userRepository.searchUserByPrimaryEmail(value, pageableObject).get();
+                usersPage = userRepository.searchUserByEmail(value, pageableObject).get();
                 userValidationService.validateUserList(usersPage.getContent(), methodName, SEARCH_USER_BY_EMAIL);
             }
             case USER_NAME -> {
@@ -298,34 +294,34 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
      * @return String
      **/
     public String generatePasswordService() {
-        final String lowerCase="abcdefghijklmnopqrstuvwxyz";
-        final String upperCase="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        final String specialCase="!@#$%^&*()-_+/<>()?=|";
-        final String numbers="0123456789";
+        final String lowerCase = "abcdefghijklmnopqrstuvwxyz";
+        final String upperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        final String specialCase = "!@#$%^&*()-_+/<>()?=|";
+        final String numbers = "0123456789";
 
-        StringBuffer password= new StringBuffer();
-        int capacity=4,randomId=-1;
-        for(int i=0;i<16;i++){
-            int k=i%capacity;
+        StringBuffer password = new StringBuffer();
+        int capacity = 4, randomId = -1;
+        for (int i = 0; i < 16; i++) {
+            int k = i % capacity;
 
-            switch (k){
-                case 0:{
-                    randomId= (int) (Math.random() * lowerCase.length());
+            switch (k) {
+                case 0: {
+                    randomId = (int) (Math.random() * lowerCase.length());
                     password.append(lowerCase.charAt(randomId));
                     break;
                 }
-                case 1:{
-                    randomId= (int) (Math.random() * upperCase.length());
+                case 1: {
+                    randomId = (int) (Math.random() * upperCase.length());
                     password.append(upperCase.charAt(randomId));
                     break;
                 }
-                case 2:{
-                    randomId= (int) (Math.random() * specialCase.length());
+                case 2: {
+                    randomId = (int) (Math.random() * specialCase.length());
                     password.append(specialCase.charAt(randomId));
                     break;
                 }
-                case 3:{
-                    randomId= (int) (Math.random() * numbers.length());
+                case 3: {
+                    randomId = (int) (Math.random() * numbers.length());
                     password.append(numbers.charAt(randomId));
                     break;
                 }
@@ -335,17 +331,19 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
     }
 
     public void resetPasswordService(final PasswordUpdateDto passwordUpdateDto) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
-        final String methodName="resetPasswordService(primaryEmail) in UserServiceImpl";
+        final String methodName = "resetPasswordService(primaryEmail) in UserServiceImpl";
 
-        final String primaryEmail=passwordUpdateDto.primaryEmail();
-        Users fetchedUser=loadUserByUserIdOrUserNameOrPrimaryEmail(primaryEmail,primaryEmail,primaryEmail,methodName);
+        final String primaryEmail = passwordUpdateDto.primaryEmail();
+        Users fetchedUser = loadUserByUserIdOrUserNameOrPrimaryEmail(primaryEmail, primaryEmail, primaryEmail, methodName);
 
         // check is the old password , the current password of user
-        final String oldPassword=passwordUpdateDto.oldPassword();
-        Users newUser=new Users.builder().password(oldPassword).build();
-        userValidationService.validateUser(Optional.of(newUser),Optional.of(fetchedUser),methodName, VALIDATE_PASSWORD);
+        final String oldPassword = passwordUpdateDto.oldPassword();
+        Users oldUser = new Users.builder().password(oldPassword).build();
+        userValidationService.validateUser(Optional.of(oldUser), Optional.of(fetchedUser), methodName, VALIDATE_PASSWORD);
 
         //update password & save
+        final String newPassword=passwordUpdateDto.newPassword();
+        Users newUser = new Users.builder().password(newPassword).build();
         userValidationService.validateUser(Optional.of(newUser), Optional.of(fetchedUser), methodName, UPDATE_PASSWORD);
         fetchedUser = constructUser(fetchedUser, newUser, PASSWORD);
         userRepository.save(fetchedUser);

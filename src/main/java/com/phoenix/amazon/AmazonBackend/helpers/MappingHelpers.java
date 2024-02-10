@@ -1,5 +1,6 @@
 package com.phoenix.amazon.AmazonBackend.helpers;
 
+import com.phoenix.amazon.AmazonBackend.dto.UpdateUserDto;
 import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 import com.phoenix.amazon.AmazonBackend.entity.Users;
 
@@ -33,6 +34,19 @@ public class MappingHelpers<U,V> {
                 .gender(getGender(userDto.gender()))
                 .profileImage(userDto.profileImage())
                 .about(userDto.about())
+                .build();
+    }
+
+    public static Users UserUpdateDtoToUsers(final UpdateUserDto updateUserDto) {
+        return new Users.builder()
+                .userId(updateUserDto.userId())
+                .userName(updateUserDto.userName())
+                .firstName(updateUserDto.firstName())
+                .lastName(updateUserDto.lastName())
+                .primaryEmail(updateUserDto.primaryEmail())
+                .secondaryEmail(updateUserDto.secondaryEmail())
+                .gender(getGender(updateUserDto.gender()))
+                .about(updateUserDto.about())
                 .build();
     }
 }

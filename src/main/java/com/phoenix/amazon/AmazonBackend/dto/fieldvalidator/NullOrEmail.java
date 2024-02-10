@@ -15,7 +15,7 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface NullOrEmail {
     //default error message
-    String message() default "Please provide a valid email";
+    String message() default "Please provide a valid secondary email";
 
     /**
      * @return the groups the constraint belongs to

@@ -25,14 +25,12 @@ public class ValidateName implements ConstraintValidator<ValidName,String> {
 
         // No number in name
         // ascii value of
-        // A-Z (65-90)
-        // a-z (97-122
+        // 0-9 (48-57)
         // whitespace - 32
         for(int i=0;i<s.length();i++){
             int character=s.charAt(i);
             if(character==32) continue;
-            if(character<65 || character>122) return false;
-            if(character>90 && character<97) return false;
+            if(character>=48 && character<=57) return false;
         }
         return  true;
     }
