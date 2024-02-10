@@ -247,7 +247,7 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
         Page<Users> usersPage = Page.empty();
         switch (field) {
             case PRIMARY_EMAIL -> {
-                usersPage = userRepository.searchUserByPrimaryEmail(value, pageableObject).get();
+                usersPage = userRepository.searchUserByEmail(value, pageableObject).get();
                 userValidationService.validateUserList(usersPage.getContent(), methodName, SEARCH_USER_BY_EMAIL);
             }
             case USER_NAME -> {
@@ -338,10 +338,12 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
 
         // check is the old password , the current password of user
         final String oldPassword = passwordUpdateDto.oldPassword();
-        Users newUser = new Users.builder().password(oldPassword).build();
-        userValidationService.validateUser(Optional.of(newUser), Optional.of(fetchedUser), methodName, VALIDATE_PASSWORD);
+        Users oldUser = new Users.builder().password(oldPassword).build();
+        userValidationService.validateUser(Optional.of(oldUser), Optional.of(fetchedUser), methodName, VALIDATE_PASSWORD);
 
         //update password & save
+        final String newPassword=passwordUpdateDto.newPassword();
+        Users newUser = new Users.builder().password(newPassword).build();
         userValidationService.validateUser(Optional.of(newUser), Optional.of(fetchedUser), methodName, UPDATE_PASSWORD);
         fetchedUser = constructUser(fetchedUser, newUser, PASSWORD);
         userRepository.save(fetchedUser);

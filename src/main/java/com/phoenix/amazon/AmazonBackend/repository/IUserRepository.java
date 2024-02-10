@@ -72,5 +72,5 @@ public interface IUserRepository extends JpaRepository<Users, String> {
      * @return Set<Users> - set of users
      **/
     @Query(value = "SELECT * FROM users WHERE user_primary_email=?1", nativeQuery = true)
-    Optional<Page<Users>> searchUserByPrimaryEmail(final String value, final Pageable pageable);
+    Optional<Page<Users>> searchUserByEmail(final String value, final Pageable pageable);
 }

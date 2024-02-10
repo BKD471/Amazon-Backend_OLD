@@ -99,7 +99,8 @@ public interface IUserController {
      * @throws UserNotFoundExceptions -list of exceptions being thrown
      */
     @GetMapping("/v1/search_by_field")
-    ResponseEntity<PageableResponse<UserDto>> searchUserByFieldAndValue(@RequestParam final USER_FIELDS field, @RequestParam final String value,
+    ResponseEntity<PageableResponse<UserDto>> searchUserByFieldAndValue(@RequestParam(value = "field") final USER_FIELDS field,
+                                                                        @RequestParam(value = "value") final String value,
                                                                         @RequestParam(value = "pageNumber", defaultValue = "1", required = false) final int pageNumber,
                                                                         @RequestParam(value = "pageSize", defaultValue = "5", required = false) final int pageSize,
                                                                         @RequestParam(value = "sortBy", defaultValue = "FIRST_NAME", required = false) final USER_FIELDS sortBy,

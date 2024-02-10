@@ -172,6 +172,12 @@ public class UserValidationServiceImpl implements IUserValidationService {
                             .build(BAD_API_EXEC);
                 }
             }
+            case GET_PROFILE_IMAGE ->{
+                 if(StringUtils.isEmpty(oldUser.getProfileImage()))
+                     throw (UserExceptions) ExceptionBuilder.builder().className(UserExceptions.class)
+                         .description("You dont have any profile image yet").methodName(methodName)
+                         .build(USER_EXEC);
+            }
             case DELETE_USER_BY_USER_ID_OR_USER_NAME -> {
                 if (oldUsersOptional.isEmpty()) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
                         .className(UserExceptions.class)
@@ -180,8 +186,7 @@ public class UserValidationServiceImpl implements IUserValidationService {
             }
             case VALIDATE_PASSWORD -> {
                 //null check is already done for old & new password using annotation
-
-                if (oldUser.getPassword().equals(newUser.getPassword()))
+                if (!oldUser.getPassword().equals(newUser.getPassword()))
                     throw (UserExceptions) ExceptionBuilder.builder()
                             .className(UserExceptions.class)
                             .description("Old Password didn't matched")
@@ -200,43 +205,43 @@ public class UserValidationServiceImpl implements IUserValidationService {
         switch (userValidation) {
             case GET_ALL_USERS -> {
                 if (CollectionUtils.isEmpty(userSet)) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
-                        .className(UserExceptions.class)
+                        .className(UserNotFoundExceptions.class)
                         .description("Our Database have no Users")
                         .methodName(methodName).build(USER_NOT_FOUND_EXEC);
             }
             case SEARCH_ALL_USERS_BY_USER_NAME -> {
                 if (CollectionUtils.isEmpty(userSet)) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
-                        .className(UserExceptions.class)
+                        .className(UserNotFoundExceptions.class)
                         .description("Our Database have no Users With this Username")
                         .methodName(methodName).build(USER_NOT_FOUND_EXEC);
             }
             case SEARCH_USER_BY_EMAIL -> {
                 if (CollectionUtils.isEmpty(userSet)) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
-                        .className(UserExceptions.class)
+                        .className(UserNotFoundExceptions.class)
                         .description("Our Database have no Users With this email")
                         .methodName(methodName).build(USER_NOT_FOUND_EXEC);
             }
             case SEARCH_ALL_USERS_BY_FIRST_NAME -> {
                 if (CollectionUtils.isEmpty(userSet)) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
-                        .className(UserExceptions.class)
+                        .className(UserNotFoundExceptions.class)
                         .description("Our Database have no Users With this firstName")
                         .methodName(methodName).build(USER_NOT_FOUND_EXEC);
             }
             case SEARCH_ALL_USERS_BY_LAST_NAME -> {
                 if (CollectionUtils.isEmpty(userSet)) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
-                        .className(UserExceptions.class)
+                        .className(UserNotFoundExceptions.class)
                         .description("Our Database have no Users With this lastName")
                         .methodName(methodName).build(USER_NOT_FOUND_EXEC);
             }
             case SEARCH_USER_BY_USER_NAME -> {
                 if (CollectionUtils.isEmpty(userSet)) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
-                        .className(UserExceptions.class)
+                        .className(UserNotFoundExceptions.class)
                         .description("Our Database have no Users With this UserName")
                         .methodName(methodName).build(USER_NOT_FOUND_EXEC);
             }
             case SEARCH_ALL_USERS_BY_GENDER -> {
                 if (CollectionUtils.isEmpty(userSet)) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
-                        .className(UserExceptions.class)
+                        .className(UserNotFoundExceptions.class)
                         .description("Our Database have no Users With this Gender")
                         .methodName(methodName).build(USER_NOT_FOUND_EXEC);
             }

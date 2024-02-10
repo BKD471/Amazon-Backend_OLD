@@ -1,6 +1,5 @@
 package com.phoenix.amazon.AmazonBackend.services.impls;
 
-import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 import com.phoenix.amazon.AmazonBackend.entity.Users;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
@@ -22,21 +21,26 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.UUID;
+
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.PROFILE_IMAGE;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_PROFILE_IMAGE;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.UPDATE_PROFILE_IMAGE;
 
 @Service("ImageServicePrimary")
 public class ImageServiceImpl extends AbstractUserService implements IImageService {
     @Value("${user.profile.images.path}")
     private String imagePath;
 
-    private final IUserService userService;
+    private final IUserRepository userRepository;
     private final IUserValidationService userValidationService;
 
     protected ImageServiceImpl(IUserRepository userRepository,
                                IUserValidationService userValidationService, IUserService userService) {
         super(userRepository, userValidationService);
         this.userValidationService = userValidationService;
-        this.userService = userService;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -50,7 +54,7 @@ public class ImageServiceImpl extends AbstractUserService implements IImageServi
     public String uploadUserImageServiceByUserIdOrUserNameOrPrimaryEmail(final MultipartFile image, final String userId, final String userName, final String primaryEmail) throws BadApiRequestExceptions, IOException, UserNotFoundExceptions, UserExceptions {
         final String methodName = "upload(MultipartFile) in ImageServiceImpl";
         final String originalFileName = image.getOriginalFilename();
-        Users oldUser = loadUserByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail, methodName);
+        Users fetchedUser = loadUserByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail, methodName);
 
         userValidationService.validateNullField(originalFileName, "Something problem with your image!!." +
                 "Its either corrupted or not supported", methodName);
@@ -67,8 +71,14 @@ public class ImageServiceImpl extends AbstractUserService implements IImageServi
             if (!folder.exists()) folder.mkdirs();
             Files.copy(image.getInputStream(), Paths.get(fullPathWithFileName));
 
-            UserDto newUser = new UserDto.builder().profileImage(fileNameWithExtension).build();
-            //userService.updateUserServiceByUserIdOrUserNameOrPrimaryEmail(newUser, oldUser.getUserId(), oldUser.getUserName(), oldUser.getPrimaryEmail());
+            //validate
+            Users newUser = new Users.builder().profileImage(fileNameWithExtension).build();
+            userValidationService.validateUser(Optional.of(newUser), Optional.of(fetchedUser), methodName, UPDATE_PROFILE_IMAGE);
+
+            //update profile image of user
+            Users updatedUser=constructUser(fetchedUser, newUser, PROFILE_IMAGE);
+            userRepository.save(updatedUser);
+
             return fileNameWithExtension;
         } else throw (BadApiRequestExceptions) ExceptionBuilder.builder()
                 .className(BadApiRequestExceptions.class)
@@ -88,6 +98,8 @@ public class ImageServiceImpl extends AbstractUserService implements IImageServi
     public InputStream serveUserImageServiceByUserIdOrUserNameOrPrimaryEmail(final String userId, final String userName, final String primaryEmail) throws IOException, UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
         final String methodName = "getResource(String,String) in ImageServiceImpl";
         Users oldUser = loadUserByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail, methodName);
+
+        userValidationService.validateUser(Optional.empty(),Optional.of(oldUser),methodName,GET_PROFILE_IMAGE);
         final String fullPath = imagePath + File.separator + oldUser.getProfileImage();
         return new FileInputStream(fullPath);
     }

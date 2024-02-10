@@ -209,7 +209,7 @@ public class UserControllerImpl implements IUserController {
         final String password = userService.generatePasswordService();
         PasswordResponseMessages passwordResponseMessages = new PasswordResponseMessages.Builder()
                 .password(password)
-                .message("Gen password")
+                .message("Password generated")
                 .success(true)
                 .status(HttpStatus.OK).build();
         return new ResponseEntity<>(passwordResponseMessages, HttpStatus.OK);

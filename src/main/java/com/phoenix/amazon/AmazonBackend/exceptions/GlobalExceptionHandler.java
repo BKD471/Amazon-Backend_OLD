@@ -12,6 +12,8 @@ import org.springframework.web.context.request.WebRequest;
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -28,8 +30,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ResponseEntity<Map<String, String>> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().stream().forEachOrdered((error) -> {
-            String fieldName = ((FieldError) error).getField();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName;
+            try {
+                fieldName = ((FieldError) error).getField();
+            }catch (ClassCastException e){
+                fieldName=UUID.randomUUID().toString();
+            }
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
 
