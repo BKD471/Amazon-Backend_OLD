@@ -106,3 +106,22 @@
        3) throw UserExceptions for not having any profile image                                 ------------- ?
 
 ------------------------------------------------------------------------------------------------------------------------
+
+10) @GetMapping("/v1/genPassword")
+    ResponseEntity<PasswordResponseMessages> generatePassword()                                ===============
+
+    AC: :)
+        1) gen strong password which complies password convention                               --------------
+
+------------------------------------------------------------------------------------------------------------------------
+
+11) @PatchMapping("/v1/reset/password")
+        ResponseEntity<PasswordResponseMessages> resetMyPassword(
+         PasswordUpdateDto passwordUpdateDto)                                                   ================
+
+    AC: :)
+        1) give primary email,old new & confirm new password                                    ---------------
+           password gets updated
+
+        2) give invalid primary email throws UserNotFoundException                              ---------------
+        3) give incorrect old password throws UserException                                     ---------------
