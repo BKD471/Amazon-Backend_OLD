@@ -9,6 +9,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Map;
 import java.util.Objects;
 
@@ -41,6 +46,10 @@ public class ValidateNullOrEmail implements ConstraintValidator<NullOrEmail, Str
         // Secondary email is empty, allow it since its optional
         if (Objects.isNull(email)) return true;
 
+        LocalTime startTime=LocalTime.now(Clock.system(ZoneId.of("Asia/Kolkata")));
+        logger.info(String.format("<############## %s   ValidateNullOrEmail field validation starts ########################" +
+                "#################################################################",startTime));
+
         Map<String, String> response;
         try {
             response = emailVerificationService.verifyEmail(email);
@@ -55,6 +64,15 @@ public class ValidateNullOrEmail implements ConstraintValidator<NullOrEmail, Str
         } catch (Exception ex) {
             logger.error("Oops !! {}", ex.getMessage());
             return false;
+        }finally {
+            LocalTime endTime=LocalTime.now(Clock.system(ZoneId.of("Asia/Kolkata")));
+            long durationInMs= Duration.between(startTime,endTime).toMillis();
+            logger.info(String.format("<################# Time elapsed to execute ValidateNullOrEmail is %s Ms ##############################" +
+                            "######################################################################################" +
+                            "#########>",durationInMs));
+
+            logger.info(String.format("<############## %s   ValidateNullOrEmail field validation ends ########################" +
+                    "#################################################################",endTime));
         }
     }
 }

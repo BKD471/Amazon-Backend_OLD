@@ -9,13 +9,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.time.Clock;
+import java.time.Duration;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Map;
 
 @Component
 public class ValidateEmail implements ConstraintValidator<ValidEmail, String> {
     private final IEmailVerificationService emailVerificationService;
 
-    Logger loggerFactory = LoggerFactory.getLogger(ValidateEmail.class);
+    Logger logger = LoggerFactory.getLogger(ValidateEmail.class);
 
     ValidateEmail(IEmailVerificationService emailVerificationService) {
         this.emailVerificationService = emailVerificationService;
@@ -40,6 +44,10 @@ public class ValidateEmail implements ConstraintValidator<ValidEmail, String> {
         //check null or whitespace
         if (StringUtils.isBlank(email)) return false;
 
+        LocalTime startTime=LocalTime.now(Clock.system(ZoneId.of("Asia/Kolkata")));
+        logger.info(String.format("<############## %s   ValidateNullOrEmail field validation starts ########################" +
+                "#################################################################",startTime));
+
         Map<String, String> response;
         try {
             response = emailVerificationService.verifyEmail(email);
@@ -50,8 +58,17 @@ public class ValidateEmail implements ConstraintValidator<ValidEmail, String> {
                 return value.equalsIgnoreCase("valid");
             } else throw new ServicDownTimeException(ServicDownTimeException.class,"Response from Api has either changed or corrupted",methodName);
         } catch (Exception ex) {
-            loggerFactory.error("Oops !! {}", ex.getMessage());
+            logger.error("Oops !! {}", ex.getMessage());
             return false;
+        }finally {
+            LocalTime endTime=LocalTime.now(Clock.system(ZoneId.of("Asia/Kolkata")));
+            long durationInMs= Duration.between(startTime,endTime).toMillis();
+            logger.info(String.format("<################# Time elapsed to execute ValidateEmail is %s Ms ##############################" +
+                    "######################################################################################" +
+                    "#########>",durationInMs));
+
+            logger.info(String.format("<############## %s   ValidateEmail field validation ends ########################" +
+                    "#################################################################",endTime));
         }
     }
 }
