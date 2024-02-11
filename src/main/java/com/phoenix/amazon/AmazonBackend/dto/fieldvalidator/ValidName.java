@@ -14,7 +14,6 @@ import java.lang.annotation.ElementType;
 @Constraint(validatedBy = ValidateName.class)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidName {
-    //default error message
     String message() default "Name Must not be blank/whitespace or must not have any numbers";
 
     //

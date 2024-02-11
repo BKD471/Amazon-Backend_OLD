@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.Clock;
 import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Map;
@@ -45,6 +44,7 @@ public class ValidateNullOrEmail implements ConstraintValidator<NullOrEmail, Str
         final String methodName = "isValid(email,constraintValidatorContext) in ValidateNullOrEmail";
         // Secondary email is empty, allow it since its optional
         if (Objects.isNull(email)) return true;
+        if(StringUtils.isBlank(email)) return false;
 
         LocalTime startTime=LocalTime.now(Clock.system(ZoneId.of("Asia/Kolkata")));
         logger.info(String.format("<############## %s   ValidateNullOrEmail field validation starts ########################" +

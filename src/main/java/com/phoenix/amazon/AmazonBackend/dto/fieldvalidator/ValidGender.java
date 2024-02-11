@@ -14,7 +14,6 @@ import java.lang.annotation.ElementType;
 @Target(ElementType.FIELD)
 @Constraint(validatedBy = ValidateGender.class)
 public @interface ValidGender {
-    //default error message
     String message() default "Gender must not be blank & from valid list";
 
     //

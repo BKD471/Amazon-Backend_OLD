@@ -14,7 +14,6 @@ import java.lang.annotation.RetentionPolicy;
 @Constraint(validatedBy = ValidateNullOrEmail.class)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface NullOrEmail {
-    //default error message
     String message() default "Please provide a valid secondary email";
 
     /**

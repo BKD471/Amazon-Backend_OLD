@@ -137,9 +137,10 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
     }
 
     /**
-     * @param user     - user object
-     * @param userId   - id of user
-     * @param userName - username of user
+     * @param user         - user object
+     * @param userId       - id of user
+     * @param userName     - username of user
+     * @param primaryEmail - primary Email of user
      * @return UserDto - userDto Object
      * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      **/
@@ -192,8 +193,9 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
     }
 
     /**
-     * @param userId   - id of user
-     * @param userName - username of user
+     * @param userId       - id of user
+     * @param userName     - username of user
+     * @param primaryEmail - primary Email of user
      * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      **/
     @Override
@@ -229,9 +231,10 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
     }
 
     /**
-     * @param email    - email of user
-     * @param userName - username of user
-     * @return UserDto - userDto Object
+     * @param userId       - userid of user
+     * @param userName     - username of user
+     * @param primaryEmail - primary Email of user
+     * @return UserDto     - userDto Object
      * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      **/
     @Override
@@ -307,6 +310,7 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
     /**
      * @return String
      **/
+    @Override
     public String generatePasswordService() {
         final String lowerCase = "abcdefghijklmnopqrstuvwxyz";
         final String upperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -344,6 +348,11 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
         return password.toString();
     }
 
+    /**
+     * @param passwordUpdateDto - request object to update password
+     * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException - list of exceptions to be thrown
+     */
+    @Override
     public void resetPasswordService(final PasswordUpdateDto passwordUpdateDto) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
         final String methodName = "resetPasswordService(primaryEmail) in UserServiceImpl";
 

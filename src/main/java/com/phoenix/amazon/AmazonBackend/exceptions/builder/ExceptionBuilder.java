@@ -65,7 +65,7 @@ public class ExceptionBuilder implements IClassNameBuilder, IDescriptionBuilder,
                 return new UserNotFoundExceptions(className, description, methodName);
             }
             case SERVICE_DOWN_EXEC -> {
-                return new ServicDownTimeException(className,description,methodName);
+                return new ServicDownTimeException(className, description, methodName);
             }
             default -> throw new RuntimeException("Invalid Exception Code");
         }

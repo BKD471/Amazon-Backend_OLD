@@ -2,7 +2,6 @@ package com.phoenix.amazon.AmazonBackend.controllers.impl;
 
 import com.phoenix.amazon.AmazonBackend.controllers.IUserController;
 import com.phoenix.amazon.AmazonBackend.dto.ApiResponse;
-
 import com.phoenix.amazon.AmazonBackend.dto.ImageResponseMessages;
 import com.phoenix.amazon.AmazonBackend.dto.PageableResponse;
 
@@ -29,7 +28,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Objects;
 
 
 @RestController("UserControllerMain")
@@ -95,7 +93,7 @@ public class UserControllerImpl implements IUserController {
 
 
         ApiResponse responseMessage = new ApiResponse.builder()
-                .message(deleteResponseMessage(userId,userName,primaryEmail))
+                .message(deleteResponseMessage(userId, userName, primaryEmail))
                 .success(true)
                 .status(HttpStatus.OK)
                 .build();
@@ -202,7 +200,7 @@ public class UserControllerImpl implements IUserController {
     }
 
     /**
-     * @return String
+     * @return PasswordResponseMessages
      **/
     @Override
     public ResponseEntity<PasswordResponseMessages> generatePassword() {
@@ -220,6 +218,10 @@ public class UserControllerImpl implements IUserController {
      * you have to know your old password to reset it
      * OTP/email based password resetting will be done later
      */
+    /**
+     * @param passwordUpdateDto - object to update old password
+     * @return PasswordResponseMessages
+     **/
     @Override
     public ResponseEntity<PasswordResponseMessages> resetMyPassword(final PasswordUpdateDto passwordUpdateDto) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
         userService.resetPasswordService(passwordUpdateDto);
