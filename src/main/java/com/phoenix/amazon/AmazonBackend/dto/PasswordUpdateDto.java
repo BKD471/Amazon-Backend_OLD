@@ -5,7 +5,7 @@ import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.ValidEmail;
 import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.ValidPassword;
 
 @FieldsValueMatch.List({
-  @FieldsValueMatch(field="newPassword",fieldMatch="confirmPassword",message="password & confirm password did not match")
+        @FieldsValueMatch(field = "newPassword", fieldMatch = "confirmPassword", message = "password & confirm password did not match")
 })
 public record PasswordUpdateDto(
         @ValidEmail
@@ -22,35 +22,36 @@ public record PasswordUpdateDto(
         this.confirmPassword = confirmPassword;
     }
 
-    public static final class Builder{
+    public static final class Builder {
         private String primaryEmail;
         private String oldPassword;
         private String newPassword;
         private String confirmPassword;
 
-        public Builder(){}
+        public Builder() {
+        }
 
-        public Builder primaryEmail(final String primaryEmail){
-            this.primaryEmail=primaryEmail;
+        public Builder primaryEmail(final String primaryEmail) {
+            this.primaryEmail = primaryEmail;
             return this;
         }
 
-        public Builder newPassword(final String newPassword){
-            this.newPassword=newPassword;
+        public Builder newPassword(final String newPassword) {
+            this.newPassword = newPassword;
             return this;
         }
 
-        public Builder oldPassword(final String oldPassword){
-            this.oldPassword=oldPassword;
+        public Builder oldPassword(final String oldPassword) {
+            this.oldPassword = oldPassword;
             return this;
         }
 
-        public Builder confirmPassword(final String confirmPassword){
-            this.confirmPassword=confirmPassword;
+        public Builder confirmPassword(final String confirmPassword) {
+            this.confirmPassword = confirmPassword;
             return this;
         }
 
-        public PasswordUpdateDto build(){
+        public PasswordUpdateDto build() {
             return new PasswordUpdateDto(primaryEmail,
                     oldPassword,
                     newPassword,

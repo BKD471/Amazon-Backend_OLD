@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public class AuditAwareImpl implements AuditorAware<String> {
     /**
-     * @returnType - String
+     * @return - String
      */
     @Override
     public @NotNull Optional<String> getCurrentAuditor() {

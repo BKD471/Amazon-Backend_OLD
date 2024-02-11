@@ -10,7 +10,7 @@ import static com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.RegexMatchersH
 
 public class ValidateUserName implements ConstraintValidator<ValidUserName,String> {
     /**
-     * @param constraintAnnotation 
+     * @param constraintAnnotation - constraint annotation
      */
     @Override
     public void initialize(ValidUserName constraintAnnotation) {

@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 import static com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.RegexMatchersHelpers.PATTERN_FOR_PASSWORD;
 
-public class ValidatePassword implements ConstraintValidator<ValidPassword,String> {
+public class ValidatePassword implements ConstraintValidator<ValidPassword, String> {
 
     /**
      * @param constraintAnnotation - constraint annotation
@@ -20,16 +20,16 @@ public class ValidatePassword implements ConstraintValidator<ValidPassword,Strin
     }
 
     /**
-     * @param s - passed string for validation
+     * @param s                          - passed string for validation
      * @param constraintValidatorContext - constraint validator context
      * @return - boolean
      */
     @Override
     public boolean isValid(String s, ConstraintValidatorContext constraintValidatorContext) {
-        if(StringUtils.isBlank(s)) return false;
+        if (StringUtils.isBlank(s)) return false;
 
-        Pattern pattern=Pattern.compile(PATTERN_FOR_PASSWORD);
-        Matcher matcher=pattern.matcher(s);
+        Pattern pattern = Pattern.compile(PATTERN_FOR_PASSWORD);
+        Matcher matcher = pattern.matcher(s);
         return matcher.matches();
     }
 }

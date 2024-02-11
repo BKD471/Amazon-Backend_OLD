@@ -14,7 +14,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface FieldsValueMatch {
-    //default error message
     String message() default "Fields value didn't matched";
 
     /**

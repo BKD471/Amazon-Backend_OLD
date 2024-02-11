@@ -40,19 +40,19 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_F
 public class UserValidationServiceImpl implements IUserValidationService {
     private final String imagePath;
     private final IUserRepository userRepository;
-    Logger logger= LoggerFactory.getLogger(UserValidationServiceImpl.class);
+    Logger logger = LoggerFactory.getLogger(UserValidationServiceImpl.class);
 
     UserValidationServiceImpl(IUserRepository userRepository,
                               @Value("${path.services.user.image.properties}") final String PATH_TO_PROPS) {
         this.userRepository = userRepository;
 
-        final Properties properties=new Properties();
+        final Properties properties = new Properties();
         try {
             properties.load(new FileInputStream(PATH_TO_PROPS));
-        }catch (IOException e){
+        } catch (IOException e) {
             logger.error("Error in reading the props in {} UserValidationService", e.getMessage());
         }
-        this.imagePath=properties.getProperty("user.profile.images.path");
+        this.imagePath = properties.getProperty("user.profile.images.path");
     }
 
     private void checkEmails(final Set<Users> usersSet, final String new_email, final String methodName, final String checkFor) throws UserExceptions {
@@ -93,9 +93,11 @@ public class UserValidationServiceImpl implements IUserValidationService {
     }
 
     /**
-     * @param oldUsersOptional - old user object
      * @param newUsersOptional - new user object
-     * @param userValidation   - user validation field
+     * @param oldUsersOptional - old user object
+     * @param methodName       - origin method
+     * @param userValidation   - user validation type
+     * @throws UserExceptions,BadApiRequestExceptions,UserNotFoundExceptions,IOException - list of exceptions being thrown
      */
     @Override
     public void validateUser(final Optional<Users> newUsersOptional, final Optional<Users> oldUsersOptional, String methodName, USER_VALIDATION userValidation) throws UserExceptions, BadApiRequestExceptions, UserNotFoundExceptions, IOException {
@@ -184,11 +186,11 @@ public class UserValidationServiceImpl implements IUserValidationService {
                             .build(BAD_API_EXEC);
                 }
             }
-            case GET_PROFILE_IMAGE ->{
-                 if(StringUtils.isEmpty(oldUser.getProfileImage()))
-                     throw (UserExceptions) ExceptionBuilder.builder().className(UserExceptions.class)
-                         .description("You dont have any profile image yet").methodName(methodName)
-                         .build(USER_EXEC);
+            case GET_PROFILE_IMAGE -> {
+                if (StringUtils.isEmpty(oldUser.getProfileImage()))
+                    throw (UserExceptions) ExceptionBuilder.builder().className(UserExceptions.class)
+                            .description("You dont have any profile image yet").methodName(methodName)
+                            .build(USER_EXEC);
             }
             case DELETE_USER_BY_USER_ID_OR_USER_NAME -> {
                 if (oldUsersOptional.isEmpty()) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
@@ -208,9 +210,10 @@ public class UserValidationServiceImpl implements IUserValidationService {
     }
 
     /**
-     * @param userSet        - set of users
-     * @param methodName     - origin of request method
-     * @param userValidation - user validation field
+     * @param userSet        - collection of users
+     * @param methodName     - origin method
+     * @param userValidation - user validation type
+     * @throws UserNotFoundExceptions - list of exceptions being thrown
      */
     @Override
     public void validateUserList(final Collection<Users> userSet, final String methodName, final USER_VALIDATION userValidation) throws UserNotFoundExceptions {
@@ -262,12 +265,13 @@ public class UserValidationServiceImpl implements IUserValidationService {
 
 
     /**
-     * @param userId              - id of user
-     * @param userName            - username of user
-     * @param primaryEmail        - primary email of user
+     * @param userId              - userId of user
+     * @param userName            - userName of user
+     * @param primaryEmail        - primary Email of user
      * @param methodName          - origin method
      * @param userFieldValidation - user validation field
-     */
+     * @throws BadApiRequestExceptions - list of exceptions being thrown
+     **/
     @Override
     public void validatePZeroUserFields(final String userId, final String userName, final String primaryEmail, final String methodName,
                                         final USER_FIELD_VALIDATION userFieldValidation) throws BadApiRequestExceptions {

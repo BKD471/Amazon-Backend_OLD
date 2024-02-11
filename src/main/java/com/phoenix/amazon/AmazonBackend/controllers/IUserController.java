@@ -22,9 +22,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -124,7 +124,7 @@ public interface IUserController {
 
     /**
      * @param image        - profile image of user
-     * @param primaryEmail - primary eMail of user
+     * @param primaryEmail - primary email of user
      * @param userName     - userName of user
      * @return ResponseEntity<ImageResponseMessages> - image response
      * @throws IOException,BadApiRequestExceptions,UserNotFoundExceptions,UserExceptions - list of exceptions being thrown
@@ -148,11 +148,15 @@ public interface IUserController {
                                                         final HttpServletResponse response) throws IOException, UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions;
 
     /**
-     * @return String
+     * @return PasswordResponseMessages
      **/
     @GetMapping("/v1/genPassword")
     ResponseEntity<PasswordResponseMessages> generatePassword();
 
+    /**
+     * @param passwordUpdateDto - object to update old password
+     * @return PasswordResponseMessages
+     **/
     @PatchMapping("/v1/reset/password")
     ResponseEntity<PasswordResponseMessages> resetMyPassword(@Valid @RequestBody final PasswordUpdateDto passwordUpdateDto) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException;
 }

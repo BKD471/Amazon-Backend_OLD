@@ -6,8 +6,8 @@ import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.ValidUserName;
 import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.ValidName;
 import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.NullOrEmail;
 import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.ValidPassword;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
 import java.time.LocalDateTime;
 
 
@@ -100,7 +100,7 @@ public record UserDto(String userId,
         }
 
         public builder gender(final String gender) {
-            this.gender=gender;
+            this.gender = gender;
             return this;
         }
 

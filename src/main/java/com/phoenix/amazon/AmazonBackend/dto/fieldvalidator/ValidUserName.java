@@ -14,7 +14,6 @@ import java.lang.annotation.ElementType;
 @Target(ElementType.FIELD)
 @Constraint(validatedBy = ValidateUserName.class)
 public @interface ValidUserName {
-    //default error message
     String message() default "Please provide valid userName." +
             "UserName Can only contain letters & numbers[0-9] & underscore of size from 5 to 15";
 

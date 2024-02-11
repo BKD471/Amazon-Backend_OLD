@@ -13,7 +13,6 @@ import java.lang.annotation.RetentionPolicy;
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidPassword {
-    //default error message
     String message() default "Your password must have 1 uppercase," +
             "1 lowercase,1 special symbol,1 number and of at least 15 characters long";
 

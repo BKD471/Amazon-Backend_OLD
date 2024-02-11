@@ -12,12 +12,11 @@ import org.springframework.web.context.request.WebRequest;
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler({UserExceptions.class,UserNotFoundExceptions.class, BadApiRequestExceptions.class})
+    @ExceptionHandler({UserExceptions.class, UserNotFoundExceptions.class, BadApiRequestExceptions.class})
     public ResponseEntity<ErrorDetails> handleAllUncheckedCustomException(Exception e, WebRequest web) {
         ErrorDetails error = new ErrorDetails.builder()
                 .timeStamp(LocalTime.now())
@@ -28,26 +27,27 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    protected ResponseEntity<ErrorDetails> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,WebRequest web) {
+    protected ResponseEntity<ErrorDetails> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, WebRequest web) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
             String fieldName;
             try {
                 fieldName = ((FieldError) error).getField();
-            }catch (ClassCastException e){
-                fieldName=UUID.randomUUID().toString();
+            } catch (ClassCastException e) {
+                fieldName = UUID.randomUUID().toString();
             }
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
 
         });
-        ErrorDetails errorDetails=new ErrorDetails.builder()
+        ErrorDetails errorDetails = new ErrorDetails.builder()
                 .details(ex.getMessage())
+                .message(ex.getMessage())
                 .timeStamp(LocalTime.now())
                 .error(errors)
                 .details(web.getDescription(false))
                 .build();
-        return new ResponseEntity<>(errorDetails,HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)

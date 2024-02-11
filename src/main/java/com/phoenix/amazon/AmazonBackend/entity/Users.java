@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.GENDER;
 
 @Entity
@@ -46,20 +47,23 @@ public class Users extends Audit {
     @Column(length = 1000)
     private String about;
 
-    @OneToMany(mappedBy = "users",cascade = CascadeType.ALL)
-    private Set<PassWordSet> previous_password_set=new LinkedHashSet<>();
-    protected Users(){}
+    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
+    private Set<PassWordSet> previous_password_set = new LinkedHashSet<>();
+
+    protected Users() {
+    }
+
     public Users(builder builder) {
         this.userId = builder.userId;
         this.userName = builder.userName;
         this.primaryEmail = builder.primaryEmail;
-        this.secondaryEmail=builder.secondaryEmail;
-        this.firstName=builder.firstName;
-        this.lastName=builder.lastName;
+        this.secondaryEmail = builder.secondaryEmail;
+        this.firstName = builder.firstName;
+        this.lastName = builder.lastName;
         this.gender = builder.gender;
         this.profileImage = builder.profileImage;
         this.password = builder.password;
-        this.previous_password_set= builder.previous_password_set;
+        this.previous_password_set = builder.previous_password_set;
         this.lastSeen = builder.lastSeen;
         this.about = builder.about;
         this.createdDate = builder.createdDate;
@@ -120,14 +124,16 @@ public class Users extends Audit {
             return this;
         }
 
-        public builder previous_password_set(final Set<PassWordSet> previous_password_set){
-            this.previous_password_set=previous_password_set;
+        public builder previous_password_set(final Set<PassWordSet> previous_password_set) {
+            this.previous_password_set = previous_password_set;
             return this;
         }
+
         public builder gender(final GENDER gender) {
             this.gender = gender;
             return this;
         }
+
         public builder profileImage(final String profileImage) {
             this.profileImage = profileImage;
             return this;
@@ -161,34 +167,47 @@ public class Users extends Audit {
     public String getUserId() {
         return userId;
     }
+
     public String getUserName() {
         return userName;
     }
+
     public String getFirstName() {
         return firstName;
     }
+
     public String getLastName() {
         return lastName;
     }
+
     public String getPrimaryEmail() {
         return primaryEmail;
     }
+
     public String getSecondaryEmail() {
         return secondaryEmail;
     }
+
     public String getPassword() {
         return password;
     }
-    public Set<PassWordSet> getPrevious_password_set() {return previous_password_set;}
+
+    public Set<PassWordSet> getPrevious_password_set() {
+        return previous_password_set;
+    }
+
     public GENDER getGender() {
         return gender;
     }
+
     public String getProfileImage() {
         return profileImage;
     }
+
     public LocalDateTime getLastSeen() {
         return lastSeen;
     }
+
     public String getAbout() {
         return about;
     }

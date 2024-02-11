@@ -35,7 +35,7 @@ public class ImageServiceImpl extends AbstractUserService implements IImageServi
     private final IUserRepository userRepository;
     private final IUserValidationService userValidationService;
     private final String imagePath;
-    Logger logger= LoggerFactory.getLogger(ImageServiceImpl.class);
+    Logger logger = LoggerFactory.getLogger(ImageServiceImpl.class);
 
 
     protected ImageServiceImpl(IUserRepository userRepository,
@@ -47,16 +47,17 @@ public class ImageServiceImpl extends AbstractUserService implements IImageServi
         final Properties properties = new Properties();
         try {
             properties.load(new FileInputStream(PATH_TO_IMAGE_PROPS));
-        }catch (IOException e){
+        } catch (IOException e) {
             logger.error("Error in reading the props in {} ImageService", e.getMessage());
         }
-        this.imagePath= properties.getProperty("user.profile.images.path");
+        this.imagePath = properties.getProperty("user.profile.images.path");
     }
 
     /**
-     * @param file         - profile image of user
-     * @param primaryEmail - primary email of user
+     * @param image        - profile image of user
+     * @param userId       - userId of user
      * @param userName     - username of user
+     * @param primaryEmail - primary email of user
      * @return string
      * @throws BadApiRequestExceptions,IOException,UserNotFoundExceptions,UserExceptions - list of exception being thrown
      **/
@@ -86,7 +87,7 @@ public class ImageServiceImpl extends AbstractUserService implements IImageServi
             userValidationService.validateUser(Optional.of(newUser), Optional.of(fetchedUser), methodName, UPDATE_PROFILE_IMAGE);
 
             //update profile image of user
-            Users updatedUser=constructUser(fetchedUser, newUser, PROFILE_IMAGE);
+            Users updatedUser = constructUser(fetchedUser, newUser, PROFILE_IMAGE);
             userRepository.save(updatedUser);
 
             return fileNameWithExtension;
@@ -99,8 +100,9 @@ public class ImageServiceImpl extends AbstractUserService implements IImageServi
     }
 
     /**
-     * @param primaryEmail - primary email of user
+     * @param userId       - userId of user
      * @param userName     - username of user
+     * @param primaryEmail - primary email of user
      * @return InputStream
      * @throws BadApiRequestExceptions,IOException,UserNotFoundExceptions,UserExceptions - list of exception being thrown
      **/
@@ -109,7 +111,7 @@ public class ImageServiceImpl extends AbstractUserService implements IImageServi
         final String methodName = "getResource(String,String) in ImageServiceImpl";
         Users oldUser = loadUserByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail, methodName);
 
-        userValidationService.validateUser(Optional.empty(),Optional.of(oldUser),methodName,GET_PROFILE_IMAGE);
+        userValidationService.validateUser(Optional.empty(), Optional.of(oldUser), methodName, GET_PROFILE_IMAGE);
         final String fullPath = imagePath + File.separator + oldUser.getProfileImage();
         return new FileInputStream(fullPath);
     }
