@@ -9,8 +9,9 @@ import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers;
 import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
 import com.phoenix.amazon.AmazonBackend.services.AbstractUserService;
 import com.phoenix.amazon.AmazonBackend.services.IImageService;
-import com.phoenix.amazon.AmazonBackend.services.IUserService;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,6 +23,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.UUID;
 
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.PROFILE_IMAGE;
@@ -30,17 +32,25 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_V
 
 @Service("ImageServicePrimary")
 public class ImageServiceImpl extends AbstractUserService implements IImageService {
-    @Value("${user.profile.images.path}")
-    private String imagePath;
-
     private final IUserRepository userRepository;
     private final IUserValidationService userValidationService;
+    private final String imagePath;
+    Logger logger= LoggerFactory.getLogger(ImageServiceImpl.class);
+
 
     protected ImageServiceImpl(IUserRepository userRepository,
-                               IUserValidationService userValidationService, IUserService userService) {
+                               IUserValidationService userValidationService,
+                               @Value("${path.services.user.image.properties}") final String PATH_TO_IMAGE_PROPS) {
         super(userRepository, userValidationService);
         this.userValidationService = userValidationService;
         this.userRepository = userRepository;
+        final Properties properties = new Properties();
+        try {
+            properties.load(new FileInputStream(PATH_TO_IMAGE_PROPS));
+        }catch (IOException e){
+            logger.error("Error in reading the props in {} ImageService", e.getMessage());
+        }
+        this.imagePath= properties.getProperty("user.profile.images.path");
     }
 
     /**
