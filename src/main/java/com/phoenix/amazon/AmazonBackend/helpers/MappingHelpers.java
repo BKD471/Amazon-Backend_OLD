@@ -49,4 +49,17 @@ public class MappingHelpers<U,V> {
                 .about(updateUserDto.about())
                 .build();
     }
+
+    public static UpdateUserDto UserToUpdateUserDto(final Users users) {
+        return new UpdateUserDto.builder()
+                .userId(users.getUserId())
+                .userName(users.getUserName())
+                .firstName(users.getFirstName())
+                .lastName(users.getLastName())
+                .primaryEmail(users.getPrimaryEmail())
+                .secondaryEmail(users.getSecondaryEmail())
+                .gender(users.getGender().toString())
+                .about(users.getAbout())
+                .build();
+    }
 }

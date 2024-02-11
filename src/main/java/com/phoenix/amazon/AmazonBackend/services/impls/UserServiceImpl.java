@@ -99,15 +99,22 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
         final String userIdUUID = UUID.randomUUID().toString();
         final String secondaryEmail = StringUtils.isBlank(userDto.secondaryEmail()) ? userDto.secondaryEmail() : userDto.secondaryEmail().trim();
         final String about = StringUtils.isBlank(userDto.about()) ? userDto.about() : userDto.about().trim();
+        final String password = StringUtils.isBlank(userDto.password()) ? userDto.password() : userDto.password().trim();
+        final String userName = StringUtils.isBlank(userDto.userName()) ? userDto.userName() : userDto.userName().trim();
+        final String primaryEmail = StringUtils.isBlank(userDto.primaryEmail()) ? userDto.primaryEmail() : userDto.primaryEmail().trim();
+        final String gender = StringUtils.isBlank(userDto.gender()) ? userDto.gender() : userDto.gender().trim();
+        final String firstName = StringUtils.isBlank(userDto.firstName()) ? userDto.firstName() : userDto.firstName().trim();
+        final String lastName = StringUtils.isBlank(userDto.lastName()) ? userDto.lastName() : userDto.lastName().trim();
+
         return new UserDto.builder()
                 .userId(userIdUUID)
-                .userName(userDto.userName().trim())
-                .firstName(userDto.firstName().trim())
-                .lastName(userDto.lastName().trim())
-                .primaryEmail(userDto.primaryEmail().trim())
+                .userName(userName)
+                .firstName(firstName)
+                .lastName(lastName)
+                .primaryEmail(primaryEmail)
                 .secondaryEmail(secondaryEmail)
-                .gender(userDto.gender())
-                .password(userDto.password().trim())
+                .gender(gender)
+                .password(password)
                 .about(about)
                 .lastSeen(LocalDateTime.now())
                 .build();

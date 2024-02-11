@@ -118,6 +118,40 @@ public class UserValidationServiceImpl implements IUserValidationService {
             case CREATE_USER -> {
                 // Null user check is already taken care
 
+                //null field check is done from annotation side, re implementing just for added safety
+                //username
+                if (StringUtils.isBlank(newUser.getUserName()))
+                    throw (BadApiRequestExceptions) ExceptionBuilder.builder()
+                            .className(BadApiRequestExceptions.class)
+                            .description("Null User Name prohibited")
+                            .methodName(methodName).build(BAD_API_EXEC);
+
+                //primary email
+                if (StringUtils.isBlank(newUser.getPrimaryEmail()))
+                    throw (BadApiRequestExceptions) ExceptionBuilder.builder()
+                            .className(BadApiRequestExceptions.class)
+                            .description("Null Primary Email prohibited")
+                            .methodName(methodName).build(BAD_API_EXEC);
+                //first name
+                if (StringUtils.isBlank(newUser.getFirstName()))
+                    throw (BadApiRequestExceptions) ExceptionBuilder.builder()
+                            .className(BadApiRequestExceptions.class)
+                            .description("Null First Name prohibited")
+                            .methodName(methodName).build(BAD_API_EXEC);
+
+                //last name
+                if (StringUtils.isBlank(newUser.getLastName()))
+                    throw (BadApiRequestExceptions) ExceptionBuilder.builder()
+                            .className(BadApiRequestExceptions.class)
+                            .description("Null Last Name prohibited")
+                            .methodName(methodName).build(BAD_API_EXEC);
+                // gender
+                if (Objects.isNull(newUser.getGender()))
+                    throw (BadApiRequestExceptions) ExceptionBuilder.builder()
+                            .className(BadApiRequestExceptions.class)
+                            .description("Null Gender prohibited")
+                            .methodName(methodName).build(BAD_API_EXEC);
+
                 // Existing primary & secondary email
                 checkEmails(userDtoList, newUser.getPrimaryEmail(), methodName, "primary");
                 if (!StringUtils.isBlank(newUser.getSecondaryEmail())) {
