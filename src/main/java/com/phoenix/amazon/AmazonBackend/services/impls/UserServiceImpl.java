@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -213,7 +214,7 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
 
         if (!StringUtils.isBlank(fetchedUser.getProfileImage())) {
             final String pathToProfileIMage = imagePath + File.separator + fetchedUser.getProfileImage();
-            Files.delete(Paths.get(pathToProfileIMage));
+            Files.deleteIfExists(Paths.get(pathToProfileIMage));
         }
 
         userRepository.deleteByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail);

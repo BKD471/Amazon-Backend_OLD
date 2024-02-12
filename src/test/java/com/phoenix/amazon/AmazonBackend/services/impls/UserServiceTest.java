@@ -7,7 +7,6 @@ import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
 import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers;
-import com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers;
 import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
 import com.phoenix.amazon.AmazonBackend.services.IUserService;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
@@ -24,9 +23,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+
+import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -46,6 +49,7 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_F
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.USER_NAME;
 
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UserDtoToUsers;
+import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UserToUpdateUserDto;
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UserUpdateDtoToUsers;
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UsersToUsersDto;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -81,18 +85,22 @@ public class UserServiceTest {
     private final LocalDateTime TEST_LAST_SEEN = LocalDateTime.now();
     private final String ADMIN = "ADMIN";
 
-    private IUserService userService;
+    @MockBean
+    private IUserService userServiceMock;
     @Mock
     private IUserValidationService userValidationServiceMock;
     @Mock
     private IUserRepository userRepositoryMock;
+
+    @Mock
+    private static Files filesMock;
 
     @Value("${path.services.user.image.properties}")
     private String PATH_TO_IMAGE_PROPS;
 
     @BeforeEach
     public void setUp() {
-        userService = new UserServiceImpl(userRepositoryMock, userValidationServiceMock, PATH_TO_IMAGE_PROPS);
+        userServiceMock = new UserServiceImpl(userRepositoryMock, userValidationServiceMock, PATH_TO_IMAGE_PROPS);
     }
 
     @Test
@@ -101,7 +109,7 @@ public class UserServiceTest {
         // When
         when(userRepositoryMock.save(any())).thenReturn(constructUser());
         doNothing().when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
-        UserDto userDto = userService.createUserService(UsersToUsersDto(constructUser()));
+        UserDto userDto = userServiceMock.createUserService(UsersToUsersDto(constructUser()));
 
         // Then
         assertThat(userDto.userName()).isEqualTo(TEST_USER_NAME);
@@ -120,7 +128,7 @@ public class UserServiceTest {
 
         // Then
         assertThrows(BadApiRequestExceptions.class, () -> {
-            userService.createUserService(null);
+            userServiceMock.createUserService(null);
         }, "BadApiRequestExceptions should have been thrown");
     }
 
@@ -148,7 +156,7 @@ public class UserServiceTest {
 
         // Then
         assertThrows(BadApiRequestExceptions.class, () -> {
-            userService.createUserService(userRequest);
+            userServiceMock.createUserService(userRequest);
         }, "BadApiRequestExceptions should have been thrown");
     }
 
@@ -175,7 +183,7 @@ public class UserServiceTest {
 
         // Then
         assertThrows(BadApiRequestExceptions.class, () -> {
-            userService.createUserService(userRequest);
+            userServiceMock.createUserService(userRequest);
         }, "BadApiRequestExceptions should have been thrown");
     }
 
@@ -203,7 +211,7 @@ public class UserServiceTest {
 
         // Then
         assertThrows(BadApiRequestExceptions.class, () -> {
-            userService.createUserService(userRequest);
+            userServiceMock.createUserService(userRequest);
         }, "BadApiRequestExceptions should have been thrown");
     }
 
@@ -231,7 +239,7 @@ public class UserServiceTest {
 
         // Then
         assertThrows(BadApiRequestExceptions.class, () -> {
-            userService.createUserService(userRequest);
+            userServiceMock.createUserService(userRequest);
         }, "BadApiRequestExceptions should have been thrown");
     }
 
@@ -259,7 +267,7 @@ public class UserServiceTest {
 
         // Then
         assertThrows(BadApiRequestExceptions.class, () -> {
-            userService.createUserService(userRequest);
+            userServiceMock.createUserService(userRequest);
         }, "BadApiRequestExceptions should have been thrown");
     }
 
@@ -289,7 +297,7 @@ public class UserServiceTest {
 
         // Then
         assertThrows(UserExceptions.class, () -> {
-            userService.createUserService(userRequest);
+            userServiceMock.createUserService(userRequest);
         }, "UserException should have been thrown");
     }
 
@@ -318,7 +326,7 @@ public class UserServiceTest {
 
         // Then
         assertThrows(UserExceptions.class, () -> {
-            userService.createUserService(userRequest);
+            userServiceMock.createUserService(userRequest);
         }, "UserException should have been thrown");
     }
 
@@ -347,7 +355,7 @@ public class UserServiceTest {
 
         // Then
         assertThrows(UserExceptions.class, () -> {
-            userService.createUserService(userRequest);
+            userServiceMock.createUserService(userRequest);
         }, "UserExceptions should have been thrown");
     }
 
@@ -376,7 +384,7 @@ public class UserServiceTest {
 
         // Then
         assertThrows(UserExceptions.class, () -> {
-            userService.createUserService(userRequest);
+            userServiceMock.createUserService(userRequest);
         }, "UserExceptions should have been thrown");
     }
 
@@ -391,7 +399,7 @@ public class UserServiceTest {
         when(userRepositoryMock.save(any())).thenReturn(UserUpdateDtoToUsers(constructIncomingUpdateUserDtoRequest()));
         doNothing().when(userValidationServiceMock).validatePZeroUserFields(anyString(), anyString(), anyString(), anyString(), any());
         doNothing().when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
-        UserDto updatedUser = userService.updateUserServiceByUserIdOrUserNameOrPrimaryEmail(incomingUpdateUserDtoRequest, TEST_UUID, TEST_USER_NAME, TEST_PRIMARY_EMAIL);
+        UserDto updatedUser = userServiceMock.updateUserServiceByUserIdOrUserNameOrPrimaryEmail(incomingUpdateUserDtoRequest, TEST_UUID, TEST_USER_NAME, TEST_PRIMARY_EMAIL);
 
         // Then
         assertThat(updatedUser.userName()).isEqualTo(incomingUpdateUserDtoRequest.userName());
@@ -404,14 +412,15 @@ public class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Test Happy Path -- updateUserServiceByUserIdOrUserNameOrPrimaryEmail() With only firstName updated")
-    public void testUpdateUserServiceByUserIdOrUserNameOrPrimaryEmailWithOnlyFirstNameChanged() throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
+    @DisplayName("Test Happy Path -- updateUserServiceByUserIdOrUserNameOrPrimaryEmail() With only userName updated")
+    public void testUpdateUserServiceByUserIdOrUserNameOrPrimaryEmailWithOnlyUserNameChanged() throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
         // Given
+        final String UPDATED_USER_NAME = "UPDATED_USER_NAME";
         Users users = constructUser();
         UpdateUserDto updatedUpdateUserDto = new UpdateUserDto.builder()
+                .userName(UPDATED_USER_NAME)
                 .userId(users.getUserId())
-                .userName(users.getUserName())
-                .firstName("UPDATED_FIRST_NAME")
+                .firstName(users.getFirstName())
                 .lastName(users.getLastName())
                 .primaryEmail(users.getPrimaryEmail())
                 .secondaryEmail(users.getSecondaryEmail())
@@ -424,230 +433,313 @@ public class UserServiceTest {
         when(userRepositoryMock.save(any())).thenReturn(UserUpdateDtoToUsers(updatedUpdateUserDto));
         doNothing().when(userValidationServiceMock).validatePZeroUserFields(anyString(), anyString(), anyString(), anyString(), any());
         doNothing().when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
-        UserDto updatedUser = userService.updateUserServiceByUserIdOrUserNameOrPrimaryEmail(updatedUpdateUserDto, TEST_UUID, TEST_USER_NAME, TEST_PRIMARY_EMAIL);
+        UserDto updatedUser = userServiceMock.updateUserServiceByUserIdOrUserNameOrPrimaryEmail(updatedUpdateUserDto, TEST_UUID, TEST_USER_NAME, TEST_PRIMARY_EMAIL);
 
         // Then
-        assertThat(updatedUser.userName()).isEqualTo(updatedUpdateUserDto.userName());
-        assertThat(updatedUser.firstName()).isEqualTo(updatedUpdateUserDto.firstName());
-        assertThat(updatedUser.lastName()).isEqualTo(updatedUpdateUserDto.lastName());
-        assertThat(updatedUser.primaryEmail()).isEqualTo(updatedUpdateUserDto.primaryEmail());
-        assertThat(updatedUser.about()).isEqualTo(updatedUpdateUserDto.about());
-        assertThat(updatedUser.gender()).isEqualTo(updatedUpdateUserDto.gender());
+        assertThat(updatedUser.userName()).isEqualTo(UPDATED_USER_NAME);
+        assertThat(updatedUser.firstName()).isEqualTo(users.getFirstName());
+        assertThat(updatedUser.lastName()).isEqualTo(users.getLastName());
+        assertThat(updatedUser.primaryEmail()).isEqualTo(users.getPrimaryEmail());
+        assertThat(updatedUser.secondaryEmail()).isEqualTo(users.getSecondaryEmail());
+        assertThat(updatedUser.about()).isEqualTo(users.getAbout());
+        assertThat(updatedUser.gender()).isEqualTo(users.getGender().toString());
     }
-//
-//    @Test
-//    @DisplayName("Test Happy Path -- updateUserByUserIdOrUserName() With only lastName updated")
-//    public void testUpdateUserByUserIdOrUserNameWithOnlyLastNameChanged() throws BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions {
-//        // Given
-//        Users users = constructUser();
-//        UserDto newUserDTo = new UserDto.builder()
-//                .userId(users.getUserId())
-//                .userName(users.getUserName())
-//                .firstName(users.getFirstName())
-//                .lastName("UPDATED_LAST_NAME")
-//                .email(users.getEmail())
-//                .password(users.getPassword())
-//                .profileImage(users.getProfileImage())
-//                .gender(users.getGender())
-//                .about(users.getAbout())
-//                .lastSeen(users.getLastSeen())
-//                .build();
-//
-//        // When
-//        when(userRepositoryMock.findByUserIdOrUserName(TEST_UUID, TEST_USER_NAME)).thenReturn(Optional.of(users));
-//        when(userRepositoryMock.save(any())).thenReturn(UserDtoToUsers(newUserDTo));
-//        doNothing().when(userValidationServiceMock).validateFields(anyString(), anyString(), any(), anyString(), any());
-//        doNothing().when(userValidationServiceMock).validateUser(any(), anyString(), any());
-//        UserDto updatedUser = userServiceMock.updateUserByUserIdOrUserName(newUserDTo, TEST_UUID, TEST_USER_NAME);
-//
-//        // Then
-//        assertThat(updatedUser.firstName()).isEqualTo(users.getFirstName());
-//        assertThat(updatedUser.lastName()).isEqualTo(newUserDTo.lastName());
-//        assertThat(updatedUser.email()).isEqualTo(users.getEmail());
-//        assertThat(updatedUser.about()).isEqualTo(users.getAbout());
-//        assertThat(updatedUser.gender()).isEqualTo(users.getGender());
-//    }
-//
-//    @Test
-//    @DisplayName("Test Happy Path -- updateUserByUserIdOrUserName() With only email updated")
-//    public void testUpdateUserByUserIdOrUserNameWithOnlyEmailChanged() throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
-//        // Given
-//        Users users = constructUser();
-//        UserDto newUserDTo = new UserDto.builder()
-//                .userId(users.getUserId())
-//                .userName(users.getUserName())
-//                .firstName(users.getFirstName())
-//                .lastName(users.getLastName())
-//                .email("updated@gmail.com")
-//                .password(users.getPassword())
-//                .profileImage(users.getProfileImage())
-//                .gender(users.getGender())
-//                .about(users.getAbout())
-//                .lastSeen(users.getLastSeen())
-//                .build();
-//
-//        // When
-//        when(userRepositoryMock.findByUserIdOrUserName(TEST_UUID, TEST_USER_NAME)).thenReturn(Optional.of(users));
-//        when(userRepositoryMock.save(any())).thenReturn(UserDtoToUsers(newUserDTo));
-//        doNothing().when(userValidationServiceMock).validateFields(anyString(), anyString(), any(), anyString(), any());
-//        doNothing().when(userValidationServiceMock).validateUser(any(), anyString(), any());
-//        UserDto updatedUser = userServiceMock.updateUserByUserIdOrUserName(newUserDTo, TEST_UUID, TEST_USER_NAME);
-//
-//        // Then
-//        assertThat(updatedUser.firstName()).isEqualTo(users.getFirstName());
-//        assertThat(updatedUser.lastName()).isEqualTo(users.getLastName());
-//        assertThat(updatedUser.email()).isEqualTo(newUserDTo.email());
-//        assertThat(updatedUser.about()).isEqualTo(users.getAbout());
-//        assertThat(updatedUser.gender()).isEqualTo(users.getGender());
-//    }
-//
-//    @Test
-//    @DisplayName("Test Happy Path -- updateUserByUserIdOrUserName() With only about updated")
-//    public void testUpdateUserByUserIdOrUserNameWithOnlyAboutChanged() throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
-//        // Given
-//        Users users = constructUser();
-//        UserDto newUserDTo = new UserDto.builder()
-//                .userId(users.getUserId())
-//                .userName(users.getUserName())
-//                .firstName(users.getFirstName())
-//                .lastName(users.getLastName())
-//                .email(users.getEmail())
-//                .password(users.getPassword())
-//                .profileImage(users.getProfileImage())
-//                .gender(users.getGender())
-//                .about(" UPDATED ABOUT SECTION ")
-//                .lastSeen(users.getLastSeen())
-//                .build();
-//
-//        // When
-//        when(userRepositoryMock.findByUserIdOrUserName(TEST_UUID, TEST_USER_NAME)).thenReturn(Optional.of(users));
-//        when(userRepositoryMock.save(any())).thenReturn(UserDtoToUsers(newUserDTo));
-//        doNothing().when(userValidationServiceMock).validateFields(anyString(), anyString(), any(), anyString(), any());
-//        doNothing().when(userValidationServiceMock).validateUser(any(), anyString(), any());
-//        UserDto updatedUser = userServiceMock.updateUserByUserIdOrUserName(newUserDTo, TEST_UUID, TEST_USER_NAME);
-//
-//        // Then
-//        assertThat(updatedUser.firstName()).isEqualTo(users.getFirstName());
-//        assertThat(updatedUser.lastName()).isEqualTo(users.getLastName());
-//        assertThat(updatedUser.email()).isEqualTo(users.getEmail());
-//        assertThat(updatedUser.about()).isEqualTo(newUserDTo.about());
-//        assertThat(updatedUser.gender()).isEqualTo(users.getGender());
-//    }
-//
-//    @Test
-//    @DisplayName("Test Happy Path -- updateUserByUserIdOrUserName() With only gender updated")
-//    public void testUpdateUserByUserIdOrUserNameWithOnlyGenderChanged() throws BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions {
-//        // Given
-//        Users users = constructUser();
-//        UserDto newUserDTo = new UserDto.builder()
-//                .userId(users.getUserId())
-//                .userName(users.getUserName())
-//                .firstName(users.getFirstName())
-//                .lastName(users.getLastName())
-//                .email(users.getEmail())
-//                .password(users.getPassword())
-//                .profileImage(users.getProfileImage())
-//                .gender(NON_BINARY)
-//                .about(users.getAbout())
-//                .lastSeen(users.getLastSeen())
-//                .build();
-//
-//        // When
-//        when(userRepositoryMock.findByUserIdOrUserName(TEST_UUID, TEST_USER_NAME)).thenReturn(Optional.of(users));
-//        when(userRepositoryMock.save(any())).thenReturn(UserDtoToUsers(newUserDTo));
-//        doNothing().when(userValidationServiceMock).validateFields(anyString(), anyString(), any(), anyString(), any());
-//        doNothing().when(userValidationServiceMock).validateUser(any(), anyString(), any());
-//        UserDto updatedUser = userServiceMock.updateUserByUserIdOrUserName(newUserDTo, TEST_UUID, TEST_USER_NAME);
-//
-//        // Then
-//        assertThat(updatedUser.firstName()).isEqualTo(users.getFirstName());
-//        assertThat(updatedUser.lastName()).isEqualTo(users.getLastName());
-//        assertThat(updatedUser.email()).isEqualTo(users.getEmail());
-//        assertThat(updatedUser.about()).isEqualTo(users.getAbout());
-//        assertThat(updatedUser.gender()).isEqualTo(newUserDTo.gender());
-//    }
-//
-//    @Test
-//    @DisplayName("Test Unhappy Path -- updateUserByUserIdOrUserName() With both UserId & UserName Null")
-//    public void testUpdateUserByUserIdOrUserNameUnhappyPathWithBothUserIdAndUserNameNull() throws BadApiRequestExceptions {
-//        // Given
-//        Users users = constructUser();
-//
-//        // When
-//        doThrow(new BadApiRequestExceptions(BadApiRequestExceptions.class, "Please provide non null username or user Id", "testUpdateUserByUserIdOrUserNameUnhappyPathWithBothUserIdAndUserNameNull"))
-//                .when(userValidationServiceMock).validateFields(any(), any(), any(), anyString(), any());
-//
-//        // Then
-//        assertThrows(BadApiRequestExceptions.class, () -> {
-//            userServiceMock.updateUserByUserIdOrUserName(MappingHelpers.UsersToUsersDto(users), null, null);
-//        }, "BadApiRequestException should have been thrown");
-//    }
-//
-//    @Test
-//    @DisplayName("Test Unhappy Path -- updateUserByUserIdOrUserName() With both UserId & UserName invalid or not present in db")
-//    public void testUpdateUserByUserIdOrUserNameUnhappyPathForUserNotFound() throws BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions {
-//        // Given
-//        Users users = constructUser();
-//
-//
-//        // When
-//        when(userRepositoryMock.findByUserIdOrUserName("INVALID_USER_ID", "INVALID_USER_NAME")).thenReturn(Optional.empty());
-//        doNothing().when(userValidationServiceMock).validateFields(anyString(), anyString(), any(), anyString(), any());
-//        doThrow(new UserNotFoundExceptions(UserNotFoundExceptions.class, "No User with this UserId or UserName"
-//                , "testUpdateUserByUserIdOrUserNameUnhappyPathForUserNotFound"))
-//                .when(userValidationServiceMock).validateUser(any(), anyString(), any());
-//
-//        // Then
-//        assertThrows(UserNotFoundExceptions.class, () -> {
-//            userServiceMock.updateUserByUserIdOrUserName(MappingHelpers.UsersToUsersDto(users), "INVALID_USER_ID", "INVALID_USER_NAME");
-//        }, "UserNotFoundException should have been thrown");
-//    }
-//
-//
-//    @Test
-//    @DisplayName("Test Unhappy Path -- updateUserByUserIdOrUserName() With email already existing")
-//    public void testUpdateUserByUserIdOrUserNameUnhappyPathWithExistingEmail() throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
-//        // Given
-//        Users users = constructUser();
-//        UserDto newUserDTo = new UserDto.builder()
-//                .userId(users.getUserId())
-//                .userName(users.getUserName())
-//                .firstName(users.getFirstName())
-//                .lastName(users.getLastName())
-//                .email("EXISTING_EMAIL")
-//                .password(users.getPassword())
-//                .profileImage(users.getProfileImage())
-//                .gender(users.getGender())
-//                .about(users.getAbout())
-//                .lastSeen(users.getLastSeen())
-//                .build();
-//
-//        // When
-//        when(userRepositoryMock.findByUserIdOrUserName(TEST_UUID, TEST_USER_NAME)).thenReturn(Optional.of(users));
-//        doNothing().when(userValidationServiceMock).validateFields(anyString(), anyString(), any(), anyString(), any());
-//        doNothing().doThrow(new UserExceptions(UserExceptions.class,
-//                        String.format("There's an account with Email %s EMAIL", newUserDTo.email())
-//                        , "testUpdateUserByUserIdOrUserNameUnhappyPathWithExistingEmail"))
-//                .when(userValidationServiceMock).validateUser(any(), anyString(), any());
-//
-//        // Then
-//        assertThrows(UserExceptions.class, () -> {
-//            userServiceMock.updateUserByUserIdOrUserName(newUserDTo, TEST_UUID, TEST_USER_NAME);
-//        }, "UserExceptions Should have been thrown");
-//    }
-//
-//    @Test
-//    @DisplayName("Test Happy Path -- deleteUserByUserIdOrUserName() With valid UserId & UserName")
-//    public void testDeleteUserByUserIdOrUserNameHappyPath() throws BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions {
-//        // When
-//        doNothing().when(userValidationServiceMock).validateFields(anyString(), anyString(), any(), anyString(), any());
-//        when(userRepositoryMock.findByUserIdOrUserName(TEST_UUID, TEST_USER_NAME)).thenReturn(Optional.of(constructUser()));
-//        doNothing().when(userValidationServiceMock).validateUser(any(), anyString(), any());
-//        userServiceMock.deleteUserByUserIdOrUserName(TEST_UUID, TEST_USER_NAME);
-//
-//        // Then
-//        verify(userRepositoryMock, times(1)).deleteByUserIdOrUserName(TEST_UUID, TEST_USER_NAME);
-//    }
+
+    @Test
+    @DisplayName("Test Happy Path -- updateUserServiceByUserIdOrUserNameOrPrimaryEmail() With only primary email updated")
+    public void testUpdateUserServiceByUserIdOrUserNameOrPrimaryEmailWithOnlyPrimaryEmailChanged() throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
+        // Given
+        final String UPDATED_PRIMARY_EMAIL = "UPDATED_PRIMARY_EMAIL";
+        Users users = constructUser();
+        UpdateUserDto updatedUpdateUserDto = new UpdateUserDto.builder()
+                .userId(users.getUserId())
+                .userName(users.getUserName())
+                .firstName(users.getFirstName())
+                .lastName(users.getLastName())
+                .primaryEmail(UPDATED_PRIMARY_EMAIL)
+                .secondaryEmail(users.getSecondaryEmail())
+                .gender(users.getGender().toString())
+                .about(users.getAbout())
+                .build();
+
+        // When
+        when(userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(TEST_UUID, TEST_USER_NAME, TEST_PRIMARY_EMAIL)).thenReturn(Optional.of(users));
+        when(userRepositoryMock.save(any())).thenReturn(UserUpdateDtoToUsers(updatedUpdateUserDto));
+        doNothing().when(userValidationServiceMock).validatePZeroUserFields(anyString(), anyString(), anyString(), anyString(), any());
+        doNothing().when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
+        UserDto updatedUser = userServiceMock.updateUserServiceByUserIdOrUserNameOrPrimaryEmail(updatedUpdateUserDto, TEST_UUID, TEST_USER_NAME, TEST_PRIMARY_EMAIL);
+
+        // Then
+        assertThat(updatedUser.userName()).isEqualTo(users.getUserName());
+        assertThat(updatedUser.firstName()).isEqualTo(users.getFirstName());
+        assertThat(updatedUser.lastName()).isEqualTo(users.getLastName());
+        assertThat(updatedUser.primaryEmail()).isEqualTo(UPDATED_PRIMARY_EMAIL);
+        assertThat(updatedUser.secondaryEmail()).isEqualTo(users.getSecondaryEmail());
+        assertThat(updatedUser.about()).isEqualTo(users.getAbout());
+        assertThat(updatedUser.gender()).isEqualTo(users.getGender().toString());
+    }
+
+    @Test
+    @DisplayName("Test Happy Path -- updateUserServiceByUserIdOrUserNameOrPrimaryEmail() With only secondary email updated")
+    public void testUpdateUserServiceByUserIdOrUserNameOrPrimaryEmailWithOnlySecondaryEmailChanged() throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
+        // Given
+        final String UPDATED_SECONDARY_EMAIL = "UPDATED_SECONDARY_EMAIL";
+        Users users = constructUser();
+        UpdateUserDto updatedUpdateUserDto = new UpdateUserDto.builder()
+                .userId(users.getUserId())
+                .userName(users.getUserName())
+                .firstName(users.getFirstName())
+                .lastName(users.getLastName())
+                .primaryEmail(users.getPrimaryEmail())
+                .secondaryEmail(UPDATED_SECONDARY_EMAIL)
+                .gender(users.getGender().toString())
+                .about(users.getAbout())
+                .build();
+
+        // When
+        when(userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(TEST_UUID, TEST_USER_NAME, TEST_PRIMARY_EMAIL)).thenReturn(Optional.of(users));
+        when(userRepositoryMock.save(any())).thenReturn(UserUpdateDtoToUsers(updatedUpdateUserDto));
+        doNothing().when(userValidationServiceMock).validatePZeroUserFields(anyString(), anyString(), anyString(), anyString(), any());
+        doNothing().when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
+        UserDto updatedUser = userServiceMock.updateUserServiceByUserIdOrUserNameOrPrimaryEmail(updatedUpdateUserDto, TEST_UUID, TEST_USER_NAME, TEST_PRIMARY_EMAIL);
+
+        // Then
+        assertThat(updatedUser.userName()).isEqualTo(users.getUserName());
+        assertThat(updatedUser.firstName()).isEqualTo(users.getFirstName());
+        assertThat(updatedUser.lastName()).isEqualTo(users.getLastName());
+        assertThat(updatedUser.primaryEmail()).isEqualTo(users.getPrimaryEmail());
+        assertThat(updatedUser.secondaryEmail()).isEqualTo(UPDATED_SECONDARY_EMAIL);
+        assertThat(updatedUser.about()).isEqualTo(users.getAbout());
+        assertThat(updatedUser.gender()).isEqualTo(users.getGender().toString());
+    }
+
+    @Test
+    @DisplayName("Test Happy Path -- updateUserServiceByUserIdOrUserNameOrPrimaryEmail() With only firstName updated")
+    public void testUpdateUserServiceByUserIdOrUserNameOrPrimaryEmailWithOnlyFirstNameChanged() throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
+        // Given
+        final String UPDATED_FIRST_NAME = "UPDATED_FIRST_NAME";
+        Users users = constructUser();
+        UpdateUserDto updatedUpdateUserDto = new UpdateUserDto.builder()
+                .userId(users.getUserId())
+                .userName(users.getUserName())
+                .firstName(UPDATED_FIRST_NAME)
+                .lastName(users.getLastName())
+                .primaryEmail(users.getPrimaryEmail())
+                .secondaryEmail(users.getSecondaryEmail())
+                .gender(users.getGender().toString())
+                .about(users.getAbout())
+                .build();
+
+        // When
+        when(userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(TEST_UUID, TEST_USER_NAME, TEST_PRIMARY_EMAIL)).thenReturn(Optional.of(users));
+        when(userRepositoryMock.save(any())).thenReturn(UserUpdateDtoToUsers(updatedUpdateUserDto));
+        doNothing().when(userValidationServiceMock).validatePZeroUserFields(anyString(), anyString(), anyString(), anyString(), any());
+        doNothing().when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
+        UserDto updatedUser = userServiceMock.updateUserServiceByUserIdOrUserNameOrPrimaryEmail(updatedUpdateUserDto, TEST_UUID, TEST_USER_NAME, TEST_PRIMARY_EMAIL);
+
+        // Then
+        assertThat(updatedUser.userName()).isEqualTo(users.getUserName());
+        assertThat(updatedUser.firstName()).isEqualTo(UPDATED_FIRST_NAME);
+        assertThat(updatedUser.lastName()).isEqualTo(users.getLastName());
+        assertThat(updatedUser.primaryEmail()).isEqualTo(users.getPrimaryEmail());
+        assertThat(updatedUser.secondaryEmail()).isEqualTo(users.getSecondaryEmail());
+        assertThat(updatedUser.about()).isEqualTo(users.getAbout());
+        assertThat(updatedUser.gender()).isEqualTo(users.getGender().toString());
+    }
+
+    @Test
+    @DisplayName("Test Happy Path -- updateUserServiceByUserIdOrUserNameOrPrimaryEmail() With only lastName updated")
+    public void testUpdateUserServiceByUserIdOrUserNameOrPrimaryEmailWithOnlyLastNameChanged() throws BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions, IOException {
+        // Given
+        final String UPDATED_LAST_NAME = "UPDATED_LAST_NAME";
+        Users users = constructUser();
+        UpdateUserDto updatedUpdateUserDto = new UpdateUserDto.builder()
+                .userId(users.getUserId())
+                .userName(users.getUserName())
+                .firstName(users.getFirstName())
+                .lastName(UPDATED_LAST_NAME)
+                .primaryEmail(users.getPrimaryEmail())
+                .secondaryEmail(users.getSecondaryEmail())
+                .gender(users.getGender().toString())
+                .about(users.getAbout())
+                .build();
+
+        // When
+        when(userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(TEST_UUID, TEST_USER_NAME, TEST_PRIMARY_EMAIL)).thenReturn(Optional.of(users));
+        when(userRepositoryMock.save(any())).thenReturn(UserUpdateDtoToUsers(updatedUpdateUserDto));
+        doNothing().when(userValidationServiceMock).validatePZeroUserFields(anyString(), anyString(), anyString(), anyString(), any());
+        doNothing().when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
+        UserDto updatedUser = userServiceMock.updateUserServiceByUserIdOrUserNameOrPrimaryEmail(updatedUpdateUserDto, TEST_UUID, TEST_USER_NAME, TEST_PRIMARY_EMAIL);
+
+        // Then
+        assertThat(updatedUser.userName()).isEqualTo(users.getUserName());
+        assertThat(updatedUser.firstName()).isEqualTo(users.getFirstName());
+        assertThat(updatedUser.lastName()).isEqualTo(UPDATED_LAST_NAME);
+        assertThat(updatedUser.primaryEmail()).isEqualTo(users.getPrimaryEmail());
+        assertThat(updatedUser.secondaryEmail()).isEqualTo(users.getSecondaryEmail());
+        assertThat(updatedUser.about()).isEqualTo(users.getAbout());
+        assertThat(updatedUser.gender()).isEqualTo(users.getGender().toString());
+    }
+
+
+    @Test
+    @DisplayName("Test Happy Path -- updateUserServiceByUserIdOrUserNameOrPrimaryEmail() With only gender updated")
+    public void testUpdateUserServiceByUserIdOrUserNameOrPrimaryEmailWithOnlyGenderChanged() throws BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions, IOException {
+        // Given
+        final String UPDATED_GENDER = "FEMALE";
+        Users users = constructUser();
+        UpdateUserDto updatedUpdateUserDto = new UpdateUserDto.builder()
+                .userId(users.getUserId())
+                .userName(users.getUserName())
+                .firstName(users.getFirstName())
+                .lastName(users.getLastName())
+                .primaryEmail(users.getPrimaryEmail())
+                .secondaryEmail(users.getSecondaryEmail())
+                .gender(UPDATED_GENDER)
+                .about(users.getAbout())
+                .build();
+
+        // When
+        when(userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(TEST_UUID, TEST_USER_NAME, TEST_PRIMARY_EMAIL)).thenReturn(Optional.of(users));
+        when(userRepositoryMock.save(any())).thenReturn(UserUpdateDtoToUsers(updatedUpdateUserDto));
+        doNothing().when(userValidationServiceMock).validatePZeroUserFields(anyString(), anyString(), anyString(), anyString(), any());
+        doNothing().when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
+        UserDto updatedUser = userServiceMock.updateUserServiceByUserIdOrUserNameOrPrimaryEmail(updatedUpdateUserDto, TEST_UUID, TEST_USER_NAME, TEST_PRIMARY_EMAIL);
+
+        // Then
+        assertThat(updatedUser.userName()).isEqualTo(users.getUserName());
+        assertThat(updatedUser.firstName()).isEqualTo(users.getFirstName());
+        assertThat(updatedUser.lastName()).isEqualTo(users.getLastName());
+        assertThat(updatedUser.primaryEmail()).isEqualTo(users.getPrimaryEmail());
+        assertThat(updatedUser.secondaryEmail()).isEqualTo(users.getSecondaryEmail());
+        assertThat(updatedUser.about()).isEqualTo(users.getAbout());
+        assertThat(updatedUser.gender()).isEqualTo(UPDATED_GENDER);
+    }
+
+
+    @Test
+    @DisplayName("Test Happy Path -- updateUserServiceByUserIdOrUserNameOrPrimaryEmail() With only about updated")
+    public void testUpdateUserServiceByUserIdOrUserNameOrPrimaryEmailWithOnlyAboutChanged() throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
+        // Given
+        final String UPDATED_ABOUT = "UPDATED_ABOUT";
+        Users users = constructUser();
+        UpdateUserDto updatedUpdateUserDto = new UpdateUserDto.builder()
+                .userId(users.getUserId())
+                .userName(users.getUserName())
+                .firstName(users.getFirstName())
+                .lastName(users.getLastName())
+                .primaryEmail(users.getPrimaryEmail())
+                .secondaryEmail(users.getSecondaryEmail())
+                .gender(users.getGender().toString())
+                .about(UPDATED_ABOUT)
+                .build();
+
+        // When
+        when(userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(TEST_UUID, TEST_USER_NAME, TEST_PRIMARY_EMAIL)).thenReturn(Optional.of(users));
+        when(userRepositoryMock.save(any())).thenReturn(UserUpdateDtoToUsers(updatedUpdateUserDto));
+        doNothing().when(userValidationServiceMock).validatePZeroUserFields(anyString(), anyString(), anyString(), anyString(), any());
+        doNothing().when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
+        UserDto updatedUser = userServiceMock.updateUserServiceByUserIdOrUserNameOrPrimaryEmail(updatedUpdateUserDto, TEST_UUID, TEST_USER_NAME, TEST_PRIMARY_EMAIL);
+
+        // Then
+        assertThat(updatedUser.userName()).isEqualTo(users.getUserName());
+        assertThat(updatedUser.firstName()).isEqualTo(users.getFirstName());
+        assertThat(updatedUser.lastName()).isEqualTo(users.getLastName());
+        assertThat(updatedUser.primaryEmail()).isEqualTo(users.getPrimaryEmail());
+        assertThat(updatedUser.secondaryEmail()).isEqualTo(users.getSecondaryEmail());
+        assertThat(updatedUser.about()).isEqualTo(UPDATED_ABOUT);
+        assertThat(updatedUser.gender()).isEqualTo(users.getGender().toString());
+    }
+
+
+    @Test
+    @DisplayName("Test Unhappy Path -- updateUserByUserIdOrUserName() With both UserId & UserName Null")
+    public void testUpdateUserByUserIdOrUserNameUnhappyPathWithBothUserIdAndUserNameAndPrimaryEmailIsNull() throws BadApiRequestExceptions {
+        // Given
+        Users users = constructUser();
+
+        // When
+        doThrow(new BadApiRequestExceptions(BadApiRequestExceptions.class, "Please provide non null username or user Id", "testUpdateUserByUserIdOrUserNameUnhappyPathWithBothUserIdAndUserNameNull"))
+                .when(userValidationServiceMock).validatePZeroUserFields(any(), any(), any(), anyString(), any());
+
+        // Then
+        assertThrows(BadApiRequestExceptions.class, () -> {
+            userServiceMock.updateUserServiceByUserIdOrUserNameOrPrimaryEmail(UserToUpdateUserDto(users), null, null, null);
+        }, "BadApiRequestException should have been thrown");
+    }
+
+
+    @Test
+    @DisplayName("Test Unhappy Path -- updateUserServiceByUserIdOrUserNameOrPrimaryEmail() With UserId & UserName & Primary Email invalid or not present in db")
+    public void testUpdateUserServiceByUserIdOrUserNameOrPrimaryEmailUnhappyPathForUserNotFound() throws BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions, IOException {
+        // Given
+        Users users = constructUser();
+
+        // When
+        when(userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail("INVALID_USER_ID",
+                "INVALID_USER_NAME", "INVALID_PRIMARY_EMAIL")).thenReturn(Optional.empty());
+        doNothing().when(userValidationServiceMock).validatePZeroUserFields(anyString(), anyString(), anyString(), anyString(), any());
+        doThrow(new UserNotFoundExceptions(UserNotFoundExceptions.class, "No User with this UserId or UserName"
+                , "testUpdateUserByUserIdOrUserNameUnhappyPathForUserNotFound"))
+                .when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
+
+        // Then
+        assertThrows(UserNotFoundExceptions.class, () -> {
+            userServiceMock.updateUserServiceByUserIdOrUserNameOrPrimaryEmail(UserToUpdateUserDto(users),
+                    "INVALID_USER_ID", "INVALID_USER_NAME", "INVALID_PRIMARY_EMAIL");
+        }, "UserNotFoundException should have been thrown");
+    }
+
+
+    @Test
+    @DisplayName("Test Unhappy Path -- updateUserServiceByUserIdOrUserNameOrPrimaryEmail() With primary email already existing")
+    public void testUpdateUserServiceByUserIdOrUserNameOrPrimaryEmailUnhappyPathWithExistingEmail() throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
+        // Given
+        Users users = constructUser();
+        UpdateUserDto updatedUpdateUserDto = new UpdateUserDto.builder()
+                .userId(users.getUserId())
+                .userName(users.getUserName())
+                .firstName(users.getFirstName())
+                .lastName(users.getLastName())
+                .primaryEmail("EXISTING_PRIMARY_EMAIL")
+                .secondaryEmail(users.getSecondaryEmail())
+                .gender(users.getGender().toString())
+                .about(users.getAbout())
+                .build();
+
+        // When
+        when(userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(TEST_UUID, TEST_USER_NAME, TEST_PRIMARY_EMAIL))
+                .thenReturn(Optional.of(users));
+        doNothing().when(userValidationServiceMock).validatePZeroUserFields(anyString(), anyString(), anyString(), anyString(), any());
+        doNothing().doThrow(new UserExceptions(UserExceptions.class,
+                        String.format("There's an account with Email %s EMAIL", updatedUpdateUserDto.primaryEmail())
+                        , "testUpdateUserByUserIdOrUserNameUnhappyPathWithExistingEmail"))
+                .when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
+
+        // Then
+        assertThrows(UserExceptions.class, () -> {
+            userServiceMock.updateUserServiceByUserIdOrUserNameOrPrimaryEmail(updatedUpdateUserDto, TEST_UUID, TEST_USER_NAME,TEST_PRIMARY_EMAIL);
+        }, "UserExceptions Should have been thrown");
+    }
+
+    @Test
+    @DisplayName("Test Happy Path -- deleteUserServiceByUserIdOrUserNameOrPrimaryEmail() With valid UserId & UserName & primary Email")
+    public void testDeleteByUserIdOrUserNameOrPrimaryEmailHappyPath() throws BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions, IOException {
+        // Given
+        Users users=constructUser();
+
+        // When
+        doNothing().when(userValidationServiceMock).validatePZeroUserFields(anyString(), anyString(), anyString(), anyString(), any());
+        when(userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(TEST_UUID, TEST_USER_NAME,TEST_PRIMARY_EMAIL))
+                .thenReturn(Optional.of(users));
+        doNothing().when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
+        userServiceMock.deleteUserServiceByUserIdOrUserNameOrPrimaryEmail(TEST_UUID, TEST_USER_NAME,TEST_PRIMARY_EMAIL);
+        Optional<Users> fetchedUser=userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(TEST_UUID,TEST_USER_NAME,TEST_USER_NAME);
+
+        // Then
+        verify(userRepositoryMock, times(1)).deleteByUserIdOrUserNameOrPrimaryEmail(TEST_UUID, TEST_USER_NAME,TEST_PRIMARY_EMAIL);
+        assertThat(fetchedUser.isEmpty()).isTrue();
+    }
 //
 //    @Test
 //    @DisplayName("Test Unhappy Path -- deleteUserByUserIdOrUserName() With null UserId & UserName")
