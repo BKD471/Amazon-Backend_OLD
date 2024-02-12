@@ -1,5 +1,7 @@
 package com.phoenix.amazon.AmazonBackend.services.impls;
 
+import com.phoenix.amazon.AmazonBackend.dto.PageableResponse;
+import com.phoenix.amazon.AmazonBackend.dto.PasswordUpdateDto;
 import com.phoenix.amazon.AmazonBackend.dto.UpdateUserDto;
 import com.phoenix.amazon.AmazonBackend.dto.UserDto;
 import com.phoenix.amazon.AmazonBackend.entity.Users;
@@ -10,58 +12,47 @@ import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers;
 import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
 import com.phoenix.amazon.AmazonBackend.services.IUserService;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-
-import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.Set;
 
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.GENDER.NON_BINARY;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.GENDER.FEMALE;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.GENDER.MALE;
 
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.PRIMARY_EMAIL;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.FIRST_NAME;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.LAST_NAME;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.GENDER;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.LAST_NAME;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.PRIMARY_EMAIL;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.USER_NAME;
-
-import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UserDtoToUsers;
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UserToUpdateUserDto;
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UserUpdateDtoToUsers;
 import static com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers.UsersToUsersDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.anySet;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -74,7 +65,7 @@ public class UserServiceTest {
     private final String TEST_FIRST_NAME = "TEST_FIRST_NAME";
     private final String TEST_LAST_NAME = "TEST_LAST_NAME";
     private final AllConstantHelpers.GENDER TEST_GENDER = MALE;
-    private final String TEST_PASSWORD = "$2y$10$JUH1QJQnAndkUwMclwdMc.hAbqAZ61Yb/7yCmCeIdNTjAMgC1NhNC";
+    private final String TEST_PASSWORD = "TEST_PASSWORD";
     private final String TEST_PROFILE_IMAGE = "0ecbe17e-5537-4533-9b9f-b3c2438e58eb.jpg";
     private final String TEST_ABOUT = "Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia,\n" +
             "molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum\n" +
@@ -84,6 +75,10 @@ public class UserServiceTest {
             "nihil, eveniet aliquid culpa officia aut! Impedit sit sunt quaerat, odit,\n";
     private final LocalDateTime TEST_LAST_SEEN = LocalDateTime.now();
     private final String ADMIN = "ADMIN";
+    private final int TEST_PAGE_NUMBER = 1;
+    private final int TEST_PAGE_SIZE = 10;
+    private final String TEST_SORT_BY = "firstName";
+    private final String TEST_SORT_DIRECTION = "asc";
 
     @MockBean
     private IUserService userServiceMock;
@@ -91,9 +86,6 @@ public class UserServiceTest {
     private IUserValidationService userValidationServiceMock;
     @Mock
     private IUserRepository userRepositoryMock;
-
-    @Mock
-    private static Files filesMock;
 
     @Value("${path.services.user.image.properties}")
     private String PATH_TO_IMAGE_PROPS;
@@ -718,7 +710,7 @@ public class UserServiceTest {
 
         // Then
         assertThrows(UserExceptions.class, () -> {
-            userServiceMock.updateUserServiceByUserIdOrUserNameOrPrimaryEmail(updatedUpdateUserDto, TEST_UUID, TEST_USER_NAME,TEST_PRIMARY_EMAIL);
+            userServiceMock.updateUserServiceByUserIdOrUserNameOrPrimaryEmail(updatedUpdateUserDto, TEST_UUID, TEST_USER_NAME, TEST_PRIMARY_EMAIL);
         }, "UserExceptions Should have been thrown");
     }
 
@@ -726,335 +718,534 @@ public class UserServiceTest {
     @DisplayName("Test Happy Path -- deleteUserServiceByUserIdOrUserNameOrPrimaryEmail() With valid UserId & UserName & primary Email")
     public void testDeleteByUserIdOrUserNameOrPrimaryEmailHappyPath() throws BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions, IOException {
         // Given
-        Users users=constructUser();
+        Users users = constructUser();
 
         // When
         doNothing().when(userValidationServiceMock).validatePZeroUserFields(anyString(), anyString(), anyString(), anyString(), any());
-        when(userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(TEST_UUID, TEST_USER_NAME,TEST_PRIMARY_EMAIL))
+        when(userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(TEST_UUID, TEST_USER_NAME, TEST_PRIMARY_EMAIL))
                 .thenReturn(Optional.of(users));
         doNothing().when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
-        userServiceMock.deleteUserServiceByUserIdOrUserNameOrPrimaryEmail(TEST_UUID, TEST_USER_NAME,TEST_PRIMARY_EMAIL);
-        Optional<Users> fetchedUser=userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(TEST_UUID,TEST_USER_NAME,TEST_USER_NAME);
+        userServiceMock.deleteUserServiceByUserIdOrUserNameOrPrimaryEmail(TEST_UUID, TEST_USER_NAME, TEST_PRIMARY_EMAIL);
+        Optional<Users> fetchedUser = userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(TEST_UUID, TEST_USER_NAME, TEST_USER_NAME);
 
         // Then
-        verify(userRepositoryMock, times(1)).deleteByUserIdOrUserNameOrPrimaryEmail(TEST_UUID, TEST_USER_NAME,TEST_PRIMARY_EMAIL);
+        verify(userRepositoryMock, times(1)).deleteByUserIdOrUserNameOrPrimaryEmail(TEST_UUID, TEST_USER_NAME, TEST_PRIMARY_EMAIL);
         assertThat(fetchedUser.isEmpty()).isTrue();
     }
-//
-//    @Test
-//    @DisplayName("Test Unhappy Path -- deleteUserByUserIdOrUserName() With null UserId & UserName")
-//    public void testDeleteUserByUserIdOrUserNameUnhappyPathForNullUserIdAndUserName() throws BadApiRequestExceptions {
-//        // When
-//        doThrow(new BadApiRequestExceptions(BadApiRequestExceptions.class, "Please provide non null username or user Id",
-//                "testDeleteUserByUserIdOrUserNameUnhappyPath()"))
-//                .when(userValidationServiceMock).validateFields(any(), any(), any(), anyString(), any());
-//
-//        // Then
-//        assertThrows(BadApiRequestExceptions.class, () -> {
-//            userServiceMock.deleteUserByUserIdOrUserName(null, null);
-//        }, "BadApiRequestException should have been thrown");
-//    }
-//
-//    @Test
-//    @DisplayName("Test Unhappy Path -- deleteUserByUserIdOrUserName() With InValid UserId & UserName")
-//    public void testDeleteUserByUserIdOrUserNameUnhappyPathForInValidUserIdAndUserName() throws BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions {
-//        // When
-//        when(userRepositoryMock.findByUserIdOrUserName("INVALID_USER_ID", "INVALID_USER_NAME")).thenReturn(Optional.empty());
-//        doNothing().when(userValidationServiceMock).validateFields(anyString(), anyString(), any(), anyString(), any());
-//        doThrow(new UserNotFoundExceptions(UserNotFoundExceptions.class, "No User with this UserId or UserName",
-//                "testDeleteUserByUserIdOrUserNameUnhappyPathForInValidUserIdAndUserName()"))
-//                .when(userValidationServiceMock).validateUser(any(), anyString(), any());
-//
-//        // Then
-//        assertThrows(UserNotFoundExceptions.class, () -> {
-//            userServiceMock.deleteUserByUserIdOrUserName("INVALID_USER_ID",
-//                    "INVALID_USER_NAME");
-//        }, "UserNotFoundException should have been thrown");
-//    }
-//
-//    @Test
-//    @DisplayName("Test Happy Path -- testGetALlUsersHappyPath() with Users Present")
-//    public void testGetALlUsersHappyPath() throws UserNotFoundExceptions {
-//        // When
-//        when(userRepositoryMock.findAll()).thenReturn(constructUsersSet().stream().toList());
-//        doNothing().when(userValidationServiceMock).validateUserList(anySet(), anyString(), any());
-//        Set<UserDto> usersSet = userServiceMock.getALlUsers();
-//
-//        //Then
-//        assertThat(usersSet.isEmpty()).isFalse();
-//    }
-//
-//    @Test
-//    @DisplayName("Test Unhappy Path -- testGetALlUsersHappyPath() with No Users Present")
-//    public void testGetALlUsersUnhappyPath() throws UserNotFoundExceptions {
-//        // When
-//        when(userRepositoryMock.findAll()).thenReturn(new ArrayList<>());
-//        doThrow(new UserNotFoundExceptions(UserNotFoundExceptions.class,
-//                "Our Database have no Users", "testGetALlUsersHappyPath"))
-//                .when(userValidationServiceMock).validateUserList(anySet(), anyString(), any());
-//
-//        //Then
-//        assertThrows(UserNotFoundExceptions.class,
-//                () -> {
-//                    userServiceMock.getALlUsers();
-//                },
-//                "UserNotFound Exception Should Be thrown");
-//    }
-//
-//    @Test
-//    @DisplayName("Test Happy Path -- getUserInformationByEmailOrUserName() With Valid UserName & Email")
-//    public void testGetUserInformationByEmailOrUserName() throws UserExceptions, BadApiRequestExceptions, UserNotFoundExceptions {
-//        // Given
-//        Users users = constructUser();
-//
-//        // When
-//        doNothing().when(userValidationServiceMock).validateFields(any(), anyString(), anyString(), anyString(), any());
-//        when(userRepositoryMock.findByEmailOrUserName(TEST_EMAIL, TEST_USER_NAME)).thenReturn(Optional.of(users));
-//        doNothing().when(userValidationServiceMock).validateUser(any(), anyString(), any());
-//        UserDto fetchedUser = userServiceMock.getUserInformationByEmailOrUserName(TEST_EMAIL, TEST_USER_NAME);
-//
-//        // Then
-//        assertThat(fetchedUser.userName()).isEqualTo(users.getUserName());
-//        assertThat(fetchedUser.userId()).isEqualTo(users.getUserId());
-//        assertThat(fetchedUser.email()).isEqualTo(users.getEmail());
-//        assertThat(fetchedUser.firstName()).isEqualTo(users.getFirstName());
-//        assertThat(fetchedUser.lastName()).isEqualTo(users.getLastName());
-//        assertThat(fetchedUser.gender()).isEqualTo(users.getGender());
-//        assertThat(fetchedUser.about()).isEqualTo(users.getAbout());
-//        assertThat(fetchedUser.profileImage()).isEqualTo(users.getProfileImage());
-//    }
-//
-//    @Test
-//    @DisplayName("Test Unhappy Path -- getUserInformationByEmailOrUserName() With null UserName & Email")
-//    public void testGetUserInformationByEmailOrUserNameUnhappyPathWithNullValues() throws BadApiRequestExceptions {
-//        // When
-//        doThrow(new BadApiRequestExceptions(BadApiRequestExceptions.class,
-//                "Please provide non null username or email",
-//                "testGetUserInformationByEmailOrUserNameUnhappyPathWithNullValues"))
-//                .when(userValidationServiceMock).validateFields(any(), any(), any(), anyString(), any());
-//
-//        assertThrows(BadApiRequestExceptions.class,
-//                () -> {
-//                    userServiceMock.getUserInformationByEmailOrUserName(null, null);
-//                },
-//                "BadApiRequestExceptions should have been thrown");
-//    }
-//
-//    @Test
-//    @DisplayName("Test Unhappy Path -- getUserInformationByEmailOrUserName() With Invalid UserName & Email")
-//    public void testGetUserInformationByEmailOrUserNameUnhappyPathWithInvalidUserNameAndEmail() throws BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions {
-//        // When
-//        doNothing().when(userValidationServiceMock).validateFields(any(), anyString(), anyString(), anyString(), any());
-//        when(userRepositoryMock.findByEmailOrUserName("INVALID_EMAIL", "INVALID_USER_NAME")).thenReturn(Optional.empty());
-//        doThrow(new UserNotFoundExceptions(UserNotFoundExceptions.class,
-//                "No User with this email or UserName",
-//                "testGetUserInformationByEmailOrUserNameUnhappyPathWithInvalidUserNameAndEmail"))
-//                .when(userValidationServiceMock).validateUser(any(), anyString(), any());
-//
-//        assertThrows(UserNotFoundExceptions.class,
-//                () -> {
-//                    userServiceMock.getUserInformationByEmailOrUserName("INVALID_EMAIL", "INVALID_USER_NAME");
-//                },
-//                "UserNotFoundExceptions should have been thrown");
-//    }
-//
-//    @Test
-//    @DisplayName("Test Happy Path -- searchAllUsersByUserName() with valid matching userName present in DB")
-//    public void testSearchAllUsersByUserNameHappyPath() throws UserNotFoundExceptions {
-//        // Given
-//        Set<Users> usersSet = constructUsersSet();
-//
-//        // When
-//        when(userRepositoryMock.findAllByUserNameContaining(anyString())).thenReturn(Optional.of(usersSet));
-//        doNothing().when(userValidationServiceMock).validateUserList(anySet(), anyString(), any());
-//        Set<UserDto> userSet = userServiceMock.searchAllUsersByUserName(TEST_USER_NAME);
-//
-//        // Then
-//        assertThat(userSet.isEmpty()).isFalse();
-//    }
-//
-//    @Test
-//    @DisplayName("Test Unhappy Path -- searchAllUsersByUserName() with no matching userName present in DB")
-//    public void testSearchAllUsersByUserNameUnhappyPath() throws UserNotFoundExceptions {
-//        // When
-//        when(userRepositoryMock.findAllByUserNameContaining("NOT_AVAILABLE_USER_NAME")).thenReturn(Optional.of(new HashSet<>()));
-//        doThrow(new UserNotFoundExceptions(UserNotFoundExceptions.class,
-//                "Our Database have no Users With this UserName",
-//                "testSearchAllUsersByUserNameUnhappyPath"))
-//                .when(userValidationServiceMock).validateUserList(anySet(), anyString(), any());
-//
-//        // Then
-//        assertThrows(UserNotFoundExceptions.class, () -> {
-//            userServiceMock.searchAllUsersByUserName("NOT_AVAILABLE_USER_NAME");
-//        }, "UserNotFoundExceptions should have been thrown");
-//    }
-//
-//    @Test
-//    @DisplayName("Test Happy Path -- searchUserByFieldAndValue() with valid email present int DB")
-//    public void testSearchUserByFieldAndValueWhenFieldIsEmail() throws UserNotFoundExceptions {
-//        // Given
-//        Set<Users> usersSet = constructUsersSet();
-//
-//        // When
-//        when(userRepositoryMock.searchUserByEmail(anyString())).thenReturn(Optional.of(usersSet));
-//        doNothing().when(userValidationServiceMock).validateUserList(any(), anyString(), any());
-//        Set<UserDto> usersSets = userServiceMock.searchUserByFieldAndValue(EMAIL, TEST_EMAIL);
-//
-//        // Then
-//        assertThat(usersSets.isEmpty()).isFalse();
-//        assertThat(usersSets.stream().toList().getFirst().email()).isEqualTo(TEST_EMAIL);
-//    }
-//
-//    @Test
-//    @DisplayName("Test Unhappy Path -- searchUserByFieldAndValue() with email not present int DB")
-//    public void testSearchUserByFieldAndValueWhenFieldIsEmailUnhappyPath() throws UserNotFoundExceptions {
-//        // When
-//        when(userRepositoryMock.searchUserByEmail("INVALID_EMAIL")).thenReturn(Optional.of(new HashSet<>()));
-//        doThrow(new UserNotFoundExceptions(UserNotFoundExceptions.class,
-//                "Our Database have no Users With this email",
-//                "testSearchUserByFieldAndValueWhenFieldIsEmailUnhappyPath"))
-//                .when(userValidationServiceMock).validateUserList(any(), anyString(), any());
-//
-//
-//        // Then
-//        assertThrows(UserNotFoundExceptions.class, () -> {
-//            userServiceMock.searchUserByFieldAndValue(EMAIL, "INVALID_EMAIL");
-//        }, "UserNotFoundExceptions should have been thrown");
-//    }
-//
-//    @Test
-//    @DisplayName("Test Happy Path -- searchUserByFieldAndValue() with valid userName present in DB")
-//    public void testSearchUserByFieldAndValueWhenFieldIsUserName() throws UserNotFoundExceptions {
-//        // Given
-//        Set<Users> usersSet = constructUsersSet();
-//
-//        // When
-//        when(userRepositoryMock.searchUserByUserName(anyString())).thenReturn(Optional.of(usersSet));
-//        doNothing().when(userValidationServiceMock).validateUserList(any(), anyString(), any());
-//        Set<UserDto> usersSets = userServiceMock.searchUserByFieldAndValue(USER_NAME, TEST_USER_NAME);
-//
-//        // Then
-//        assertThat(usersSets.isEmpty()).isFalse();
-//        assertThat(usersSets.stream().toList().getFirst().userName()).isEqualTo(TEST_USER_NAME);
-//    }
-//
-//    @Test
-//    @DisplayName("Test Unhappy Path -- searchUserByFieldAndValue() with userName not present int DB")
-//    public void testSearchUserByFieldAndValueWhenFieldIsUserNameUnhappyPath() throws UserNotFoundExceptions {
-//        // When
-//        when(userRepositoryMock.searchUserByUserName("INVALID_USER_NAME")).thenReturn(Optional.of(new HashSet<>()));
-//        doThrow(new UserNotFoundExceptions(UserNotFoundExceptions.class,
-//                "Our Database have no Users With this userName",
-//                "testSearchUserByFieldAndValueWhenFieldIsUserNameUnhappyPath"))
-//                .when(userValidationServiceMock).validateUserList(any(), anyString(), any());
-//
-//
-//        // Then
-//        assertThrows(UserNotFoundExceptions.class, () -> {
-//            userServiceMock.searchUserByFieldAndValue(USER_NAME, "INVALID_USER_NAME");
-//        }, "UserNotFoundExceptions should have been thrown");
-//    }
-//
-//    @Test
-//    @DisplayName("Test Happy Path -- searchUserByFieldAndValue() with valid FirstName present int DB")
-//    public void testSearchUserByFieldAndValueWhenFieldIsFirstName() throws UserNotFoundExceptions {
-//        // Given
-//        Set<Users> usersSet = constructUsersSet();
-//
-//        // When
-//        when(userRepositoryMock.searchUserByFirstName(anyString())).thenReturn(Optional.of(usersSet));
-//        doNothing().when(userValidationServiceMock).validateUserList(any(), anyString(), any());
-//        Set<UserDto> usersSets = userServiceMock.searchUserByFieldAndValue(FIRST_NAME, TEST_FIRST_NAME);
-//
-//        // Then
-//        assertThat(usersSets.isEmpty()).isFalse();
-//        assertThat(usersSets.stream().toList().getFirst().firstName()).isEqualTo(TEST_FIRST_NAME);
-//    }
-//
-//    @Test
-//    @DisplayName("Test Unhappy Path -- searchUserByFieldAndValue() with FirstName not present int DB")
-//    public void testSearchUserByFieldAndValueWhenFieldIsFirstNameUnhappyPath() throws UserNotFoundExceptions {
-//        // When
-//        when(userRepositoryMock.searchUserByFirstName("INVALID_FIRST_NAME")).thenReturn(Optional.of(new HashSet<>()));
-//        doThrow(new UserNotFoundExceptions(UserNotFoundExceptions.class,
-//                "Our Database have no Users With this firstName",
-//                "testSearchUserByFieldAndValueWhenFieldIsFirstNameUnhappyPath"))
-//                .when(userValidationServiceMock).validateUserList(any(), anyString(), any());
-//
-//
-//        // Then
-//        assertThrows(UserNotFoundExceptions.class, () -> {
-//            userServiceMock.searchUserByFieldAndValue(FIRST_NAME, "INVALID_FIRST_NAME");
-//        }, "UserNotFoundExceptions should have been thrown");
-//    }
-//
-//    @Test
-//    @DisplayName("Test Happy Path -- searchUserByFieldAndValue() with valid LastName present int DB")
-//    public void testSearchUserByFieldAndValueWhenFieldIsLastName() throws UserNotFoundExceptions {
-//        // Given
-//        Set<Users> usersSet = constructUsersSet();
-//
-//        // When
-//        when(userRepositoryMock.searchUserByLastName(anyString())).thenReturn(Optional.of(usersSet));
-//        doNothing().when(userValidationServiceMock).validateUserList(any(), anyString(), any());
-//        Set<UserDto> usersSets = userServiceMock.searchUserByFieldAndValue(LAST_NAME, TEST_LAST_NAME);
-//
-//        // Then
-//        assertThat(usersSets.isEmpty()).isFalse();
-//        assertThat(usersSets.stream().toList().getFirst().lastName()).isEqualTo(TEST_LAST_NAME);
-//    }
-//
-//    @Test
-//    @DisplayName("Test Unhappy Path -- searchUserByFieldAndValue() with LastName not present int DB")
-//    public void testSearchUserByFieldAndValueWhenFieldIsLastNameUnhappyPath() throws UserNotFoundExceptions {
-//        // When
-//        when(userRepositoryMock.searchUserByLastName("INVALID_LAST_NAME")).thenReturn(Optional.of(new HashSet<>()));
-//        doThrow(new UserNotFoundExceptions(UserNotFoundExceptions.class,
-//                "Our Database have no Users With this lastName",
-//                "testSearchUserByFieldAndValueWhenFieldIsLastNameUnhappyPath"))
-//                .when(userValidationServiceMock).validateUserList(any(), anyString(), any());
-//
-//        // Then
-//        assertThrows(UserNotFoundExceptions.class, () -> {
-//            userServiceMock.searchUserByFieldAndValue(LAST_NAME, "INVALID_LAST_NAME");
-//        }, "UserNotFoundExceptions should have been thrown");
-//    }
-//
-//
-//    @Test
-//    @DisplayName("Test Happy Path -- searchUserByFieldAndValue() with valid gender present int DB")
-//    public void testSearchUserByFieldAndValueWhenFieldIsGender() throws UserNotFoundExceptions {
-//        // Given
-//        Set<Users> usersSet = constructUsersSet();
-//
-//        // When
-//        when(userRepositoryMock.searchUserByGender(anyString())).thenReturn(Optional.of(usersSet));
-//        doNothing().when(userValidationServiceMock).validateUserList(any(), anyString(), any());
-//        Set<UserDto> usersSets = userServiceMock.searchUserByFieldAndValue(GENDER, TEST_GENDER.toString());
-//
-//        // Then
-//        assertThat(usersSets.isEmpty()).isFalse();
-//        assertThat(usersSets.stream().toList().getFirst().gender()).isEqualTo(TEST_GENDER);
-//    }
-//
-//    @Test
-//    @DisplayName("Test Unhappy Path -- searchUserByFieldAndValue() with gender not present int DB")
-//    public void testSearchUserByFieldAndValueWhenFieldIsGenderUnhappyPath() throws UserNotFoundExceptions {
-//        // When
-//        when(userRepositoryMock.searchUserByGender(String.valueOf(FEMALE))).thenReturn(Optional.of(new HashSet<>()));
-//        doThrow(new UserNotFoundExceptions(UserNotFoundExceptions.class,
-//                "Our Database have no Users With this gender",
-//                "testSearchUserByFieldAndValueWhenFieldIsGenderUnhappyPath"))
-//                .when(userValidationServiceMock).validateUserList(any(), anyString(), any());
-//
-//        // Then
-//        assertThrows(UserNotFoundExceptions.class, () -> {
-//            userServiceMock.searchUserByFieldAndValue(GENDER, String.valueOf(FEMALE));
-//        }, "UserNotFoundExceptions should have been thrown");
-//    }
+
+    @Test
+    @DisplayName("Test Unhappy Path -- deleteUserServiceByUserIdOrUserNameOrPrimaryEmail() With null UserId & UserName & primaryEmail")
+    public void testDeleteUserServiceByUserIdOrUserNameOrPrimaryEmailUnhappyPathForNullUserIdAndUserName() throws BadApiRequestExceptions {
+        // When
+        doThrow(new BadApiRequestExceptions(BadApiRequestExceptions.class, "Please provide non null username or user Id or primary Email",
+                "testDeleteUserServiceByUserIdOrUserNameOrPrimaryEmailUnhappyPathForNullUserIdAndUserName()"))
+                .when(userValidationServiceMock).validatePZeroUserFields(any(), any(), any(), anyString(), any());
+
+        // Then
+        assertThrows(BadApiRequestExceptions.class, () -> {
+            userServiceMock.deleteUserServiceByUserIdOrUserNameOrPrimaryEmail(null, null, null);
+        }, "BadApiRequestException should have been thrown");
+    }
+
+    @Test
+    @DisplayName("Test Unhappy Path -- deleteUserServiceByUserIdOrUserNameOrPrimaryEmail() With InValid UserId & UserName & Primary Email")
+    public void testDeleteUserServiceByUserIdOrUserNameOrPrimaryEmailUnhappyPathForInValidUserIdAndUserName() throws BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions, IOException {
+        // When
+        when(userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail("INVALID_USER_ID", "INVALID_USER_NAME", "INVALID_PRIMARY_EMAIL")).thenReturn(Optional.empty());
+        doNothing().when(userValidationServiceMock).validatePZeroUserFields(anyString(), anyString(), anyString(), anyString(), any());
+        doThrow(new UserNotFoundExceptions(UserNotFoundExceptions.class, "No User with this UserId or UserName or primaryEmail",
+                "testDeleteUserByUserIdOrUserNameUnhappyPathForInValidUserIdAndUserName()"))
+                .when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
+
+        // Then
+        assertThrows(UserNotFoundExceptions.class, () -> {
+            userServiceMock.deleteUserServiceByUserIdOrUserNameOrPrimaryEmail("INVALID_USER_ID",
+                    "INVALID_USER_NAME", "INVALID_PRIMARY_EMAIL");
+        }, "UserNotFoundException should have been thrown");
+    }
+
+    @Test
+    @DisplayName("Test Happy Path -- testGetALlUsersHappyPath() with Users Present")
+    public void testGetALlUsersHappyPath() throws UserNotFoundExceptions {
+        // When
+        when(userRepositoryMock.findAll(any(Pageable.class))).thenReturn(constructUserPage());
+        doNothing().when(userValidationServiceMock).validateUserList(anyCollection(), anyString(), any());
+        PageableResponse<UserDto> userPages = userServiceMock.getAllUsers(TEST_PAGE_NUMBER, TEST_PAGE_SIZE,
+                TEST_SORT_BY, TEST_SORT_DIRECTION);
+
+        //Then
+        assertThat(userPages.getContent().isEmpty()).isFalse();
+    }
+
+    @Test
+    @DisplayName("Test Unhappy Path -- testGetAllUsersHappyPath() with No Users Present")
+    public void testGetALlUsersUnhappyPath() throws UserNotFoundExceptions {
+        // When
+        when(userRepositoryMock.findAll(any(Pageable.class))).thenReturn(Page.empty());
+        doThrow(new UserNotFoundExceptions(UserNotFoundExceptions.class,
+                "Our Database have no Users", "testGetALlUsersHappyPath"))
+                .when(userValidationServiceMock).validateUserList(any(), anyString(), any());
+
+        //Then
+        assertThrows(UserNotFoundExceptions.class,
+                () -> {
+                    userServiceMock.getAllUsers(TEST_PAGE_NUMBER, TEST_PAGE_SIZE, TEST_SORT_BY, TEST_SORT_DIRECTION);
+                },
+                "UserNotFound Exception Should Be thrown");
+    }
+
+    @Test
+    @DisplayName("Test Happy Path -- getUserServiceInformationByUserIdOrUserNameOrPrimaryEmail() With Valid UserId & UserName & Primary Email")
+    public void testGetUserServiceInformationByUserIdOrUserNameOrPrimaryEmailHappyPath() throws UserExceptions, BadApiRequestExceptions, UserNotFoundExceptions, IOException {
+        // Given
+        Users users = constructUser();
+
+        // When
+        doNothing().when(userValidationServiceMock).validatePZeroUserFields(anyString(), anyString(), anyString(), anyString(), any());
+        when(userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(TEST_UUID, TEST_USER_NAME, TEST_PRIMARY_EMAIL))
+                .thenReturn(Optional.of(constructUser()));
+        doNothing().when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
+        UserDto fetchedUser = userServiceMock.getUserServiceInformationByUserIdOrUserNameOrPrimaryEmail(TEST_UUID, TEST_USER_NAME, TEST_PRIMARY_EMAIL);
+
+        // Then
+        assertThat(fetchedUser.userName()).isEqualTo(users.getUserName());
+        assertThat(fetchedUser.userId()).isEqualTo(users.getUserId());
+        assertThat(fetchedUser.primaryEmail()).isEqualTo(users.getPrimaryEmail());
+        assertThat(fetchedUser.firstName()).isEqualTo(users.getFirstName());
+        assertThat(fetchedUser.lastName()).isEqualTo(users.getLastName());
+        assertThat(fetchedUser.gender()).isEqualTo(users.getGender().toString());
+        assertThat(fetchedUser.about()).isEqualTo(users.getAbout());
+        assertThat(fetchedUser.profileImage()).isEqualTo(users.getProfileImage());
+    }
+
+    @Test
+    @DisplayName("Test Unhappy Path -- getUserServiceInformationByUserIdOrUserNameOrPrimaryEmail() With null userId & UserName & Primary Email")
+    public void testGetUserServiceInformationByUserIdOrUserNameOrPrimaryEmailUnhappyPathWithNullValues() throws BadApiRequestExceptions {
+        // When
+        doThrow(new BadApiRequestExceptions(BadApiRequestExceptions.class,
+                "Please provide non null userId or username or email",
+                "testGetUserServiceInformationByUserIdOrUserNameOrPrimaryEmailUnhappyPathWithNullValues"))
+                .when(userValidationServiceMock).validatePZeroUserFields(any(), any(), any(), anyString(), any());
+
+        assertThrows(BadApiRequestExceptions.class,
+                () -> {
+                    userServiceMock.getUserServiceInformationByUserIdOrUserNameOrPrimaryEmail(null, null, null);
+                },
+                "BadApiRequestExceptions should have been thrown");
+    }
+
+    @Test
+    @DisplayName("Test Happy Path -- searchAllUsersByUserName() with valid matching userName present in DB")
+    public void testSearchAllUsersByUserNameHappyPath() throws UserNotFoundExceptions {
+        // Given
+        Page<Users> usersPage = constructUserPage();
+
+        // When
+        when(userRepositoryMock.findAllByUserNameContaining(anyString(), any(Pageable.class)))
+                .thenReturn(Optional.of(usersPage));
+        doNothing().when(userValidationServiceMock).validateUserList(anyCollection(), anyString(), any());
+        PageableResponse<UserDto> fetchedUserPage = userServiceMock.searchAllUsersByUserName(TEST_USER_NAME, TEST_PAGE_NUMBER,
+                TEST_PAGE_SIZE, TEST_SORT_BY, TEST_SORT_DIRECTION);
+
+        // Then
+        assertThat(fetchedUserPage.getContent().isEmpty()).isFalse();
+    }
+
+    @Test
+    @DisplayName("Test Unhappy Path -- searchAllUsersByUserName() with no matching userName present in DB")
+    public void testSearchAllUsersByUserNameUnhappyPath() throws UserNotFoundExceptions {
+        // Given
+        Page<Users> userPage = constructUserPage();
+
+        // When
+        when(userRepositoryMock.findAllByUserNameContaining(anyString(), any(Pageable.class)))
+                .thenReturn(Optional.of(userPage));
+        doThrow(new UserNotFoundExceptions(UserNotFoundExceptions.class,
+                "Our Database have no Users With this UserName",
+                "testSearchAllUsersByUserNameUnhappyPath"))
+                .when(userValidationServiceMock).validateUserList(anyCollection(), anyString(), any());
+
+        // Then
+        assertThrows(UserNotFoundExceptions.class, () -> {
+            userServiceMock.searchAllUsersByUserName("NOT_AVAILABLE_USER_NAME", TEST_PAGE_NUMBER,
+                    TEST_PAGE_SIZE, TEST_SORT_BY, TEST_SORT_DIRECTION);
+        }, "UserNotFoundExceptions should have been thrown");
+    }
+
+    @Test
+    @DisplayName("Test Happy Path -- searchUserByFieldAndValue() with valid email present int DB")
+    public void testSearchUserByFieldAndValueWhenFieldIsEmail() throws UserNotFoundExceptions {
+        // Given
+        Page<Users> userPage = constructUserPage();
+
+        // When
+        when(userRepositoryMock.searchUserByEmail(anyString(), any(Pageable.class))).thenReturn(Optional.of(userPage));
+        doNothing().when(userValidationServiceMock).validateUserList(anyCollection(), anyString(), any());
+        PageableResponse<UserDto> fetchedUserPage = userServiceMock.searchUserByFieldAndValue(PRIMARY_EMAIL,
+                TEST_PRIMARY_EMAIL, TEST_PAGE_NUMBER, TEST_PAGE_SIZE, PRIMARY_EMAIL, TEST_SORT_DIRECTION);
+
+        // Then
+        assertThat(fetchedUserPage.getContent().isEmpty()).isFalse();
+        assertThat(fetchedUserPage.getContent().stream().toList().getFirst().primaryEmail()).isEqualTo(TEST_PRIMARY_EMAIL);
+    }
+
+    @Test
+    @DisplayName("Test Unhappy Path -- searchUserByFieldAndValue() with email not present int DB")
+    public void testSearchUserByFieldAndValueWhenFieldIsEmailUnhappyPath() throws UserNotFoundExceptions {
+        //Given
+        Page<Users> usersPage = constructUserPage();
+
+        // When
+        when(userRepositoryMock.searchUserByEmail(anyString(), any(Pageable.class)))
+                .thenReturn(Optional.of(usersPage));
+        doThrow(new UserNotFoundExceptions(UserNotFoundExceptions.class,
+                "Our Database have no Users With this email",
+                "testSearchUserByFieldAndValueWhenFieldIsEmailUnhappyPath"))
+                .when(userValidationServiceMock).validateUserList(anyCollection(), anyString(), any());
+
+
+        // Then
+        assertThrows(UserNotFoundExceptions.class, () -> {
+            userServiceMock.searchUserByFieldAndValue(PRIMARY_EMAIL,
+                    "INVALID_PRIMARY_EMAIL", TEST_PAGE_NUMBER, TEST_PAGE_SIZE, PRIMARY_EMAIL, TEST_SORT_DIRECTION);
+        }, "UserNotFoundExceptions should have been thrown");
+    }
+
+    @Test
+    @DisplayName("Test Happy Path -- searchUserByFieldAndValue() with valid userName present in DB")
+    public void testSearchUserByFieldAndValueWhenFieldIsUserName() throws UserNotFoundExceptions {
+        // Given
+        Page<Users> usersPage = constructUserPage();
+
+        // When
+        when(userRepositoryMock.searchUserByUserName(anyString(), any(Pageable.class))).thenReturn(Optional.of(usersPage));
+        doNothing().when(userValidationServiceMock).validateUserList(anyCollection(), anyString(), any());
+        PageableResponse<UserDto> fetchedUserPage = userServiceMock.searchUserByFieldAndValue(USER_NAME, TEST_USER_NAME,
+                TEST_PAGE_NUMBER, TEST_PAGE_SIZE, PRIMARY_EMAIL, TEST_SORT_DIRECTION);
+
+        // Then
+        assertThat(fetchedUserPage.getContent().isEmpty()).isFalse();
+        assertThat(fetchedUserPage.getContent().stream().toList().getFirst().userName()).isEqualTo(TEST_USER_NAME);
+    }
+
+    @Test
+    @DisplayName("Test Unhappy Path -- searchUserByFieldAndValue() with userName not present in DB")
+    public void testSearchUserByFieldAndValueWhenFieldIsUserNameUnhappyPath() throws UserNotFoundExceptions {
+        //Given
+        Page<Users> usersPage = constructUserPage();
+
+        // When
+        when(userRepositoryMock.searchUserByUserName(anyString(), any(Pageable.class)))
+                .thenReturn(Optional.of(usersPage));
+        doThrow(new UserNotFoundExceptions(UserNotFoundExceptions.class,
+                "Our Database have no Users With this email",
+                "testSearchUserByFieldAndValueWhenFieldIsEmailUnhappyPath"))
+                .when(userValidationServiceMock).validateUserList(anyCollection(), anyString(), any());
+
+
+        // Then
+        assertThrows(UserNotFoundExceptions.class, () -> {
+            userServiceMock.searchUserByFieldAndValue(USER_NAME,
+                    "INVALID_USER_NAME", TEST_PAGE_NUMBER, TEST_PAGE_SIZE, PRIMARY_EMAIL, TEST_SORT_DIRECTION);
+        }, "UserNotFoundExceptions should have been thrown");
+    }
+
+    @Test
+    @DisplayName("Test Happy Path -- searchUserByFieldAndValue() with valid FirstName present in DB")
+    public void testSearchUserByFieldAndValueWhenFieldIsFirstName() throws UserNotFoundExceptions {
+        // Given
+        Page<Users> usersPage = constructUserPage();
+
+        // When
+        when(userRepositoryMock.searchUserByFirstName(anyString(), any(Pageable.class))).thenReturn(Optional.of(usersPage));
+        doNothing().when(userValidationServiceMock).validateUserList(anyCollection(), anyString(), any());
+        PageableResponse<UserDto> fetchedUserPages = userServiceMock.searchUserByFieldAndValue(FIRST_NAME, TEST_FIRST_NAME,
+                TEST_PAGE_NUMBER, TEST_PAGE_SIZE, PRIMARY_EMAIL, TEST_SORT_DIRECTION);
+
+        // Then
+        assertThat(fetchedUserPages.getContent().isEmpty()).isFalse();
+        assertThat(fetchedUserPages.getContent().stream().toList().getFirst().firstName()).isEqualTo(TEST_FIRST_NAME);
+    }
+
+    @Test
+    @DisplayName("Test Unhappy Path -- searchUserByFieldAndValue() with FirstName not present int DB")
+    public void testSearchUserByFieldAndValueWhenFieldIsFirstNameUnhappyPath() throws UserNotFoundExceptions {
+        // Given
+        Page<Users> userPage = constructUserPage();
+
+        // When
+        when(userRepositoryMock.searchUserByFirstName(anyString(), any(Pageable.class))).thenReturn(Optional.of(userPage));
+        doThrow(new UserNotFoundExceptions(UserNotFoundExceptions.class,
+                "Our Database have no Users With this firstName",
+                "testSearchUserByFieldAndValueWhenFieldIsFirstNameUnhappyPath"))
+                .when(userValidationServiceMock).validateUserList(anyCollection(), anyString(), any());
+
+
+        // Then
+        assertThrows(UserNotFoundExceptions.class, () -> {
+            userServiceMock.searchUserByFieldAndValue(FIRST_NAME, "INVALID_FIRST_NAME",
+                    TEST_PAGE_NUMBER, TEST_PAGE_SIZE, PRIMARY_EMAIL, TEST_SORT_DIRECTION);
+        }, "UserNotFoundExceptions should have been thrown");
+    }
+
+    @Test
+    @DisplayName("Test Happy Path -- searchUserByFieldAndValue() with valid LastName present int DB")
+    public void testSearchUserByFieldAndValueWhenFieldIsLastName() throws UserNotFoundExceptions {
+        // Given
+        Page<Users> usersPage = constructUserPage();
+
+        // When
+        when(userRepositoryMock.searchUserByLastName(anyString(), any(Pageable.class))).thenReturn(Optional.of(usersPage));
+        doNothing().when(userValidationServiceMock).validateUserList(anyCollection(), anyString(), any());
+        PageableResponse<UserDto> fetchedUserPage = userServiceMock.searchUserByFieldAndValue(LAST_NAME, TEST_LAST_NAME,
+                TEST_PAGE_NUMBER, TEST_PAGE_SIZE, PRIMARY_EMAIL, TEST_SORT_DIRECTION);
+
+        // Then
+        assertThat(fetchedUserPage.getContent().isEmpty()).isFalse();
+        assertThat(fetchedUserPage.getContent().stream().toList().getFirst().lastName()).isEqualTo(TEST_LAST_NAME);
+    }
+
+    @Test
+    @DisplayName("Test Unhappy Path -- searchUserByFieldAndValue() with LastName not present int DB")
+    public void testSearchUserByFieldAndValueWhenFieldIsLastNameUnhappyPath() throws UserNotFoundExceptions {
+        // Given
+        Page<Users> usersPage = constructUserPage();
+
+        // When
+        when(userRepositoryMock.searchUserByLastName(anyString(), any(Pageable.class))).thenReturn(Optional.of(usersPage));
+        doThrow(new UserNotFoundExceptions(UserNotFoundExceptions.class,
+                "Our Database have no Users With this lastName",
+                "testSearchUserByFieldAndValueWhenFieldIsLastNameUnhappyPath"))
+                .when(userValidationServiceMock).validateUserList(anyCollection(), anyString(), any());
+
+        // Then
+        assertThrows(UserNotFoundExceptions.class, () -> {
+            userServiceMock.searchUserByFieldAndValue(LAST_NAME, "INVALID_LAST_NAME", TEST_PAGE_NUMBER,
+                    TEST_PAGE_SIZE, PRIMARY_EMAIL, TEST_SORT_DIRECTION);
+        }, "UserNotFoundExceptions should have been thrown");
+    }
+
+
+    @Test
+    @DisplayName("Test Happy Path -- searchUserByFieldAndValue() with valid gender present int DB")
+    public void testSearchUserByFieldAndValueWhenFieldIsGender() throws UserNotFoundExceptions {
+        // Given
+        Page<Users> usersPage = constructUserPage();
+
+        // When
+        when(userRepositoryMock.searchUserByGender(anyString(), any(Pageable.class))).thenReturn(Optional.of(usersPage));
+        doNothing().when(userValidationServiceMock).validateUserList(anyCollection(), anyString(), any());
+        PageableResponse<UserDto> fetchedUserPage = userServiceMock.searchUserByFieldAndValue(GENDER, TEST_GENDER.toString(),
+                TEST_PAGE_NUMBER,
+                TEST_PAGE_SIZE, PRIMARY_EMAIL, TEST_SORT_DIRECTION);
+
+        // Then
+        assertThat(fetchedUserPage.getContent().isEmpty()).isFalse();
+        assertThat(fetchedUserPage.getContent().stream().toList().getFirst().gender()).isEqualTo(TEST_GENDER.toString());
+    }
+
+    @Test
+    @DisplayName("Test Unhappy Path -- searchUserByFieldAndValue() with gender not present int DB")
+    public void testSearchUserByFieldAndValueWhenFieldIsGenderUnhappyPath() throws UserNotFoundExceptions {
+        // Given
+        Page<Users> usersPage = constructUserPage();
+
+        // When
+        when(userRepositoryMock.searchUserByGender(anyString(), any(Pageable.class))).thenReturn(Optional.of(usersPage));
+        doThrow(new UserNotFoundExceptions(UserNotFoundExceptions.class,
+                "Our Database have no Users With this gender",
+                "testSearchUserByFieldAndValueWhenFieldIsGenderUnhappyPath"))
+                .when(userValidationServiceMock).validateUserList(anyCollection(), anyString(), any());
+
+        // Then
+        assertThrows(UserNotFoundExceptions.class, () -> {
+            userServiceMock.searchUserByFieldAndValue(GENDER, String.valueOf(FEMALE),
+                    TEST_PAGE_NUMBER,
+                    TEST_PAGE_SIZE, PRIMARY_EMAIL, TEST_SORT_DIRECTION);
+        }, "UserNotFoundExceptions should have been thrown");
+    }
+
+    @Test
+    @DisplayName("Test Generate Random Password")
+    public void testGeneratePasswordService() {
+        final String generatedPassword = userServiceMock.generatePasswordService();
+
+        boolean hasLowerCase = false, hasUpperCase = false, hasNumbers = false, hasSpecialCharacters = false;
+        for (int i = 0; i < generatedPassword.length(); i++) {
+            int ascii = generatedPassword.charAt(i);
+            if (ascii >= 65 && ascii <= 90) hasUpperCase = true;
+            if (ascii >= 97 && ascii <= 122) hasLowerCase = true;
+            if (ascii >= 48 && ascii <= 57) hasNumbers = true;
+            if (ascii >= 33 && ascii <= 47) hasSpecialCharacters = true;
+            if (hasLowerCase && hasUpperCase && hasNumbers && hasSpecialCharacters) break;
+        }
+
+        boolean result = generatedPassword.length() >= 16 && hasLowerCase && hasUpperCase && hasNumbers && hasSpecialCharacters;
+        assertThat(result).isTrue();
+    }
+
+
+    @Test
+    @DisplayName("Test Happy Path -- resetPasswordService()")
+    public void testResetPasswordService() throws BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions, IOException {
+        // Given
+        final String NEW_PASSWORD = "NEW_PASSWORD";
+        PasswordUpdateDto passwordUpdateDto = new PasswordUpdateDto.Builder()
+                .oldPassword(TEST_PASSWORD)
+                .primaryEmail(TEST_PRIMARY_EMAIL)
+                .newPassword(NEW_PASSWORD)
+                .confirmPassword(NEW_PASSWORD)
+                .build();
+        Users resettedPasswordUser = new Users.builder()
+                .password(NEW_PASSWORD)
+                .build();
+
+
+        // When
+        doNothing().when(userValidationServiceMock).validatePZeroUserFields(anyString(), anyString(),
+                anyString(), anyString(), any());
+        when(userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(TEST_PRIMARY_EMAIL, TEST_PRIMARY_EMAIL, TEST_PRIMARY_EMAIL))
+                .thenReturn(Optional.of(resettedPasswordUser));
+        doNothing().when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
+        userServiceMock.resetPasswordService(passwordUpdateDto);
+
+        // Then
+        Optional<Users> fetchedUser = userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail
+                (TEST_PRIMARY_EMAIL, TEST_PRIMARY_EMAIL, TEST_PRIMARY_EMAIL);
+        assertThat(fetchedUser.get().getPassword()).isEqualTo(NEW_PASSWORD);
+    }
+
+    @Test
+    @DisplayName("Test UnHappy Path -- resetPasswordService() when invalid primaryEmail not present in DB ")
+    public void testResetPasswordServiceUnhappyPathPrimaryEmailNotPresent() throws BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions, IOException {
+        // Given
+        final String NEW_PASSWORD = "NEW_PASSWORD";
+        PasswordUpdateDto passwordUpdateDto = new PasswordUpdateDto.Builder()
+                .oldPassword("I FORGOT MY OLD PASSWORD")
+                .primaryEmail(TEST_PRIMARY_EMAIL)
+                .newPassword(NEW_PASSWORD)
+                .confirmPassword(NEW_PASSWORD)
+                .build();
+        Users resettedPasswordUser = new Users.builder()
+                .password(NEW_PASSWORD)
+                .build();
+
+
+        // When
+        doNothing().when(userValidationServiceMock).validatePZeroUserFields(anyString(), anyString(),
+                anyString(), anyString(), any());
+        when(userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(TEST_PRIMARY_EMAIL, TEST_PRIMARY_EMAIL, TEST_PRIMARY_EMAIL))
+                .thenReturn(Optional.of(resettedPasswordUser));
+        doThrow(new UserNotFoundExceptions(UserNotFoundExceptions.class,
+                "No Such Primary Email in DB",
+                "testResetPasswordServiceUnhappyPathPrimaryEmailNotPresent"))
+                .when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
+
+
+        assertThrows(UserNotFoundExceptions.class, () -> userServiceMock.resetPasswordService(passwordUpdateDto),
+                "UserNotFoundExceptions should have been thrown");
+    }
+
+    @Test
+    @DisplayName("Test UnHappy Path -- resetPasswordService() when primaryEmail is null")
+    public void testResetPasswordServiceUnhappyPathPrimaryEmailNull() throws BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions, IOException {
+        // Given
+        final String NEW_PASSWORD = "NEW_PASSWORD";
+        PasswordUpdateDto passwordUpdateDto = new PasswordUpdateDto.Builder()
+                .oldPassword("I FORGOT MY OLD PASSWORD")
+                .primaryEmail(null)
+                .newPassword(NEW_PASSWORD)
+                .confirmPassword(NEW_PASSWORD)
+                .build();
+        Users resettedPasswordUser = new Users.builder()
+                .password(NEW_PASSWORD)
+                .build();
+
+
+        // When
+        doNothing().when(userValidationServiceMock).validatePZeroUserFields(any(), any(),
+                any(), anyString(), any());
+        when(userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(any(), any(), any()))
+                .thenReturn(Optional.of(resettedPasswordUser));
+        doThrow(new BadApiRequestExceptions(BadApiRequestExceptions.class,
+                "Please provide non null primaryEmail",
+                "testResetPasswordServiceUnhappyPathPrimaryEmailNotPresent"))
+                .when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
+
+
+        assertThrows(BadApiRequestExceptions.class, () -> userServiceMock.resetPasswordService(passwordUpdateDto),
+                "BadApiRequestExceptions should have been thrown");
+    }
+
+    @Test
+    @DisplayName("Test UnHappy Path -- resetPasswordService() when old password mismatched")
+    public void testResetPasswordServiceUnhappyPathOldPasswordNotMatched() throws BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions, IOException {
+        // Given
+        final String NEW_PASSWORD = "NEW_PASSWORD";
+        PasswordUpdateDto passwordUpdateDto = new PasswordUpdateDto.Builder()
+                .oldPassword("I FORGOT MY OLD PASSWORD")
+                .primaryEmail(TEST_PRIMARY_EMAIL)
+                .newPassword(NEW_PASSWORD)
+                .confirmPassword(NEW_PASSWORD)
+                .build();
+        Users resettedPasswordUser = new Users.builder()
+                .password(NEW_PASSWORD)
+                .build();
+
+
+        // When
+        doNothing().when(userValidationServiceMock).validatePZeroUserFields(anyString(), anyString(),
+                anyString(), anyString(), any());
+        when(userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(TEST_PRIMARY_EMAIL, TEST_PRIMARY_EMAIL, TEST_PRIMARY_EMAIL))
+                .thenReturn(Optional.of(resettedPasswordUser));
+        doNothing().doThrow(new UserExceptions(UserExceptions.class,
+                        "Old Password not matched",
+                        "testResetPasswordServiceUnhappyPathOldPasswordNotMatched"))
+                .when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
+
+
+        assertThrows(UserExceptions.class, () -> userServiceMock.resetPasswordService(passwordUpdateDto),
+                "UserExceptions should have been thrown");
+    }
+
+    @Test
+    @DisplayName("Test UnHappy Path -- resetPasswordService() when new & confirm password mismatched")
+    public void testResetPasswordServiceUnhappyPathNewAndConfirmPasswordMismatched() throws BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions, IOException {
+        // Given
+        final String NEW_PASSWORD = "NEW_PASSWORD";
+        PasswordUpdateDto passwordUpdateDto = new PasswordUpdateDto.Builder()
+                .oldPassword(TEST_PASSWORD)
+                .primaryEmail(TEST_PRIMARY_EMAIL)
+                .newPassword(NEW_PASSWORD + "One")
+                .confirmPassword(NEW_PASSWORD + "TWO")
+                .build();
+        Users resettedPasswordUser = new Users.builder()
+                .password(NEW_PASSWORD)
+                .build();
+
+
+        // When
+        doNothing().when(userValidationServiceMock).validatePZeroUserFields(anyString(), anyString(),
+                anyString(), anyString(), any());
+        when(userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(TEST_PRIMARY_EMAIL, TEST_PRIMARY_EMAIL, TEST_PRIMARY_EMAIL))
+                .thenReturn(Optional.of(resettedPasswordUser));
+        doNothing().doNothing().doThrow(new UserExceptions(UserExceptions.class,
+                        "New & Confirm Password mismatched",
+                        "testResetPasswordServiceUnhappyPathNewAndConfirmPasswordMismatched"))
+                .when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
+
+
+        assertThrows(UserExceptions.class, () -> userServiceMock.resetPasswordService(passwordUpdateDto),
+                "UserExceptions should have been thrown");
+    }
+
 
     private Set<Users> constructUsersSet() {
         return Set.of(constructUser(), constructUser());
+    }
+
+    private Page<Users> constructUserPage() {
+        return new PageImpl<>(constructUsersSet().stream().toList());
     }
 
     private UpdateUserDto constructIncomingUpdateUserDtoRequest() {
@@ -1078,31 +1269,6 @@ public class UserServiceTest {
                 .build();
     }
 
-    private UserDto constructIncomingUserDtoRequest() {
-        final String NEW_USER_NAME = "NEW_USER_NAME";
-        final String NEW_USER_ID = "144d02e1-49ab-417e-8279-ed08c997aed7";
-        final String NEW_FIRST_NAME = "NEW_FIRST_NAME";
-        final String NEW_LAST_NAME = "NEW_LAST_NAME";
-        final String NEW_PRIMARY_EMAIL = "NEW_PRIMARY_EMAIL";
-        final String NEW_SECONDARY_EMAIL = "NEW_SECONDARY_EMAIL";
-        final String NEW_PASSWORD = "$2y$10$7rhYG4E.z8LbSy.hLN7ER.rFX/0y/9OLk/n2FPcBi5bI9//5A1JKy";
-        final String NEW_PROFILE_IMAGE = "144d02e1-49ab-417e-8279-ed08c997aed7.jpg";
-        final String NEW_ABOUT = "80000k ke jootey, ismein tera ghar chala jayenga";
-
-        return new UserDto.builder()
-                .userId(NEW_USER_ID)
-                .userName(NEW_USER_NAME)
-                .firstName(NEW_FIRST_NAME)
-                .lastName(NEW_LAST_NAME)
-                .primaryEmail(NEW_PRIMARY_EMAIL)
-                .secondaryEmail(NEW_SECONDARY_EMAIL)
-                .gender(FEMALE.toString())
-                .password(NEW_PASSWORD)
-                .about(NEW_ABOUT)
-                .profileImage(NEW_PROFILE_IMAGE)
-                .lastSeen(null)
-                .build();
-    }
 
     private Users constructUser() {
         return new Users.builder()
