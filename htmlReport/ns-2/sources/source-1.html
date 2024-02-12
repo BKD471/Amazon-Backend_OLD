@@ -1,0 +1,146 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > IUserRepository</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.phoenix.amazon.AmazonBackend.repository</a>
+</div>
+
+<h1>Coverage Summary for Class: IUserRepository (com.phoenix.amazon.AmazonBackend.repository)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">IUserRepository</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.phoenix.amazon.AmazonBackend.repository;
+&nbsp;
+&nbsp;import com.phoenix.amazon.AmazonBackend.entity.Users;
+&nbsp;import jakarta.transaction.Transactional;
+&nbsp;import org.springframework.data.domain.Page;
+&nbsp;import org.springframework.data.domain.Pageable;
+&nbsp;import org.springframework.data.jpa.repository.JpaRepository;
+&nbsp;import org.springframework.data.jpa.repository.Query;
+&nbsp;import org.springframework.stereotype.Repository;
+&nbsp;
+&nbsp;import java.util.Optional;
+&nbsp;
+&nbsp;@Transactional
+&nbsp;@Repository
+&nbsp;public interface IUserRepository extends JpaRepository&lt;Users, String&gt; {
+&nbsp;    /**
+&nbsp;     * @param userId       - user id of user
+&nbsp;     * @param userName     - userName of user
+&nbsp;     * @param primaryEmail - primary email of user
+&nbsp;     * @return Optional&lt;Users&gt; -  users
+&nbsp;     */
+&nbsp;    Optional&lt;Users&gt; findByUserIdOrUserNameOrPrimaryEmail(final String userId, final String userName, final String primaryEmail);
+&nbsp;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * @param userId       - id of user
+&nbsp;     * @param userName     - userName of user
+&nbsp;     * @param primaryEmail - primary email of user
+&nbsp;     */
+&nbsp;    void deleteByUserIdOrUserNameOrPrimaryEmail(final String userId, final String userName, final String primaryEmail);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * @param userName - userName of user
+&nbsp;     * @param pageable - pageable object
+&nbsp;     * @return Page&lt;Users&gt; - page of users
+&nbsp;     **/
+&nbsp;    Optional&lt;Page&lt;Users&gt;&gt; findAllByUserNameContaining(final String userName, final Pageable pageable);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * @param value    - value of user fields
+&nbsp;     * @param pageable - pageable object
+&nbsp;     * @return Page&lt;Users&gt; - page of users
+&nbsp;     **/
+&nbsp;    @Query(value = &quot;SELECT * FROM users WHERE first_name=?1&quot;, nativeQuery = true)
+&nbsp;    Optional&lt;Page&lt;Users&gt;&gt; searchUserByFirstName(final String value, final Pageable pageable);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * @param value    - value of user fields
+&nbsp;     * @param pageable - pageable object
+&nbsp;     * @return Page&lt;Users&gt; - page of users
+&nbsp;     **/
+&nbsp;    @Query(value = &quot;SELECT * FROM users WHERE last_name=?1&quot;, nativeQuery = true)
+&nbsp;    Optional&lt;Page&lt;Users&gt;&gt; searchUserByLastName(final String value, final Pageable pageable);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * @param value    - value of user fields
+&nbsp;     * @param pageable - pageable object
+&nbsp;     * @return Page&lt;Users&gt; - page of users
+&nbsp;     **/
+&nbsp;    @Query(value = &quot;SELECT * FROM users WHERE gender=?1&quot;, nativeQuery = true)
+&nbsp;    Optional&lt;Page&lt;Users&gt;&gt; searchUserByGender(final String value, final Pageable pageable);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * @param value    - value of user fields
+&nbsp;     * @param pageable - pageable object
+&nbsp;     * @return Page&lt;Users&gt; - page of users
+&nbsp;     **/
+&nbsp;    @Query(value = &quot;SELECT * FROM users WHERE user_name=?1&quot;, nativeQuery = true)
+&nbsp;    Optional&lt;Page&lt;Users&gt;&gt; searchUserByUserName(final String value, final Pageable pageable);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * @param value    - value of user fields
+&nbsp;     * @param pageable - pageable object
+&nbsp;     * @return Page&lt;Users&gt; - page of users
+&nbsp;     **/
+&nbsp;    @Query(value = &quot;SELECT * FROM users WHERE user_primary_email=?1&quot;, nativeQuery = true)
+&nbsp;    Optional&lt;Page&lt;Users&gt;&gt; searchUserByEmail(final String value, final Pageable pageable);
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-02-13 00:12</div>
+</div>
+</body>
+</html>
