@@ -125,7 +125,7 @@ public class ImageServiceTest {
     public void testUploadUserImageServiceByUserIdOrUserNameOrPrimaryEmailUnhappyPathFileSizeGreaterThan100Kb() throws BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions, IOException, NoSuchFieldException, IllegalAccessException {
         // Given
         Users users = constructUser();
-        FileInputStream fileInputStream=new FileInputStream("/home/phoenix/Desktop/backend/Amazon-Backend/src/test/java/com/phoenix/amazon/AmazonBackend/testimages/users/test2mb.jpg");
+        FileInputStream fileInputStream=new FileInputStream("/home/phoenix/Desktop/backend/Amazon-Backend/downloadable/images/users/test2mb.jpg");
         final MockMultipartFile BIG_IMAGE_FILE =
                 new MockMultipartFile("data","big.mp3", "text/plain", fileInputStream);
 
