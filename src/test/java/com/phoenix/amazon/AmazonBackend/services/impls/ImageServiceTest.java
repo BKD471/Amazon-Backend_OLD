@@ -19,16 +19,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.GENDER.MALE;
@@ -37,7 +34,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
@@ -103,7 +99,7 @@ public class ImageServiceTest {
 
     @Test
     @DisplayName("Test Unhappy Path -- uploadUserImageServiceByUserIdOrUserNameOrPrimaryEmail image type not supported")
-    public void testUploadUserImageServiceByUserIdOrUserNameOrPrimaryEmailUnhappyPathTypeNotSupported() throws BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions, IOException, NoSuchFieldException, IllegalAccessException {
+    public void testUploadUserImageServiceByUserIdOrUserNameOrPrimaryEmailUnhappyPathTypeNotSupported() throws BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions, IOException {
         // Given
         Users users = constructUser();
         final MockMultipartFile UNSUPPORTED_IMAGE_FILE =
