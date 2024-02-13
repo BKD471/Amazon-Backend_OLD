@@ -169,13 +169,13 @@ public class UserValidationServiceImpl implements IUserValidationService {
 
                 //this case is rare and hypothetical, it happens when UUID will generate same userId twice
                 final String userId = newUser.getUserId();
-                Predicate<Users> checkUserIdExist = (Users user) -> user.getUserName().equalsIgnoreCase(userId);
+                Predicate<Users> checkUserIdExist = (Users user) -> user.getUserId().equalsIgnoreCase(userId);
                 boolean isUserIdPresent = userDtoList.stream().anyMatch(checkUserIdExist);
 
                 if (isUserIdPresent) throw (UserExceptions) ExceptionBuilder.builder()
                         .className(UserExceptions.class)
                         .description("System Error In generating user")
-                        .methodName(methodName).build(BAD_API_EXEC);
+                        .methodName(methodName).build(USER_EXEC);
             }
             case GET_USER_INFO_BY_USERID_USER_NAME_PRIMARY_EMAIL -> {
                 if (oldUsersOptional.isEmpty()) throw (UserNotFoundExceptions) ExceptionBuilder.builder()

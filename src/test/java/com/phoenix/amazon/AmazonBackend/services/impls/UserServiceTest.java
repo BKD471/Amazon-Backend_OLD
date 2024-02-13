@@ -61,12 +61,12 @@ public class UserServiceTest {
     private final String TEST_PRIMARY_EMAIL = "test@gmail.com";
     private final String TEST_SECONDARY_EMAIL = "tests@gmail.com";
     private final String TEST_USER_NAME = "TEST_USER_NAME";
-    private final String TEST_UUID = "58824409-dd6b-4934-9923-ec1daf9693da";
+    private final String TEST_UUID = "cac3092e-393d-4e42-a16b-5c3e76e4a57c";
     private final String TEST_FIRST_NAME = "TEST_FIRST_NAME";
     private final String TEST_LAST_NAME = "TEST_LAST_NAME";
     private final AllConstantHelpers.GENDER TEST_GENDER = MALE;
     private final String TEST_PASSWORD = "TEST_PASSWORD";
-    private final String TEST_PROFILE_IMAGE = "0ecbe17e-5537-4533-9b9f-b3c2438e58eb.jpg";
+    private final String TEST_PROFILE_IMAGE = "cac3092e-393d-4e42-a16b-5c3e76e4a57c.jpg";
     private final String TEST_ABOUT = "Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia,\n" +
             "molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum\n" +
             "numquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentium\n" +
