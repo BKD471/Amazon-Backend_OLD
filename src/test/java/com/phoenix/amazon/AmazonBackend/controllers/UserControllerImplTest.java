@@ -1,13 +1,19 @@
-package com.phoenix.amazon.AmazonBackend.controller;
+package com.phoenix.amazon.AmazonBackend.controllers;
 
+
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phoenix.amazon.AmazonBackend.controllers.impl.UserControllerImpl;
 import com.phoenix.amazon.AmazonBackend.dto.ApiResponse;
 import com.phoenix.amazon.AmazonBackend.dto.ImageResponseMessages;
 import com.phoenix.amazon.AmazonBackend.dto.PageableResponse;
 import com.phoenix.amazon.AmazonBackend.dto.UserDto;
-import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers;
+import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
 import com.phoenix.amazon.AmazonBackend.services.IImageService;
 import com.phoenix.amazon.AmazonBackend.services.IUserService;
+import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -16,48 +22,105 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.GENDER;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.GENDER.MALE;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 public class UserControllerImplTest {
     @Mock
-    private IImageService imageService;
-
+    private IImageService imageServiceMock;
     @Mock
-    private IUserService userService;
+    private IUserService userServiceMock;
+    @Mock
+    private IUserRepository userRepositoryMock;
 
     @InjectMocks
-    private UserControllerImpl userController;
+    private UserControllerImpl userControllerMock;
 
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
+
     private final String BASE_URL_ACCOUNTS = "/api/users";
 
     private final String TEST_USER_ID = "b8defa54-2ae5-4bab-910b-be9ebc670fbd";
-    private final String TEST_USER_NAME = "TEST_USER_NAME";
-    private final String TEST_PRIMARY_EMAIL = "TEST_PRIMARY_EMAIL";
-    private final String TEST_SECONDARY_EMAIL = "TEST_SECONDARY_EMAIL";
+    private final String TEST_USER_NAME = "TestUserName";
+    private final String TEST_PRIMARY_EMAIL = "bhaskarkumardas9@gmail.com";
+    private final String TEST_SECONDARY_EMAIL = "bhaskarkumardas77@gmail.com";
     private final String TEST_FIRST_NAME = "TEST_FIRST_NAME";
     private final String TEST_LAST_NAME = "TEST_LAST_NAME";
     private final GENDER TEST_GENDER = MALE;
     private final String TEST_PROFILE_IMAGE = "b8defa54-2ae5-4bab-910b-be9ebc670fbd.jpg";
+    private final String TEST_PASSWORD="@TestPassword@2020";
     private final String TEST_ABOUT = "TEST TEST TEST TEST TEST TEST TEST";
     private final int TOTAL_ELEMENTS = 15;
     private final int PAGE_NUMBER = 1;
     private final int PAGE_SIZE = 5;
     private final int TOTAL_PAGES = 3;
     private final boolean IS_LAST_PAGE = false;
+    private UUID uuid;
+
+    @BeforeEach
+    public void setUp(){
+        uuid = mock(UUID.class);
+    }
+    @Test
+    @Transactional
+    public void testCreateUser() throws Exception {
+        // Given
+        UserDto userDtoRequest = constructUserDto();
+        final String uuId=UUID.randomUUID().toString();
+
+        mockStatic(UUID.class);
+        when(UUID.randomUUID()).thenReturn(uuid);
+        when(uuid.toString()).thenReturn(uuId);
+
+        UserDto userDtoResponse = new UserDto.builder()
+                .userId(uuId).userName(TEST_USER_NAME)
+                .firstName(TEST_FIRST_NAME).lastName(TEST_LAST_NAME).primaryEmail(TEST_PRIMARY_EMAIL)
+                .secondaryEmail(TEST_SECONDARY_EMAIL).gender(String.valueOf(TEST_GENDER))
+                .about(TEST_ABOUT).lastSeen(null)
+                .profileImage(null).password(null)
+                .build();
+
+        // When
+       // when(userServiceMock.createUserService(any())).thenReturn(userDtoResponse);
+
+
+        // Then
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL_ACCOUNTS + "/v1/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userDtoRequest))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print()).andExpect(status().isCreated()).andReturn();
+
+
+
+        String actualResponseBody = mvcResult.getResponse().getContentAsString();
+        String expectedResponseBody = objectMapper.writeValueAsString(userDtoResponse);
+        assertThat(actualResponseBody).isEqualToIgnoringWhitespace(expectedResponseBody);
+    }
 
     private UserDto constructUserDto() {
         return new UserDto.builder()
@@ -67,6 +130,7 @@ public class UserControllerImplTest {
                 .secondaryEmail(TEST_SECONDARY_EMAIL)
                 .firstName(TEST_FIRST_NAME)
                 .lastName(TEST_LAST_NAME)
+                .password(TEST_PASSWORD)
                 .gender(String.valueOf(TEST_GENDER))
                 .about(TEST_ABOUT)
                 .profileImage(TEST_PROFILE_IMAGE)
