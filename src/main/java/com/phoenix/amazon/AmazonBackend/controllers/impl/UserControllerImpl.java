@@ -17,14 +17,12 @@ import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
 
 import com.phoenix.amazon.AmazonBackend.services.IUserService;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -64,22 +62,6 @@ public class UserControllerImpl implements IUserController {
         return new ResponseEntity<>(userDto, HttpStatus.ACCEPTED);
     }
 
-    private String deleteResponseMessage(final String userId, final String userName, final String primaryEmail) {
-        String field;
-        String value;
-        if (!StringUtils.isEmpty(userId)) {
-            field = "userId";
-            value = userId;
-        } else if (!StringUtils.isEmpty(userName)) {
-            field = "userName";
-            value = userName;
-        } else {
-            field = "primaryEmail";
-            value = primaryEmail;
-        }
-
-        return String.format("User with %s : %s is deleted successfully ", field, value);
-    }
 
     /**
      * @param userId   - User Id
@@ -89,15 +71,8 @@ public class UserControllerImpl implements IUserController {
      */
     @Override
     public ResponseEntity<ApiResponse> deleteUserByUserIdOrUserNameOrPrimaryEmail(final String userId, final String userName, final String primaryEmail) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
-        userService.deleteUserServiceByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail);
-
-
-        ApiResponse responseMessage = new ApiResponse.builder()
-                .message(deleteResponseMessage(userId, userName, primaryEmail))
-                .success(true)
-                .status(HttpStatus.OK)
-                .build();
-        return new ResponseEntity<>(responseMessage, HttpStatus.ACCEPTED);
+        ApiResponse response=userService.deleteUserServiceByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail);
+        return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
     }
 
     /**
@@ -123,7 +98,6 @@ public class UserControllerImpl implements IUserController {
     @Override
     public ResponseEntity<UserDto> getUserInformationByUserIdOrUserNameOrPrimaryEmail(final String userId, final String userName, final String primaryEmail) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
         UserDto userDto = userService.getUserServiceInformationByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail);
-        ;
         return new ResponseEntity<>(userDto, HttpStatus.OK);
     }
 
@@ -171,7 +145,6 @@ public class UserControllerImpl implements IUserController {
                                                                                                  final String userName,
                                                                                                  final String primaryEmail) throws IOException, BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions {
         final String imageName = imageService.uploadUserImageServiceByUserIdOrUserNameOrPrimaryEmail(image, userId, userName, primaryEmail);
-        ;
         ImageResponseMessages imageResponseMessages =
                 new ImageResponseMessages.Builder()
                         .imageName(imageName)
@@ -194,7 +167,6 @@ public class UserControllerImpl implements IUserController {
                                                                final String primaryEmail,
                                                                final HttpServletResponse response) throws IOException, UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions {
         InputStream resource = imageService.serveUserImageServiceByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail);
-        ;
         response.setContentType(MediaType.IMAGE_JPEG_VALUE);
         StreamUtils.copy(resource, response.getOutputStream());
     }

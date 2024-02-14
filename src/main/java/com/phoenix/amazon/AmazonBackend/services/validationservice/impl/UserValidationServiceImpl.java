@@ -118,6 +118,40 @@ public class UserValidationServiceImpl implements IUserValidationService {
             case CREATE_USER -> {
                 // Null user check is already taken care
 
+                //null field check is done from annotation side, re implementing just for added safety
+                //username
+                if (StringUtils.isBlank(newUser.getUserName()))
+                    throw (BadApiRequestExceptions) ExceptionBuilder.builder()
+                            .className(BadApiRequestExceptions.class)
+                            .description("Null User Name prohibited")
+                            .methodName(methodName).build(BAD_API_EXEC);
+
+                //primary email
+                if (StringUtils.isBlank(newUser.getPrimaryEmail()))
+                    throw (BadApiRequestExceptions) ExceptionBuilder.builder()
+                            .className(BadApiRequestExceptions.class)
+                            .description("Null Primary Email prohibited")
+                            .methodName(methodName).build(BAD_API_EXEC);
+                //first name
+                if (StringUtils.isBlank(newUser.getFirstName()))
+                    throw (BadApiRequestExceptions) ExceptionBuilder.builder()
+                            .className(BadApiRequestExceptions.class)
+                            .description("Null First Name prohibited")
+                            .methodName(methodName).build(BAD_API_EXEC);
+
+                //last name
+                if (StringUtils.isBlank(newUser.getLastName()))
+                    throw (BadApiRequestExceptions) ExceptionBuilder.builder()
+                            .className(BadApiRequestExceptions.class)
+                            .description("Null Last Name prohibited")
+                            .methodName(methodName).build(BAD_API_EXEC);
+                // gender
+                if (Objects.isNull(newUser.getGender()))
+                    throw (BadApiRequestExceptions) ExceptionBuilder.builder()
+                            .className(BadApiRequestExceptions.class)
+                            .description("Null Gender prohibited")
+                            .methodName(methodName).build(BAD_API_EXEC);
+
                 // Existing primary & secondary email
                 checkEmails(userDtoList, newUser.getPrimaryEmail(), methodName, "primary");
                 if (!StringUtils.isBlank(newUser.getSecondaryEmail())) {
@@ -135,13 +169,13 @@ public class UserValidationServiceImpl implements IUserValidationService {
 
                 //this case is rare and hypothetical, it happens when UUID will generate same userId twice
                 final String userId = newUser.getUserId();
-                Predicate<Users> checkUserIdExist = (Users user) -> user.getUserName().equalsIgnoreCase(userId);
+                Predicate<Users> checkUserIdExist = (Users user) -> user.getUserId().equalsIgnoreCase(userId);
                 boolean isUserIdPresent = userDtoList.stream().anyMatch(checkUserIdExist);
 
                 if (isUserIdPresent) throw (UserExceptions) ExceptionBuilder.builder()
                         .className(UserExceptions.class)
                         .description("System Error In generating user")
-                        .methodName(methodName).build(BAD_API_EXEC);
+                        .methodName(methodName).build(USER_EXEC);
             }
             case GET_USER_INFO_BY_USERID_USER_NAME_PRIMARY_EMAIL -> {
                 if (oldUsersOptional.isEmpty()) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
@@ -192,7 +226,7 @@ public class UserValidationServiceImpl implements IUserValidationService {
                             .description("You dont have any profile image yet").methodName(methodName)
                             .build(USER_EXEC);
             }
-            case DELETE_USER_BY_USER_ID_OR_USER_NAME -> {
+            case DELETE_USER_BY_USER_ID_OR_USER_NAME_OR_PRIMARY_EMAIL -> {
                 if (oldUsersOptional.isEmpty()) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
                         .className(UserExceptions.class)
                         .description("No User Found")
@@ -230,7 +264,7 @@ public class UserValidationServiceImpl implements IUserValidationService {
                         .description("Our Database have no Users With this Username")
                         .methodName(methodName).build(USER_NOT_FOUND_EXEC);
             }
-            case SEARCH_USER_BY_EMAIL -> {
+            case SEARCH_USER_BY_PRIMARY_EMAIL -> {
                 if (CollectionUtils.isEmpty(userSet)) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
                         .className(UserNotFoundExceptions.class)
                         .description("Our Database have no Users With this email")
@@ -246,12 +280,6 @@ public class UserValidationServiceImpl implements IUserValidationService {
                 if (CollectionUtils.isEmpty(userSet)) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
                         .className(UserNotFoundExceptions.class)
                         .description("Our Database have no Users With this lastName")
-                        .methodName(methodName).build(USER_NOT_FOUND_EXEC);
-            }
-            case SEARCH_USER_BY_USER_NAME -> {
-                if (CollectionUtils.isEmpty(userSet)) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
-                        .className(UserNotFoundExceptions.class)
-                        .description("Our Database have no Users With this UserName")
                         .methodName(methodName).build(USER_NOT_FOUND_EXEC);
             }
             case SEARCH_ALL_USERS_BY_GENDER -> {

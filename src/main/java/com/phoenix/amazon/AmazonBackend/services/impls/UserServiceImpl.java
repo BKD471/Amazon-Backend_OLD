@@ -1,5 +1,6 @@
 package com.phoenix.amazon.AmazonBackend.services.impls;
 
+import com.phoenix.amazon.AmazonBackend.dto.ApiResponse;
 import com.phoenix.amazon.AmazonBackend.dto.PageableResponse;
 import com.phoenix.amazon.AmazonBackend.dto.PasswordUpdateDto;
 import com.phoenix.amazon.AmazonBackend.dto.UpdateUserDto;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -46,17 +48,16 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_F
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.PRIMARY_EMAIL;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.SECONDARY_EMAIL;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.GENDER;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.DELETE_USER_BY_USER_ID_OR_USER_NAME_OR_PRIMARY_EMAIL;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.NULL_OBJECT;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.CREATE_USER;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.UPDATE_USERNAME;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.UPDATE_PRIMARY_EMAIL;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.UPDATE_SECONDARY_EMAIL;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.UPDATE_PASSWORD;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.DELETE_USER_BY_USER_ID_OR_USER_NAME;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_ALL_USERS;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_USER_BY_EMAIL;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_USER_BY_PRIMARY_EMAIL;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_ALL_USERS_BY_USER_NAME;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_USER_BY_USER_NAME;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_ALL_USERS_BY_FIRST_NAME;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_ALL_USERS_BY_LAST_NAME;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.SEARCH_ALL_USERS_BY_GENDER;
@@ -99,18 +100,42 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
         final String userIdUUID = UUID.randomUUID().toString();
         final String secondaryEmail = StringUtils.isBlank(userDto.secondaryEmail()) ? userDto.secondaryEmail() : userDto.secondaryEmail().trim();
         final String about = StringUtils.isBlank(userDto.about()) ? userDto.about() : userDto.about().trim();
+        final String password = StringUtils.isBlank(userDto.password()) ? userDto.password() : userDto.password().trim();
+        final String userName = StringUtils.isBlank(userDto.userName()) ? userDto.userName() : userDto.userName().trim();
+        final String primaryEmail = StringUtils.isBlank(userDto.primaryEmail()) ? userDto.primaryEmail() : userDto.primaryEmail().trim();
+        final String gender = StringUtils.isBlank(userDto.gender()) ? userDto.gender() : userDto.gender().trim();
+        final String firstName = StringUtils.isBlank(userDto.firstName()) ? userDto.firstName() : userDto.firstName().trim();
+        final String lastName = StringUtils.isBlank(userDto.lastName()) ? userDto.lastName() : userDto.lastName().trim();
+
         return new UserDto.builder()
                 .userId(userIdUUID)
-                .userName(userDto.userName().trim())
-                .firstName(userDto.firstName().trim())
-                .lastName(userDto.lastName().trim())
-                .primaryEmail(userDto.primaryEmail().trim())
+                .userName(userName)
+                .firstName(firstName)
+                .lastName(lastName)
+                .primaryEmail(primaryEmail)
                 .secondaryEmail(secondaryEmail)
-                .gender(userDto.gender())
-                .password(userDto.password().trim())
+                .gender(gender)
+                .password(password)
                 .about(about)
                 .lastSeen(LocalDateTime.now())
                 .build();
+    }
+
+    private String deleteResponseMessage(final String userId, final String userName, final String primaryEmail) {
+        String field;
+        String value;
+        if (!StringUtils.isEmpty(userId)) {
+            field = "userId";
+            value = userId;
+        } else if (!StringUtils.isEmpty(userName)) {
+            field = "userName";
+            value = userName;
+        } else {
+            field = "primaryEmail";
+            value = primaryEmail;
+        }
+
+        return String.format("User with %s : %s is deleted successfully ", field, value);
     }
 
     private Pageable getPageableObject(final int pageNumber, final int pageSize, final Sort sort) {
@@ -199,17 +224,22 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
      * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      **/
     @Override
-    public void deleteUserServiceByUserIdOrUserNameOrPrimaryEmail(final String userId, final String userName, final String primaryEmail) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions, IOException {
+    public ApiResponse deleteUserServiceByUserIdOrUserNameOrPrimaryEmail(final String userId, final String userName, final String primaryEmail) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions, IOException {
         final String methodName = "deleteUserByUserIdOrUserName(string) in UserServiceImpl";
         Users fetchedUser = loadUserByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail, methodName);
-        userValidationService.validateUser(Optional.empty(), Optional.of(fetchedUser), methodName, DELETE_USER_BY_USER_ID_OR_USER_NAME);
+        userValidationService.validateUser(Optional.empty(), Optional.of(fetchedUser), methodName, DELETE_USER_BY_USER_ID_OR_USER_NAME_OR_PRIMARY_EMAIL);
 
         if (!StringUtils.isBlank(fetchedUser.getProfileImage())) {
             final String pathToProfileIMage = imagePath + File.separator + fetchedUser.getProfileImage();
-            Files.delete(Paths.get(pathToProfileIMage));
+            Files.deleteIfExists(Paths.get(pathToProfileIMage));
         }
 
         userRepository.deleteByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail);
+        return new ApiResponse.builder()
+                .message(deleteResponseMessage(userId, userName, primaryEmail))
+                .success(true)
+                .status(HttpStatus.OK)
+                .build();
     }
 
     /**
@@ -265,11 +295,11 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
         switch (field) {
             case PRIMARY_EMAIL -> {
                 usersPage = userRepository.searchUserByEmail(value, pageableObject).get();
-                userValidationService.validateUserList(usersPage.getContent(), methodName, SEARCH_USER_BY_EMAIL);
+                userValidationService.validateUserList(usersPage.getContent(), methodName, SEARCH_USER_BY_PRIMARY_EMAIL);
             }
             case USER_NAME -> {
                 usersPage = userRepository.searchUserByUserName(value, pageableObject).get();
-                userValidationService.validateUserList(usersPage.getContent(), methodName, SEARCH_USER_BY_USER_NAME);
+                userValidationService.validateUserList(usersPage.getContent(), methodName, SEARCH_ALL_USERS_BY_USER_NAME);
             }
             case GENDER -> {
                 usersPage = userRepository.searchUserByGender(value, pageableObject).get();
