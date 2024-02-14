@@ -57,7 +57,7 @@ import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
-public class UserServiceTest {
+public class UserServiceImplTest {
     private final String TEST_PRIMARY_EMAIL = "test@gmail.com";
     private final String TEST_SECONDARY_EMAIL = "tests@gmail.com";
     private final String TEST_USER_NAME = "TEST_USER_NAME";
@@ -80,15 +80,17 @@ public class UserServiceTest {
     private final String TEST_SORT_BY = "firstName";
     private final String TEST_SORT_DIRECTION = "asc";
 
-    @MockBean
-    private IUserService userServiceMock;
     @Mock
     private IUserValidationService userValidationServiceMock;
+
     @Mock
     private IUserRepository userRepositoryMock;
 
     @Value("${path.services.user.image.properties}")
     private String PATH_TO_IMAGE_PROPS;
+
+    @MockBean
+    private IUserService userServiceMock;
 
     @BeforeEach
     public void setUp() {
@@ -723,13 +725,70 @@ public class UserServiceTest {
         // When
         doNothing().when(userValidationServiceMock).validatePZeroUserFields(anyString(), anyString(), anyString(), anyString(), any());
         when(userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(TEST_UUID, TEST_USER_NAME, TEST_PRIMARY_EMAIL))
-                .thenReturn(Optional.of(users));
+                .thenReturn(Optional.of(users)).thenReturn(Optional.empty());
         doNothing().when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
         userServiceMock.deleteUserServiceByUserIdOrUserNameOrPrimaryEmail(TEST_UUID, TEST_USER_NAME, TEST_PRIMARY_EMAIL);
-        Optional<Users> fetchedUser = userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(TEST_UUID, TEST_USER_NAME, TEST_USER_NAME);
+        Optional<Users> fetchedUser = userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(TEST_UUID, TEST_USER_NAME, TEST_PRIMARY_EMAIL);
 
         // Then
         verify(userRepositoryMock, times(1)).deleteByUserIdOrUserNameOrPrimaryEmail(TEST_UUID, TEST_USER_NAME, TEST_PRIMARY_EMAIL);
+        assertThat(fetchedUser.isEmpty()).isTrue();
+    }
+
+    @Test
+    @DisplayName("Test Happy Path -- deleteUserServiceByUserIdOrUserNameOrPrimaryEmail() With UserId Only")
+    public void testDeleteByUserIdOrUserNameOrPrimaryEmailHappyPathWithUserIdOnly() throws BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions, IOException {
+        // Given
+        Users users = constructUser();
+
+        // When
+        doNothing().when(userValidationServiceMock).validatePZeroUserFields(anyString(), any(), any(), anyString(), any());
+        when(userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(TEST_UUID, null, null))
+                .thenReturn(Optional.of(users)).thenReturn(Optional.empty());
+        doNothing().when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
+        userServiceMock.deleteUserServiceByUserIdOrUserNameOrPrimaryEmail(TEST_UUID, null, null);
+        Optional<Users> fetchedUser = userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(TEST_UUID, null, null);
+
+        // Then
+        verify(userRepositoryMock, times(1)).deleteByUserIdOrUserNameOrPrimaryEmail(TEST_UUID, null, null);
+        assertThat(fetchedUser.isEmpty()).isTrue();
+    }
+
+    @Test
+    @DisplayName("Test Happy Path -- deleteUserServiceByUserIdOrUserNameOrPrimaryEmail() With UserName Only")
+    public void testDeleteByUserIdOrUserNameOrPrimaryEmailHappyPathWithUserNameOnly() throws BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions, IOException {
+        // Given
+        Users users = constructUser();
+
+        // When
+        doNothing().when(userValidationServiceMock).validatePZeroUserFields(any(), anyString(), any(), anyString(), any());
+        when(userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(null, TEST_USER_NAME, null))
+                .thenReturn(Optional.of(users)).thenReturn(Optional.empty());
+        doNothing().when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
+        userServiceMock.deleteUserServiceByUserIdOrUserNameOrPrimaryEmail(null, TEST_USER_NAME, null);
+        Optional<Users> fetchedUser = userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(null, TEST_USER_NAME, null);
+
+        // Then
+        verify(userRepositoryMock, times(1)).deleteByUserIdOrUserNameOrPrimaryEmail(null, TEST_USER_NAME, null);
+        assertThat(fetchedUser.isEmpty()).isTrue();
+    }
+
+    @Test
+    @DisplayName("Test Happy Path -- deleteUserServiceByUserIdOrUserNameOrPrimaryEmail() With PrimaryEmail Only")
+    public void testDeleteByUserIdOrUserNameOrPrimaryEmailHappyPathWithPrimaryEmailOnly() throws BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions, IOException {
+        // Given
+        Users users = constructUser();
+
+        // When
+        doNothing().when(userValidationServiceMock).validatePZeroUserFields(any(), any(), anyString(), anyString(), any());
+        when(userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(null, null, TEST_PRIMARY_EMAIL))
+                .thenReturn(Optional.of(users)).thenReturn(Optional.empty());
+        doNothing().when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
+        userServiceMock.deleteUserServiceByUserIdOrUserNameOrPrimaryEmail(null, null, TEST_PRIMARY_EMAIL);
+        Optional<Users> fetchedUser = userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(null, null, TEST_PRIMARY_EMAIL);
+
+        // Then
+        verify(userRepositoryMock, times(1)).deleteByUserIdOrUserNameOrPrimaryEmail(null, null, TEST_PRIMARY_EMAIL);
         assertThat(fetchedUser.isEmpty()).isTrue();
     }
 

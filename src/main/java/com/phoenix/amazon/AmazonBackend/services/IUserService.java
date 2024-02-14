@@ -1,5 +1,6 @@
 package com.phoenix.amazon.AmazonBackend.services;
 
+import com.phoenix.amazon.AmazonBackend.dto.ApiResponse;
 import com.phoenix.amazon.AmazonBackend.dto.PageableResponse;
 import com.phoenix.amazon.AmazonBackend.dto.PasswordUpdateDto;
 import com.phoenix.amazon.AmazonBackend.dto.UpdateUserDto;
@@ -35,7 +36,7 @@ public interface IUserService {
      * @param primaryEmail - primary Email of user
      * @throws UserNotFoundExceptions,UserExceptions,BadApiRequestExceptions,IOException -list of exceptions being thrown
      **/
-    void deleteUserServiceByUserIdOrUserNameOrPrimaryEmail(final String userId, final String userName, final String primaryEmail) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions, IOException;
+    ApiResponse deleteUserServiceByUserIdOrUserNameOrPrimaryEmail(final String userId, final String userName, final String primaryEmail) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions, IOException;
 
     /**
      * @param pageNumber - index value of page

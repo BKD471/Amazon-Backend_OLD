@@ -42,21 +42,24 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
-public class ImageServiceTest {
-    @MockBean
-    private IImageService imageServiceMock;
+public class ImageServiceImplTest {
     @Mock
     private IUserValidationService userValidationServiceMock;
+
     @Mock
     private IUserRepository userRepositoryMock;
 
     @Value("${path.services.user.image.properties}")
     private String PATH_TO_IMAGE_PROPS;
 
+    @MockBean
+    private IImageService imageServiceMock;
+
+
     private final String TEST_UUID = "58824409-dd6b-4934-9923-ec1daf9693da";
     private final String TEST_USER_NAME = "TEST_USER_NAME";
     private final String TEST_PRIMARY_EMAIL = "test@gmail.com";
-    private  UUID uuid;
+    private UUID uuid;
     private final MockMultipartFile TEST_IMAGE_FILE =
             new MockMultipartFile("data", "uploadedFile.png", "text/plain", "some kml".getBytes());
 
@@ -125,9 +128,9 @@ public class ImageServiceTest {
     public void testUploadUserImageServiceByUserIdOrUserNameOrPrimaryEmailUnhappyPathFileSizeGreaterThan100Kb() throws BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions, IOException, NoSuchFieldException, IllegalAccessException {
         // Given
         Users users = constructUser();
-        FileInputStream fileInputStream=new FileInputStream("/home/phoenix/Desktop/backend/Amazon-Backend/src/test/java/com/phoenix/amazon/AmazonBackend/testimages/users/test180kb.jpg");
+        FileInputStream fileInputStream = new FileInputStream("/home/phoenix/Desktop/backend/Amazon-Backend/src/test/java/com/phoenix/amazon/AmazonBackend/testimages/users/test180kb.jpg");
         final MockMultipartFile BIG_IMAGE_FILE =
-                new MockMultipartFile("data","big.mp3", "text/plain", fileInputStream);
+                new MockMultipartFile("data", "big.mp3", "text/plain", fileInputStream);
 
         // When
         doNothing().when(userValidationServiceMock).validatePZeroUserFields(anyString(), anyString(),
@@ -144,7 +147,7 @@ public class ImageServiceTest {
         // Then
         assertThrows(BadApiRequestExceptions.class, () -> imageServiceMock
                 .uploadUserImageServiceByUserIdOrUserNameOrPrimaryEmail(BIG_IMAGE_FILE, TEST_UUID,
-                TEST_USER_NAME, TEST_PRIMARY_EMAIL), "BadApiRequestException should have been thrown");
+                        TEST_USER_NAME, TEST_PRIMARY_EMAIL), "BadApiRequestException should have been thrown");
     }
 
 
@@ -162,7 +165,7 @@ public class ImageServiceTest {
         doNothing().when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
 
         // Then
-        InputStream fs=imageServiceMock.serveUserImageServiceByUserIdOrUserNameOrPrimaryEmail(TEST_UUID,TEST_USER_NAME,TEST_PRIMARY_EMAIL);
+        InputStream fs = imageServiceMock.serveUserImageServiceByUserIdOrUserNameOrPrimaryEmail(TEST_UUID, TEST_USER_NAME, TEST_PRIMARY_EMAIL);
         assertThat(fs.available()).isGreaterThan(0);
     }
 
@@ -177,12 +180,12 @@ public class ImageServiceTest {
                 anyString(), anyString(), any());
         when(userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(anyString(), anyString(), anyString()))
                 .thenReturn(Optional.of(users));
-        doNothing().doThrow(new UserExceptions(UserExceptions.class,"You dont have profile image",
+        doNothing().doThrow(new UserExceptions(UserExceptions.class, "You dont have profile image",
                         "testServeUserImageServiceByUserIdOrUserNameOrPrimaryEmailUnHappyPath"))
                 .when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
 
         // Then
-        assertThrows(UserExceptions.class,()->imageServiceMock.serveUserImageServiceByUserIdOrUserNameOrPrimaryEmail(TEST_UUID,TEST_USER_NAME,TEST_PRIMARY_EMAIL),
+        assertThrows(UserExceptions.class, () -> imageServiceMock.serveUserImageServiceByUserIdOrUserNameOrPrimaryEmail(TEST_UUID, TEST_USER_NAME, TEST_PRIMARY_EMAIL),
                 "User Exceptions should have been thrown");
     }
 

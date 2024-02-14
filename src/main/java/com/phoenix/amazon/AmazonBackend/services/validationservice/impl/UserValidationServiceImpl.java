@@ -226,7 +226,7 @@ public class UserValidationServiceImpl implements IUserValidationService {
                             .description("You dont have any profile image yet").methodName(methodName)
                             .build(USER_EXEC);
             }
-            case DELETE_USER_BY_USER_ID_OR_USER_NAME -> {
+            case DELETE_USER_BY_USER_ID_OR_USER_NAME_OR_PRIMARY_EMAIL -> {
                 if (oldUsersOptional.isEmpty()) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
                         .className(UserExceptions.class)
                         .description("No User Found")
@@ -264,7 +264,7 @@ public class UserValidationServiceImpl implements IUserValidationService {
                         .description("Our Database have no Users With this Username")
                         .methodName(methodName).build(USER_NOT_FOUND_EXEC);
             }
-            case SEARCH_USER_BY_EMAIL -> {
+            case SEARCH_USER_BY_PRIMARY_EMAIL -> {
                 if (CollectionUtils.isEmpty(userSet)) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
                         .className(UserNotFoundExceptions.class)
                         .description("Our Database have no Users With this email")
@@ -280,12 +280,6 @@ public class UserValidationServiceImpl implements IUserValidationService {
                 if (CollectionUtils.isEmpty(userSet)) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
                         .className(UserNotFoundExceptions.class)
                         .description("Our Database have no Users With this lastName")
-                        .methodName(methodName).build(USER_NOT_FOUND_EXEC);
-            }
-            case SEARCH_USER_BY_USER_NAME -> {
-                if (CollectionUtils.isEmpty(userSet)) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
-                        .className(UserNotFoundExceptions.class)
-                        .description("Our Database have no Users With this UserName")
                         .methodName(methodName).build(USER_NOT_FOUND_EXEC);
             }
             case SEARCH_ALL_USERS_BY_GENDER -> {
