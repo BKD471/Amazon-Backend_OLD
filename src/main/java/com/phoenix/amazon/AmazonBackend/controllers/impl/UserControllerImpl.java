@@ -71,7 +71,7 @@ public class UserControllerImpl implements IUserController {
      */
     @Override
     public ResponseEntity<ApiResponse> deleteUserByUserIdOrUserNameOrPrimaryEmail(final String userId, final String userName, final String primaryEmail) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
-        ApiResponse response=userService.deleteUserServiceByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail);
+        ApiResponse response = userService.deleteUserServiceByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail);
         return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
     }
 
@@ -148,7 +148,7 @@ public class UserControllerImpl implements IUserController {
         ImageResponseMessages imageResponseMessages =
                 new ImageResponseMessages.Builder()
                         .imageName(imageName)
-                        .message(" Profile image has been uploaded successfully")
+                        .message("Profile image has been uploaded successfully")
                         .status(HttpStatus.ACCEPTED)
                         .success(true)
                         .build();

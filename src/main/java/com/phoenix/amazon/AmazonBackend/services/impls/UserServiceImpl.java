@@ -135,7 +135,7 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
             value = primaryEmail;
         }
 
-        return String.format("User with %s : %s is deleted successfully ", field, value);
+        return String.format("User with %s : %s is deleted successfully", field, value);
     }
 
     private Pageable getPageableObject(final int pageNumber, final int pageSize, final Sort sort) {

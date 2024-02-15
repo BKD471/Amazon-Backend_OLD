@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
@@ -129,8 +130,8 @@ public interface IUserController {
      * @return ResponseEntity<ImageResponseMessages> - image response
      * @throws IOException,BadApiRequestExceptions,UserNotFoundExceptions,UserExceptions - list of exceptions being thrown
      */
-    @PutMapping("/v1/upload/image")
-    ResponseEntity<ImageResponseMessages> uploadUserImageByUserIdOrUserNameOrPrimaryEmail(@RequestParam("userImage") final MultipartFile image,
+    @PostMapping("/v1/upload/image")
+    ResponseEntity<ImageResponseMessages> uploadUserImageByUserIdOrUserNameOrPrimaryEmail(@RequestPart(value = "userImage") final MultipartFile image,
                                                                                           @RequestParam(value = "userId", required = false) final String userId,
                                                                                           @RequestParam(value = "userName", required = false) final String userName,
                                                                                           @RequestParam(value = "primaryEmail", required = false) final String primaryEmail) throws IOException, BadApiRequestExceptions, UserNotFoundExceptions, UserExceptions;
