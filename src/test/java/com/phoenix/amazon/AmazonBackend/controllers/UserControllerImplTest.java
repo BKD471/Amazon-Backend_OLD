@@ -517,7 +517,6 @@ public class UserControllerImplTest {
         final String userName = TEST_USER_NAME;
         final String primaryEmail = TEST_PRIMARY_EMAIL;
 
-        //File file=new File("/home/phoenix/Desktop/backend/Amazon-Backend/src/test/java/com/phoenix/amazon/AmazonBackend/testimages/users/086ca9e6-d846-4b5c-8f5e-2593d1862143.jpg");
         Files.copy(Path.of("/home/phoenix/Desktop/backend/Amazon-Backend/src/test/java/com/phoenix/amazon/AmazonBackend/testimages/users/086ca9e6-d846-4b5c-8f5e-2593d1862143.jpg"),
                 Path.of("/home/phoenix/Desktop/backend/Amazon-Backend/downloadable/images/users/086ca9e6-d846-4b5c-8f5e-2593d1862143.jpg"));
 

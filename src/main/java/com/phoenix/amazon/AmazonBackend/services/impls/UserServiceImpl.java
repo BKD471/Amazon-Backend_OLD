@@ -344,7 +344,7 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
     public String generatePasswordService() {
         final String lowerCase = "abcdefghijklmnopqrstuvwxyz";
         final String upperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        final String specialCase = "!@#$%^&*()-_+/<>()?=|";
+        final String specialCase = "!@#$%^&*()-_+/<>?=|";
         final String numbers = "0123456789";
 
         StringBuffer password = new StringBuffer();
