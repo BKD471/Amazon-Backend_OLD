@@ -44,12 +44,11 @@ public class ValidateNullOrEmail implements ConstraintValidator<NullOrEmail, Str
         final String methodName = "isValid(email,constraintValidatorContext) in ValidateNullOrEmail";
         // Secondary email is empty, allow it since its optional
         if (Objects.isNull(email)) return true;
-        if(StringUtils.isBlank(email)) return false;
+        if (StringUtils.isBlank(email)) return false;
 
-        LocalTime startTime=LocalTime.now(Clock.system(ZoneId.of("Asia/Kolkata")));
+        LocalTime startTime = LocalTime.now(Clock.system(ZoneId.of("Asia/Kolkata")));
         logger.info(String.format("<############## %s   ValidateNullOrEmail field validation starts ########################" +
-                "#################################################################",startTime));
-
+                "#################################################################", startTime));
         Map<String, String> response;
         try {
             response = emailVerificationService.verifyEmail(email);
@@ -73,6 +72,6 @@ public class ValidateNullOrEmail implements ConstraintValidator<NullOrEmail, Str
 
             logger.info(String.format("<############## %s   ValidateNullOrEmail field validation ends ########################" +
                     "#################################################################",endTime));
-        }
     }
+}
 }

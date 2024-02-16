@@ -135,7 +135,7 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
             value = primaryEmail;
         }
 
-        return String.format("User with %s : %s is deleted successfully ", field, value);
+        return String.format("User with %s : %s is deleted successfully", field, value);
     }
 
     private Pageable getPageableObject(final int pageNumber, final int pageSize, final Sort sort) {
@@ -344,7 +344,7 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
     public String generatePasswordService() {
         final String lowerCase = "abcdefghijklmnopqrstuvwxyz";
         final String upperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        final String specialCase = "!@#$%^&*()-_+/<>()?=|";
+        final String specialCase = "!@#$%^&*()-_+/<>?=|";
         final String numbers = "0123456789";
 
         StringBuffer password = new StringBuffer();

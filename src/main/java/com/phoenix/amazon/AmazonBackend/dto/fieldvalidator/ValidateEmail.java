@@ -47,7 +47,6 @@ public class ValidateEmail implements ConstraintValidator<ValidEmail, String> {
         LocalTime startTime = LocalTime.now(Clock.system(ZoneId.of("Asia/Kolkata")));
         logger.info(String.format("<############## %s   ValidateNullOrEmail field validation starts ########################" +
                 "#################################################################", startTime));
-
         Map<String, String> response;
         try {
             response = emailVerificationService.verifyEmail(email);
