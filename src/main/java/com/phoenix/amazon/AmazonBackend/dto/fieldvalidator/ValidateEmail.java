@@ -47,29 +47,29 @@ public class ValidateEmail implements ConstraintValidator<ValidEmail, String> {
         LocalTime startTime = LocalTime.now(Clock.system(ZoneId.of("Asia/Kolkata")));
         logger.info(String.format("<############## %s   ValidateNullOrEmail field validation starts ########################" +
                 "#################################################################", startTime));
-        return true;
-//        Map<String, String> response;
-//        try {
-//            response = emailVerificationService.verifyEmail(email);
-//            if (response.isEmpty())
-//                throw new ServicDownTimeException(ServicDownTimeException.class, "Email Verifier Api is down", methodName);
-//
-//            if (response.containsKey("result")) {
-//                String value = response.get("result");
-//                return value.equalsIgnoreCase("valid");
-//            } else
-//                throw new ServicDownTimeException(ServicDownTimeException.class, "Response from Api has either changed or corrupted", methodName);
-//        } catch (Exception ex) {
-//            logger.error("Oops !! {}", ex.getMessage());
-//            return false;
-//        } finally {
-//            LocalTime endTime = LocalTime.now(Clock.system(ZoneId.of("Asia/Kolkata")));
-//            long durationInMs = Duration.between(startTime, endTime).toMillis();
-//            logger.info(String.format("<################# Time elapsed to execute ValidateEmail is %s Ms ##############################" +
-//                    "######################################################################################" +
-//                    "#########>", durationInMs));
-//
-//            logger.info(String.format("<############## %s   ValidateEmail field validation ends ########################" +
-//                    "#################################################################", endTime));
+        Map<String, String> response;
+        try {
+            response = emailVerificationService.verifyEmail(email);
+            if (response.isEmpty())
+                throw new ServicDownTimeException(ServicDownTimeException.class, "Email Verifier Api is down", methodName);
+
+            if (response.containsKey("result")) {
+                String value = response.get("result");
+                return value.equalsIgnoreCase("valid");
+            } else
+                throw new ServicDownTimeException(ServicDownTimeException.class, "Response from Api has either changed or corrupted", methodName);
+        } catch (Exception ex) {
+            logger.error("Oops !! {}", ex.getMessage());
+            return false;
+        } finally {
+            LocalTime endTime = LocalTime.now(Clock.system(ZoneId.of("Asia/Kolkata")));
+            long durationInMs = Duration.between(startTime, endTime).toMillis();
+            logger.info(String.format("<################# Time elapsed to execute ValidateEmail is %s Ms ##############################" +
+                    "######################################################################################" +
+                    "#########>", durationInMs));
+
+            logger.info(String.format("<############## %s   ValidateEmail field validation ends ########################" +
+                    "#################################################################", endTime));
         }
+    }
 }

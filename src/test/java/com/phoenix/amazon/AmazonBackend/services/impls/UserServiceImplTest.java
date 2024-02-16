@@ -1135,7 +1135,7 @@ public class UserServiceImplTest {
             if (ascii >= 65 && ascii <= 90) hasUpperCase = true;
             if (ascii >= 97 && ascii <= 122) hasLowerCase = true;
             if (ascii >= 48 && ascii <= 57) hasNumbers = true;
-            if (ascii >= 33 && ascii <= 47) hasSpecialCharacters = true;
+            if ((ascii >= 33 && ascii <= 47) || (ascii>=60 && ascii<=64) || ascii==95 || ascii==124) hasSpecialCharacters = true;
             if (hasLowerCase && hasUpperCase && hasNumbers && hasSpecialCharacters) break;
         }
 
