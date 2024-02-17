@@ -1,12 +1,14 @@
 package com.phoenix.amazon.AmazonBackend.helpers;
 
+import com.phoenix.amazon.AmazonBackend.dto.ProductDto;
 import com.phoenix.amazon.AmazonBackend.dto.UpdateUserDto;
 import com.phoenix.amazon.AmazonBackend.dto.UserDto;
+import com.phoenix.amazon.AmazonBackend.entity.Product;
 import com.phoenix.amazon.AmazonBackend.entity.Users;
 
 import static com.phoenix.amazon.AmazonBackend.helpers.GenderMapHelpers.getGender;
 
-public class MappingHelpers<U,V> {
+public class MappingHelpers{
     public static UserDto UsersToUsersDto(final Users users) {
         return new UserDto.builder()
                 .userId(users.getUserId())
@@ -60,6 +62,30 @@ public class MappingHelpers<U,V> {
                 .secondaryEmail(users.getSecondaryEmail())
                 .gender(users.getGender().toString())
                 .about(users.getAbout())
+                .build();
+    }
+
+    public static Product productDtoToProduct(ProductDto productDto){
+        return new Product.builder()
+                .productId(productDto.productId())
+                .title(productDto.title())
+                .description(productDto.description())
+                .price(productDto.price())
+                .quantity(productDto.quantity())
+                .addedDate(productDto.addedDate())
+                .stock(productDto.stock())
+                .build();
+    }
+
+    public static ProductDto productToProductDto(Product product){
+        return new ProductDto.builder()
+                .productId(product.getProductId())
+                .title(product.getTitle())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .quantity(product.getQuantity())
+                .addedDate(product.getAddedDate())
+                .stock(product.getStock())
                 .build();
     }
 }
