@@ -1,8 +1,10 @@
 package com.phoenix.amazon.AmazonBackend.helpers;
 
+import com.phoenix.amazon.AmazonBackend.dto.CategoryDto;
 import com.phoenix.amazon.AmazonBackend.dto.ProductDto;
 import com.phoenix.amazon.AmazonBackend.dto.UpdateUserDto;
 import com.phoenix.amazon.AmazonBackend.dto.UserDto;
+import com.phoenix.amazon.AmazonBackend.entity.Category;
 import com.phoenix.amazon.AmazonBackend.entity.Product;
 import com.phoenix.amazon.AmazonBackend.entity.Users;
 
@@ -86,6 +88,22 @@ public class MappingHelpers{
                 .quantity(product.getQuantity())
                 .addedDate(product.getAddedDate())
                 .stock(product.getStock())
+                .build();
+    }
+
+    public static Category CategoryDtoToCategory(CategoryDto categoryDto){
+        return new Category.builder()
+                .categoryId(categoryDto.categoryId())
+                .title(categoryDto.title())
+                .description(categoryDto.description())
+                .build();
+    }
+
+    public static CategoryDto categoryToCategoryDto(Category category){
+        return new CategoryDto.builder()
+                .categoryId(category.getCategoryId())
+                .title(category.getTitle())
+                .description(category.getDescription())
                 .build();
     }
 }
