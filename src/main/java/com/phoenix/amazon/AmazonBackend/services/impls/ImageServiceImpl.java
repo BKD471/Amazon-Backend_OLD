@@ -7,7 +7,7 @@ import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.builder.ExceptionBuilder;
 import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers;
 import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
-import com.phoenix.amazon.AmazonBackend.services.AbstractUserService;
+import com.phoenix.amazon.AmazonBackend.services.AbstractService;
 import com.phoenix.amazon.AmazonBackend.services.IImageService;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
 import org.slf4j.Logger;
@@ -31,43 +31,33 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_V
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.UPDATE_PROFILE_IMAGE;
 
 @Service("ImageServicePrimary")
-public class ImageServiceImpl extends AbstractUserService implements IImageService {
+public class ImageServiceImpl extends AbstractService implements IImageService {
     private final IUserRepository userRepository;
     private final IUserValidationService userValidationService;
-    private final String imagePath;
+    private final String userImagePath;
+    private final String categoryImagePath;
     Logger logger = LoggerFactory.getLogger(ImageServiceImpl.class);
 
 
     protected ImageServiceImpl(IUserRepository userRepository,
                                IUserValidationService userValidationService,
-                               @Value("${path.services.user.image.properties}") final String PATH_TO_IMAGE_PROPS) {
+                               @Value("${path.services.user.image.properties}") final String PATH_TO_USER_IMAGE_PROPS) {
         super(userRepository, userValidationService);
         this.userValidationService = userValidationService;
         this.userRepository = userRepository;
         final Properties properties = new Properties();
         try {
-            properties.load(new FileInputStream(PATH_TO_IMAGE_PROPS));
+            properties.load(new FileInputStream(PATH_TO_USER_IMAGE_PROPS));
         } catch (IOException e) {
             logger.error("Error in reading the props in {} ImageService", e.getMessage());
         }
-        this.imagePath = properties.getProperty("user.profile.images.path");
+        this.userImagePath = properties.getProperty("user.profile.images.path");
+        this.categoryImagePath=properties.getProperty("category.images.path");
     }
 
-    /**
-     * @param image        - profile image of user
-     * @param userId       - userId of user
-     * @param userName     - username of user
-     * @param primaryEmail - primary email of user
-     * @return string
-     * @throws BadApiRequestExceptions,IOException,UserNotFoundExceptions,UserExceptions - list of exception being thrown
-     **/
-    @Override
-    public String uploadUserImageServiceByUserIdOrUserNameOrPrimaryEmail(final MultipartFile image, final String userId, final String userName, final String primaryEmail) throws BadApiRequestExceptions, IOException, UserNotFoundExceptions, UserExceptions {
-        final String methodName = "upload(MultipartFile) in ImageServiceImpl";
+    private String processImageUpload(final MultipartFile image, final String imagePath, final String methodName) throws BadApiRequestExceptions, IOException {
         final String originalFileName = image.getOriginalFilename();
-        Users fetchedUser = loadUserByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail, methodName);
-
-        userValidationService.validateNullField(originalFileName, "Something problem with your image!!." +
+        validateNullField(originalFileName, "Something problem with your image!!." +
                 "Its either corrupted or not supported", methodName);
         final String fileName = UUID.randomUUID().toString();
         final String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
@@ -81,22 +71,42 @@ public class ImageServiceImpl extends AbstractUserService implements IImageServi
             File folder = new File(imagePath);
             if (!folder.exists()) folder.mkdirs();
             Files.copy(image.getInputStream(), Paths.get(fullPathWithFileName));
-
-            //validate
-            Users newUser = new Users.builder().profileImage(fileNameWithExtension).build();
-            userValidationService.validateUser(Optional.of(newUser), Optional.of(fetchedUser), methodName, UPDATE_PROFILE_IMAGE);
-
-            //update profile image of user
-            Users updatedUser = constructUser(fetchedUser, newUser, PROFILE_IMAGE);
-            userRepository.save(updatedUser);
-
             return fileNameWithExtension;
         } else throw (BadApiRequestExceptions) ExceptionBuilder.builder()
                 .className(BadApiRequestExceptions.class)
                 .description(String.format(" %s type not supported yet", extension))
                 .methodName(methodName)
                 .build(AllConstantHelpers.EXCEPTION_CODES.BAD_API_EXEC);
+    }
 
+    /**
+     * @param image        - profile image of user
+     * @param userId       - userId of user
+     * @param userName     - username of user
+     * @param primaryEmail - primary email of user
+     * @return string
+     * @throws BadApiRequestExceptions,IOException,UserNotFoundExceptions,UserExceptions - list of exception being thrown
+     **/
+    @Override
+    public String uploadUserImageServiceByUserIdOrUserNameOrPrimaryEmail(final MultipartFile image, final String userId, final String userName, final String primaryEmail) throws BadApiRequestExceptions, IOException, UserNotFoundExceptions, UserExceptions {
+        final String methodName = "uploadUserImageServiceByUserIdOrUserNameOrPrimaryEmail(MultipartFile) in ImageServiceImpl";
+        Users fetchedUser = loadUserByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail, methodName);
+        final String fileNameWithExtension = processImageUpload(image,userImagePath,methodName);
+
+        //validate
+        Users newUser = new Users.builder().profileImage(fileNameWithExtension).build();
+        userValidationService.validateUser(Optional.of(newUser), Optional.of(fetchedUser), methodName, UPDATE_PROFILE_IMAGE);
+
+        //update profile image of user
+        Users updatedUser = constructUser(fetchedUser, newUser, PROFILE_IMAGE);
+        userRepository.save(updatedUser);
+        return fileNameWithExtension;
+    }
+
+    @Override
+    public String uploadCoverImageByCategoryId(final MultipartFile image, final String categoryId) throws BadApiRequestExceptions, IOException {
+        final String methodName = "uploadUserImageServiceByUserIdOrUserNameOrPrimaryEmail(MultipartFile) in ImageServiceImpl";
+        return processImageUpload(image,categoryImagePath,methodName);
     }
 
     /**
@@ -112,7 +122,7 @@ public class ImageServiceImpl extends AbstractUserService implements IImageServi
         Users oldUser = loadUserByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail, methodName);
 
         userValidationService.validateUser(Optional.empty(), Optional.of(oldUser), methodName, GET_PROFILE_IMAGE);
-        final String fullPath = imagePath + File.separator + oldUser.getProfileImage();
+        final String fullPath = userImagePath + File.separator + oldUser.getProfileImage();
         return new FileInputStream(fullPath);
     }
 }

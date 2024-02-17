@@ -11,7 +11,7 @@ import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
 import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
 import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
-import com.phoenix.amazon.AmazonBackend.services.AbstractUserService;
+import com.phoenix.amazon.AmazonBackend.services.AbstractService;
 import com.phoenix.amazon.AmazonBackend.services.IUserService;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
 import org.apache.commons.lang3.StringUtils;
@@ -49,7 +49,6 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_F
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.SECONDARY_EMAIL;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.GENDER;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.DELETE_USER_BY_USER_ID_OR_USER_NAME_OR_PRIMARY_EMAIL;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.NULL_OBJECT;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.CREATE_USER;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.UPDATE_USERNAME;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.UPDATE_PRIMARY_EMAIL;
@@ -70,7 +69,7 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.Destin
 
 
 @Service("UserServicePrimary")
-public class UserServiceImpl extends AbstractUserService implements IUserService {
+public class UserServiceImpl extends AbstractService implements IUserService {
     private final IUserRepository userRepository;
     private final IUserValidationService userValidationService;
     private final String imagePath;
@@ -94,8 +93,8 @@ public class UserServiceImpl extends AbstractUserService implements IUserService
 
     private UserDto initializeUserId(final UserDto userDto) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions, IOException {
         final String methodName = "initializeUserId";
-        if (Objects.isNull(userDto)) userValidationService.validateUser(Optional.empty(), Optional.empty(),
-                "initializeUserId in UserService", NULL_OBJECT);
+        validateNullField(userDto,"User object is null" ,
+                "initializeUserId in UserService");
 
         final String userIdUUID = UUID.randomUUID().toString();
         final String secondaryEmail = StringUtils.isBlank(userDto.secondaryEmail()) ? userDto.secondaryEmail() : userDto.secondaryEmail().trim();

@@ -109,12 +109,6 @@ public class UserValidationServiceImpl implements IUserValidationService {
         if (oldUsersOptional.isPresent()) oldUser = oldUsersOptional.get();
 
         switch (userValidation) {
-            case NULL_OBJECT -> {
-                if (newUsersOptional.isEmpty()) throw (BadApiRequestExceptions) ExceptionBuilder.builder()
-                        .className(BadApiRequestExceptions.class)
-                        .description("Null Users prohibited")
-                        .methodName(methodName).build(BAD_API_EXEC);
-            }
             case CREATE_USER -> {
                 // Null user check is already taken care
 
@@ -315,18 +309,5 @@ public class UserValidationServiceImpl implements IUserValidationService {
         }
     }
 
-    /**
-     * @param field              - field to test
-     * @param descriptionMessage - description
-     * @param methodName         - place of origin
-     * @throws BadApiRequestExceptions - list of exceptions being thrown
-     **/
-    @Override
-    public void validateNullField(final String field, final String descriptionMessage, final String methodName) throws BadApiRequestExceptions {
-        if (Objects.isNull(field) || StringUtils.isBlank(field))
-            throw (BadApiRequestExceptions) ExceptionBuilder.builder()
-                    .className(BadApiRequestExceptions.class)
-                    .description(descriptionMessage)
-                    .methodName(methodName).build(BAD_API_EXEC);
-    }
+
 }

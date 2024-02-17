@@ -6,6 +6,7 @@ import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
 import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
+import com.phoenix.amazon.AmazonBackend.services.validationservice.AbstractValidationService;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
 import org.springframework.util.CollectionUtils;
 
@@ -20,23 +21,14 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_F
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_USER_INFO_BY_USERID_USER_NAME_PRIMARY_EMAIL;
 
 
-public abstract class AbstractUserService {
+public abstract class AbstractService extends AbstractValidationService {
     private final IUserRepository userRepository;
     private final IUserValidationService userValidationService;
 
-    protected AbstractUserService(final IUserRepository userRepository, final IUserValidationService userValidationService) {
+    protected AbstractService(final IUserRepository userRepository, final IUserValidationService userValidationService) {
         this.userRepository = userRepository;
         this.userValidationService = userValidationService;
     }
-
-    /**
-     * Depending on type of request
-     * invoke dao impl of load user
-     * <p>
-     * LU1 - to load by userId, userName
-     * LU2 - to load by userName, email
-     */
-    protected enum UserLoadType {LU1, LU2}
 
     protected Users loadUserByUserIdOrUserNameOrPrimaryEmail(final String userId, final String userName, final String primaryEmail, final String methodName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
         userValidationService.validatePZeroUserFields(userId, userName, primaryEmail, methodName, VALIDATE_USER_ID_OR_USER_NAME_OR_PRIMARY_EMAIL);
