@@ -38,21 +38,9 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_F
 
 @Service
 public class UserValidationServiceImpl implements IUserValidationService {
-    private final String imagePath;
     private final IUserRepository userRepository;
-    Logger logger = LoggerFactory.getLogger(UserValidationServiceImpl.class);
-
-    UserValidationServiceImpl(IUserRepository userRepository,
-                              @Value("${path.services.user.image.properties}") final String PATH_TO_PROPS) {
+    UserValidationServiceImpl(IUserRepository userRepository) {
         this.userRepository = userRepository;
-
-        final Properties properties = new Properties();
-        try {
-            properties.load(new FileInputStream(PATH_TO_PROPS));
-        } catch (IOException e) {
-            logger.error("Error in reading the props in {} UserValidationService", e.getMessage());
-        }
-        this.imagePath = properties.getProperty("user.profile.images.path");
     }
 
     private void checkEmails(final Set<Users> usersSet, final String new_email, final String methodName, final String checkFor) throws UserExceptions {
@@ -201,24 +189,6 @@ public class UserValidationServiceImpl implements IUserValidationService {
                         .className(UserExceptions.class)
                         .description("You already had this password before")
                         .methodName(methodName).build(USER_EXEC);
-            }
-            case UPDATE_PROFILE_IMAGE -> {
-                final String pathToImage = imagePath + File.separator + newUser.getProfileImage();
-                File file = new File(pathToImage);
-                double fileSizeInKb = (double) (file.length() / 1024);
-
-                if (fileSizeInKb > 100.0d) {
-                    Files.delete(Paths.get(pathToImage));
-                    throw (BadApiRequestExceptions) ExceptionBuilder.builder().className(BadApiRequestExceptions.class)
-                            .description("File should not be greater than 100kb").methodName(methodName)
-                            .build(BAD_API_EXEC);
-                }
-            }
-            case GET_PROFILE_IMAGE -> {
-                if (StringUtils.isEmpty(oldUser.getProfileImage()))
-                    throw (UserExceptions) ExceptionBuilder.builder().className(UserExceptions.class)
-                            .description("You dont have any profile image yet").methodName(methodName)
-                            .build(USER_EXEC);
             }
             case DELETE_USER_BY_USER_ID_OR_USER_NAME_OR_PRIMARY_EMAIL -> {
                 if (oldUsersOptional.isEmpty()) throw (UserNotFoundExceptions) ExceptionBuilder.builder()

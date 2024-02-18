@@ -72,12 +72,12 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.Destin
 public class UserServiceImpl extends AbstractService implements IUserService {
     private final IUserRepository userRepository;
     private final IUserValidationService userValidationService;
-    private final String imagePath;
+    private final String userImagePath;
     Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     public UserServiceImpl(IUserRepository userRepository,
                            IUserValidationService userValidationService,
-                           @Value("${path.services.user.image.properties}") final String PATH_TO_IMAGE_PROPS) {
+                           @Value("${path.services.image.properties}") final String PATH_TO_IMAGE_PROPS) {
         super(userRepository, userValidationService);
         this.userRepository = userRepository;
         this.userValidationService = userValidationService;
@@ -88,7 +88,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
         } catch (IOException e) {
             logger.error("Error in reading the props in {} UserServiceImpl", e.getMessage());
         }
-        this.imagePath = properties.getProperty("user.profile.images.path");
+        this.userImagePath = properties.getProperty("user.profile.images.path");
     }
 
     private UserDto initializeUserId(final UserDto userDto) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions, IOException {
@@ -229,7 +229,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
         userValidationService.validateUser(Optional.empty(), Optional.of(fetchedUser), methodName, DELETE_USER_BY_USER_ID_OR_USER_NAME_OR_PRIMARY_EMAIL);
 
         if (!StringUtils.isBlank(fetchedUser.getProfileImage())) {
-            final String pathToProfileIMage = imagePath + File.separator + fetchedUser.getProfileImage();
+            final String pathToProfileIMage = userImagePath + File.separator + fetchedUser.getProfileImage();
             Files.deleteIfExists(Paths.get(pathToProfileIMage));
         }
 

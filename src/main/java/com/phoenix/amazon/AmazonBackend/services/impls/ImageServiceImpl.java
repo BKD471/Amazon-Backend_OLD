@@ -10,6 +10,7 @@ import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
 import com.phoenix.amazon.AmazonBackend.services.AbstractService;
 import com.phoenix.amazon.AmazonBackend.services.IImageService;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
+import com.phoenix.amazon.AmazonBackend.services.validationservice.impl.ImageValidationServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,14 +27,16 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
 
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.IMAGE_VALIDATION.GET_PROFILE_IMAGE;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.IMAGE_VALIDATION.UPDATE_PROFILE_IMAGE;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.PROFILE_IMAGE;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_PROFILE_IMAGE;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.UPDATE_PROFILE_IMAGE;
+
 
 @Service("ImageServicePrimary")
 public class ImageServiceImpl extends AbstractService implements IImageService {
     private final IUserRepository userRepository;
     private final IUserValidationService userValidationService;
+    private final ImageValidationServiceImpl imageValidationService;
     private final String userImagePath;
     private final String categoryImagePath;
     Logger logger = LoggerFactory.getLogger(ImageServiceImpl.class);
@@ -41,13 +44,15 @@ public class ImageServiceImpl extends AbstractService implements IImageService {
 
     protected ImageServiceImpl(IUserRepository userRepository,
                                IUserValidationService userValidationService,
-                               @Value("${path.services.user.image.properties}") final String PATH_TO_USER_IMAGE_PROPS) {
+                               ImageValidationServiceImpl imageValidationService,
+                               @Value("${path.services.image.properties}") final String PATH_TO_IMAGE_PROPS) {
         super(userRepository, userValidationService);
         this.userValidationService = userValidationService;
+        this.imageValidationService=imageValidationService;
         this.userRepository = userRepository;
         final Properties properties = new Properties();
         try {
-            properties.load(new FileInputStream(PATH_TO_USER_IMAGE_PROPS));
+            properties.load(new FileInputStream(PATH_TO_IMAGE_PROPS));
         } catch (IOException e) {
             logger.error("Error in reading the props in {} ImageService", e.getMessage());
         }
@@ -95,7 +100,7 @@ public class ImageServiceImpl extends AbstractService implements IImageService {
 
         //validate
         Users newUser = new Users.builder().profileImage(fileNameWithExtension).build();
-        userValidationService.validateUser(Optional.of(newUser), Optional.of(fetchedUser), methodName, UPDATE_PROFILE_IMAGE);
+        imageValidationService.validateUserImage(newUser, fetchedUser, methodName, UPDATE_PROFILE_IMAGE);
 
         //update profile image of user
         Users updatedUser = constructUser(fetchedUser, newUser, PROFILE_IMAGE);
@@ -104,7 +109,7 @@ public class ImageServiceImpl extends AbstractService implements IImageService {
     }
 
     @Override
-    public String uploadCoverImageByCategoryId(final MultipartFile image, final String categoryId) throws BadApiRequestExceptions, IOException {
+    public String uploadCoverImageByCategoryId(final MultipartFile image) throws BadApiRequestExceptions, IOException {
         final String methodName = "uploadUserImageServiceByUserIdOrUserNameOrPrimaryEmail(MultipartFile) in ImageServiceImpl";
         return processImageUpload(image,categoryImagePath,methodName);
     }
@@ -121,7 +126,7 @@ public class ImageServiceImpl extends AbstractService implements IImageService {
         final String methodName = "getResource(String,String) in ImageServiceImpl";
         Users oldUser = loadUserByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail, methodName);
 
-        userValidationService.validateUser(Optional.empty(), Optional.of(oldUser), methodName, GET_PROFILE_IMAGE);
+        imageValidationService.validateUserImage(null, oldUser, methodName, GET_PROFILE_IMAGE);
         final String fullPath = userImagePath + File.separator + oldUser.getProfileImage();
         return new FileInputStream(fullPath);
     }

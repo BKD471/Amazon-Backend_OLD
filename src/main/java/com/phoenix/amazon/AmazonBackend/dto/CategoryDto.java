@@ -2,7 +2,6 @@ package com.phoenix.amazon.AmazonBackend.dto;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import org.springframework.web.multipart.MultipartFile;
 
 public record CategoryDto(String categoryId,
                           @NotNull(message = "Category title must not be null")
@@ -13,24 +12,23 @@ public record CategoryDto(String categoryId,
                           @Size(min=50,message ="Category description must be at least 10 chars long" )
                           String description,
 
-                          @NotNull(message = "Category image must not be null")
-                          MultipartFile coverImage) {
+                          String coverImage) {
 
     public CategoryDto(String categoryId,
                        String title,
                        String description,
-                       MultipartFile coverImage) {
+                       String coverImage) {
         this.categoryId = categoryId;
         this.title = title;
         this.description = description;
-        this.coverImage = coverImage;
+        this.coverImage=coverImage;
     }
 
     public static final class builder {
         private String categoryId;
         private String title;
         private String description;
-        private MultipartFile coverImage;
+        private String coverImage;
 
         public builder() {
         }
@@ -50,13 +48,14 @@ public record CategoryDto(String categoryId,
             return this;
         }
 
-        public builder coverImage(final MultipartFile coverImage) {
+        public builder coverImage(final String coverImage) {
             this.coverImage = coverImage;
             return this;
         }
 
+
         public CategoryDto build() {
-            return new CategoryDto(categoryId, title, description, coverImage);
+            return new CategoryDto(categoryId, title, description,coverImage);
         }
     }
 }

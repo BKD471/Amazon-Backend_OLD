@@ -33,11 +33,12 @@ public class AllConstantHelpers {
         UPDATE_PRIMARY_EMAIL,
         UPDATE_SECONDARY_EMAIL,
         UPDATE_PASSWORD,
-        UPDATE_PROFILE_IMAGE,
-        GET_PROFILE_IMAGE,
         UPDATE_USERNAME,
         GET_USER_INFO_BY_USERID_USER_NAME_PRIMARY_EMAIL,
         VALIDATE_PASSWORD
+    }
+    public enum IMAGE_VALIDATION{
+        UPDATE_PROFILE_IMAGE,  GET_PROFILE_IMAGE
     }
 
     public enum USER_FIELD_VALIDATION {
@@ -49,6 +50,6 @@ public class AllConstantHelpers {
     }
 
     public enum DestinationDtoType {
-        USER_DTO
+        USER_DTO,CATEGORY_DTO
     }
 }
