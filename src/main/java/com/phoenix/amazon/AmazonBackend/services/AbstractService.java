@@ -1,5 +1,6 @@
 package com.phoenix.amazon.AmazonBackend.services;
 
+import com.phoenix.amazon.AmazonBackend.entity.Category;
 import com.phoenix.amazon.AmazonBackend.entity.PassWordSet;
 import com.phoenix.amazon.AmazonBackend.entity.Users;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
@@ -15,6 +16,8 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+
+import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.CATEGORY_FIELDS;
 
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELD_VALIDATION.VALIDATE_USER_ID_OR_USER_NAME_OR_PRIMARY_EMAIL;
@@ -54,11 +57,35 @@ public abstract class AbstractService extends AbstractValidationService {
         return sortByColumn;
     }
 
+    protected Category constructCategory(final Category oldCategory, final Category newCategory, final CATEGORY_FIELDS categoryFields) {
+        switch (categoryFields) {
+            case TITLE -> {
+                return new Category.builder()
+                        .title(newCategory.getTitle())
+                        .description(oldCategory.getDescription())
+                        .coverImage(oldCategory.getCoverImage())
+                        .build();
+            }
+            case DESCRIPTION -> {
+                return new Category.builder()
+                        .description(newCategory.getDescription())
+                        .title(oldCategory.getTitle())
+                        .coverImage(oldCategory.getCoverImage())
+                        .build();
+            }
+            case COVER_IMAGE -> {
+                return new Category.builder()
+                        .coverImage(newCategory.getCoverImage())
+                        .title(oldCategory.getTitle())
+                        .description(oldCategory.getDescription()).build();
+            }
+        }
+        return oldCategory;
+    }
     /**
      * no setter in entity class to stop partial initialization
      * so we need constructUser
      **/
-
     /**
      * @param oldUser - old user object
      * @param newUser - new user object

@@ -26,6 +26,24 @@ public class CategoryValidationServiceImpl implements ICategoryValidationService
         this.categoryRepository = categoryRepository;
     }
 
+    private void checkDuplicateTitle(final Category category,final List<Category> categoryList,final String methodName) throws CategoryExceptions {
+        Predicate<Category> findDuplicateTitle = (Category cat) -> category.getTitle().equals(cat.getTitle());
+        boolean isDuplicateTitlePresent = categoryList.stream().anyMatch(findDuplicateTitle);
+        if (isDuplicateTitlePresent) throw (CategoryExceptions) ExceptionBuilder.builder()
+                .className(CategoryExceptions.class)
+                .description(String.format("There exists a category with title %s", category.getTitle()))
+                .methodName(methodName)
+                .build(CATEGORY_EXEC);
+    }
+
+    private void checkCategoryDescriptionLimit(final Category category,final String methodName) throws CategoryExceptions {
+        if (category.getDescription().length() >= CATEGORY_DESCRIPTION_THRESHOLD)
+            throw (CategoryExceptions) ExceptionBuilder.builder()
+                    .className(CategoryExceptions.class)
+                    .description(String.format("The category description must be within %s ",CATEGORY_DESCRIPTION_THRESHOLD))
+                    .methodName(methodName)
+                    .build(CATEGORY_EXEC);
+    }
     /**
      * @param categoryOptional
      * @param methodName
@@ -36,25 +54,23 @@ public class CategoryValidationServiceImpl implements ICategoryValidationService
                                  CATEGORY_VALIDATION categoryValidation) throws CategoryNotFoundExceptions, CategoryExceptions {
 
         List<Category> categoryList = categoryRepository.findAll();
+        Category fetchedCategory=null;
         switch (categoryValidation) {
             case CREATE_CATEGORY -> {
                 //check for duplicate title
-                Category fetchedCategory = categoryOptional.get();
-                Predicate<Category> findDuplicateTitle = (Category category) -> fetchedCategory.getTitle().equals(category.getTitle());
-                boolean isDuplicateTitlePresent = categoryList.stream().anyMatch(findDuplicateTitle);
-                if (isDuplicateTitlePresent) throw (CategoryExceptions) ExceptionBuilder.builder()
-                        .className(CategoryExceptions.class)
-                        .description(String.format("There exists a category with title %s", fetchedCategory.getTitle()))
-                        .methodName(methodName)
-                        .build(CATEGORY_EXEC);
+                fetchedCategory = categoryOptional.get();
+                checkDuplicateTitle(fetchedCategory,categoryList,methodName);
 
                 //check for description greater than 10000
-                if (fetchedCategory.getDescription().length() >= CATEGORY_DESCRIPTION_THRESHOLD)
-                    throw (CategoryExceptions) ExceptionBuilder.builder()
-                            .className(CategoryExceptions.class)
-                            .description(String.format("The category description must be within %s ",CATEGORY_DESCRIPTION_THRESHOLD))
-                            .methodName(methodName)
-                            .build(CATEGORY_EXEC);
+                checkCategoryDescriptionLimit(fetchedCategory,methodName);
+            }
+            case UPDATE_TITLE -> {
+                fetchedCategory = categoryOptional.get();
+                checkDuplicateTitle(fetchedCategory,categoryList,methodName);
+            }
+            case UPDATE_DESCRIPTION -> {
+                fetchedCategory=categoryOptional.get();
+                checkCategoryDescriptionLimit(fetchedCategory,methodName);
             }
             case NOT_FOUND_CATEGORY -> {
                 if (categoryOptional.isEmpty())

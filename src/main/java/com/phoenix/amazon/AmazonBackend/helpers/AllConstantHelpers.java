@@ -19,6 +19,9 @@ public class AllConstantHelpers {
 
     }
 
+    public enum  CATEGORY_FIELDS{
+        TITLE,DESCRIPTION,COVER_IMAGE
+    }
 
     public enum USER_VALIDATION {
         CREATE_USER,
@@ -46,7 +49,7 @@ public class AllConstantHelpers {
     }
 
     public enum CATEGORY_VALIDATION{
-        CREATE_CATEGORY,NOT_FOUND_CATEGORY
+        CREATE_CATEGORY,NOT_FOUND_CATEGORY,UPDATE_TITLE,UPDATE_DESCRIPTION
     }
     public enum EXCEPTION_CODES {
         USER_EXEC, BAD_API_EXEC, USER_NOT_FOUND_EXEC, SERVICE_DOWN_EXEC,

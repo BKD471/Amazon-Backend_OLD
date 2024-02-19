@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public interface ICategoryService {
     CategoryDto createCategoryService(final CategoryDto categoryDto,final  MultipartFile coverImage) throws BadApiRequestExceptions, IOException, CategoryNotFoundExceptions, CategoryExceptions;
-    CategoryDto updateCategoryServiceByCategoryId(final CategoryDto categoryDto,final  MultipartFile coverImage,final String categoryId);
+    CategoryDto updateCategoryServiceByCategoryId(final CategoryDto categoryDto,final  MultipartFile coverImage,final String categoryId) throws BadApiRequestExceptions, CategoryNotFoundExceptions, CategoryExceptions, IOException;
     ApiResponse deleteCategoryServiceByCategoryId(final String categoryId) throws CategoryNotFoundExceptions, CategoryExceptions;
     PageableResponse<CategoryDto> getAllCategoryService(final int pageNumber, final int pageSize, final String sortBy, final String sortDir) throws CategoryNotFoundExceptions, CategoryExceptions;
     CategoryDto getCategoryServiceByCategoryId(final String categoryId) throws CategoryNotFoundExceptions, CategoryExceptions;
