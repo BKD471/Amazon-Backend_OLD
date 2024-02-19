@@ -23,12 +23,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
 
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.IMAGE_VALIDATION.GET_PROFILE_IMAGE;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.IMAGE_VALIDATION.UPDATE_PROFILE_IMAGE;
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.IMAGE_VALIDATION.UPLOAD_CATEGORY_IMAGE;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS.PROFILE_IMAGE;
 
 
@@ -111,7 +111,11 @@ public class ImageServiceImpl extends AbstractService implements IImageService {
     @Override
     public String uploadCoverImageByCategoryId(final MultipartFile image) throws BadApiRequestExceptions, IOException {
         final String methodName = "uploadUserImageServiceByUserIdOrUserNameOrPrimaryEmail(MultipartFile) in ImageServiceImpl";
-        return processImageUpload(image,categoryImagePath,methodName);
+        final String fileNameWithExtension=processImageUpload(image,categoryImagePath,methodName);
+
+        // validate cover image of category
+        imageValidationService.validateCategoryImage(fileNameWithExtension,methodName,UPLOAD_CATEGORY_IMAGE);
+        return fileNameWithExtension;
     }
 
     /**
