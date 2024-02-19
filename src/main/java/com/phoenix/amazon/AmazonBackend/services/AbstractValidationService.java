@@ -1,4 +1,4 @@
-package com.phoenix.amazon.AmazonBackend.services.validationservice;
+package com.phoenix.amazon.AmazonBackend.services;
 
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.builder.ExceptionBuilder;

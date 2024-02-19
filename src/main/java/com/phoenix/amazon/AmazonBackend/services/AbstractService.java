@@ -7,7 +7,6 @@ import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
 import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
-import com.phoenix.amazon.AmazonBackend.services.validationservice.AbstractValidationService;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
 import org.springframework.util.CollectionUtils;
 
