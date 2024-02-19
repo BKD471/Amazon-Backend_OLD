@@ -9,6 +9,7 @@ import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers;
 import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
 import com.phoenix.amazon.AmazonBackend.services.AbstractService;
 import com.phoenix.amazon.AmazonBackend.services.IImageService;
+import com.phoenix.amazon.AmazonBackend.services.validationservice.IImageValidationService;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.impl.ImageValidationServiceImpl;
 import org.slf4j.Logger;
@@ -36,7 +37,7 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_F
 public class ImageServiceImpl extends AbstractService implements IImageService {
     private final IUserRepository userRepository;
     private final IUserValidationService userValidationService;
-    private final ImageValidationServiceImpl imageValidationService;
+    private final IImageValidationService imageValidationService;
     private final String userImagePath;
     private final String categoryImagePath;
     Logger logger = LoggerFactory.getLogger(ImageServiceImpl.class);
@@ -44,7 +45,7 @@ public class ImageServiceImpl extends AbstractService implements IImageService {
 
     protected ImageServiceImpl(IUserRepository userRepository,
                                IUserValidationService userValidationService,
-                               ImageValidationServiceImpl imageValidationService,
+                               IImageValidationService imageValidationService,
                                @Value("${path.services.image.properties}") final String PATH_TO_IMAGE_PROPS) {
         super(userRepository, userValidationService);
         this.userValidationService = userValidationService;

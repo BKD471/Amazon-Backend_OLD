@@ -149,7 +149,6 @@ public class UserServiceImpl extends AbstractService implements IUserService {
     @Override
     public UserDto createUserService(final UserDto userDto) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions, IOException {
         final String methodName = "createUser(UserDto) in UserServiceImpl";
-
         UserDto userDtoWithId = initializeUserId(userDto);
         Users user = UserDtoToUsers(userDtoWithId);
         userValidationService.validateUser(Optional.of(user), Optional.empty(), methodName, CREATE_USER);

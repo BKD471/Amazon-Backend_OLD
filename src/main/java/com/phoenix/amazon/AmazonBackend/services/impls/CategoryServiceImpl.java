@@ -7,8 +7,6 @@ import com.phoenix.amazon.AmazonBackend.entity.Category;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.CategoryExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.CategoryNotFoundExceptions;
-import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers;
-import com.phoenix.amazon.AmazonBackend.helpers.MappingHelpers;
 import com.phoenix.amazon.AmazonBackend.repository.ICategoryRepository;
 import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
 import com.phoenix.amazon.AmazonBackend.services.AbstractService;

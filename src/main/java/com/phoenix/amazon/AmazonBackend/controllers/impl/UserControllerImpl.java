@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 
-@RestController("UserControllerMain")
+@RestController("UserControllerPrimary")
 public class UserControllerImpl implements IUserController {
     private final IUserService userService;
     private final IImageService imageService;

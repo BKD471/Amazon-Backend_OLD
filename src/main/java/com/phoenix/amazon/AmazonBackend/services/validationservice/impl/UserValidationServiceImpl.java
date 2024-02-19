@@ -36,7 +36,7 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.EXCEPT
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELD_VALIDATION;
 
-@Service
+@Service("UserValidationServicePrimary")
 public class UserValidationServiceImpl implements IUserValidationService {
     private final IUserRepository userRepository;
     UserValidationServiceImpl(IUserRepository userRepository) {
