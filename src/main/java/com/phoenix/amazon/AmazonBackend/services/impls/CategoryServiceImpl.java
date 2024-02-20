@@ -70,12 +70,16 @@ public class CategoryServiceImpl extends AbstractService implements ICategorySer
     @Override
     public CategoryDto createCategoryService(final CategoryDto categoryDto, final MultipartFile coverImage) throws BadApiRequestExceptions, IOException, CategoryNotFoundExceptions, CategoryExceptions {
         final String methodName="createCategoryService(CategoryDto,MultipartFile)";
+        // validate null object
         validateNullField(categoryDto,"Category object passed is null",methodName);
         Category category = CategoryDtoToCategory(categoryDto);
+
+        // validation for duplicate title & description length
         categoryValidationService.validateCategory(Optional.of(category),
                 "createCategoryService()", CREATE_CATEGORY);
         final String categoryId = UUID.randomUUID().toString();
 
+        // upload category image
         final String coverImageName = imageService.uploadCoverImageByCategoryId(coverImage);
         Category processedCategory = new Category.builder()
                 .categoryId(categoryId)
@@ -84,6 +88,7 @@ public class CategoryServiceImpl extends AbstractService implements ICategorySer
                 .coverImage(coverImageName)
                 .build();
 
+        // save category
         Category savedCategory = categoryRepository.save(processedCategory);
         return categoryToCategoryDto(savedCategory);
     }
@@ -97,20 +102,26 @@ public class CategoryServiceImpl extends AbstractService implements ICategorySer
     public CategoryDto updateCategoryServiceByCategoryId(final CategoryDto categoryDto,final MultipartFile coverImage,final String categoryId) throws BadApiRequestExceptions, CategoryNotFoundExceptions, CategoryExceptions, IOException {
         final String methodName="updateCategoryServiceByCategoryId(CategoryDto)";
         Optional<Category> category=categoryRepository.findById(categoryId);
+
+        // validate is category exist
         categoryValidationService.validateCategory(category,"updateCategoryServiceByCategoryId",NOT_FOUND_CATEGORY);
         Category fetchedCategory=category.get();
 
         Category updatedCategory=fetchedCategory;
+
+        // update title if any
         if(Objects.nonNull(categoryDto) && !StringUtils.isBlank(categoryDto.title())
                 && !categoryDto.title().equals(fetchedCategory.getTitle())){
              updatedCategory=constructCategory(fetchedCategory,CategoryDtoToCategory(categoryDto),TITLE);
              categoryValidationService.validateCategory(Optional.of(updatedCategory),methodName,UPDATE_TITLE);
         }
+        // update description if any
         if(Objects.nonNull(categoryDto) && !StringUtils.isBlank(categoryDto.description())
                 && !categoryDto.description().equals(fetchedCategory.getDescription())){
                updatedCategory=constructCategory(updatedCategory,CategoryDtoToCategory(categoryDto), DESCRIPTION);
                categoryValidationService.validateCategory(Optional.of(updatedCategory),methodName,UPDATE_DESCRIPTION);
         }
+        // update coverImage if any
         if(Objects.nonNull(coverImage)){
               final String imageName=imageService.uploadCoverImageByCategoryId(coverImage);
               Category processedCategory=new Category.builder().coverImage(imageName).build();
@@ -129,6 +140,7 @@ public class CategoryServiceImpl extends AbstractService implements ICategorySer
         Optional<Category> category=categoryRepository.findById(categoryId);
         categoryValidationService.validateCategory(category,
                 "deleteCategoryServiceByCategoryId",NOT_FOUND_CATEGORY);
+        // delete
         categoryRepository.deleteById(categoryId);
         return new ApiResponse.builder()
                 .message(String.format("Deleted category with categoryId: %s",categoryId))
@@ -144,7 +156,10 @@ public class CategoryServiceImpl extends AbstractService implements ICategorySer
         final String methodName = "getAllCategoryService() in CategoryServiceImpl";
         final Sort sort = sortDir.equals("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
         final Pageable pageableObject = getPageableObject(pageNumber, pageSize, sort);
+
+        // fetch all categories
         Page<Category> userPage = categoryRepository.findAll(pageableObject);
+        // validate if not categories exist in DB.
         if(userPage.getContent().isEmpty()) categoryValidationService.validateCategory(Optional.empty()
                 ,methodName,NOT_FOUND_CATEGORY);
         return getPageableResponse(userPage, CATEGORY_DTO);
@@ -157,6 +172,7 @@ public class CategoryServiceImpl extends AbstractService implements ICategorySer
     @Override
     public CategoryDto getCategoryServiceByCategoryId(final String categoryId) throws CategoryNotFoundExceptions, CategoryExceptions {
         Optional<Category> category=categoryRepository.findById(categoryId);
+        // validate if categories found in DB.
         categoryValidationService.validateCategory(category,
                 "getCategoryServiceByCategoryId",NOT_FOUND_CATEGORY);
         return categoryToCategoryDto(category.get());

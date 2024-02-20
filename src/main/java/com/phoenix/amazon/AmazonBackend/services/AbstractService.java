@@ -33,8 +33,10 @@ public abstract class AbstractService extends AbstractValidationService {
     }
 
     protected Users loadUserByUserIdOrUserNameOrPrimaryEmail(final String userId, final String userName, final String primaryEmail, final String methodName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
+        // validate all non null PZeroFields
         userValidationService.validatePZeroUserFields(userId, userName, primaryEmail, methodName, VALIDATE_USER_ID_OR_USER_NAME_OR_PRIMARY_EMAIL);
         Optional<Users> users = userRepository.findByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail);
+        // validate users exist or not
         userValidationService.validateUser(Optional.empty(), users, methodName, GET_USER_INFO_BY_USERID_USER_NAME_PRIMARY_EMAIL);
         return users.get();
     }

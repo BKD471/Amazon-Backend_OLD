@@ -66,10 +66,12 @@ public class CategoryValidationServiceImpl implements ICategoryValidationService
             }
             case UPDATE_TITLE -> {
                 fetchedCategory = categoryOptional.get();
+                //check for duplicate title
                 checkDuplicateTitle(fetchedCategory,categoryList,methodName);
             }
             case UPDATE_DESCRIPTION -> {
                 fetchedCategory=categoryOptional.get();
+                //check for description greater than 10000
                 checkCategoryDescriptionLimit(fetchedCategory,methodName);
             }
             case NOT_FOUND_CATEGORY -> {

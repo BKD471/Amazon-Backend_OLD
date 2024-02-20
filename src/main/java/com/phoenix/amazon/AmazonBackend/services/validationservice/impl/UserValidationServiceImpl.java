@@ -44,7 +44,8 @@ public class UserValidationServiceImpl implements IUserValidationService {
     }
 
     private void checkEmails(final Set<Users> usersSet, final String new_email, final String methodName, final String checkFor) throws UserExceptions {
-        // Check for previous existing
+        // Check for previous existing primary email in primary email
+        // and same for secondary email
         Predicate<Users> checkEmailExist = null;
         if (checkFor.equalsIgnoreCase("primary"))
             checkEmailExist = (Users user) -> new_email.equalsIgnoreCase(user.getPrimaryEmail());
@@ -60,7 +61,7 @@ public class UserValidationServiceImpl implements IUserValidationService {
         // for secondary check for existing in primary
         if (checkFor.equalsIgnoreCase("primary"))
             checkEmailExist = (Users user) -> new_email.equalsIgnoreCase(user.getSecondaryEmail());
-        if (checkFor.equalsIgnoreCase("secondary"))
+        else
             checkEmailExist = (Users user) -> new_email.equalsIgnoreCase(user.getPrimaryEmail());
 
         isEmailPresent = usersSet.stream().anyMatch(checkEmailExist);
@@ -99,35 +100,34 @@ public class UserValidationServiceImpl implements IUserValidationService {
         switch (userValidation) {
             case CREATE_USER -> {
                 // Null user check is already taken care
-
                 //null field check is done from annotation side, re implementing just for added safety
-                //username
+                //null username
                 if (StringUtils.isBlank(newUser.getUserName()))
                     throw (BadApiRequestExceptions) ExceptionBuilder.builder()
                             .className(BadApiRequestExceptions.class)
                             .description("Null User Name prohibited")
                             .methodName(methodName).build(BAD_API_EXEC);
 
-                //primary email
+                //null primary email
                 if (StringUtils.isBlank(newUser.getPrimaryEmail()))
                     throw (BadApiRequestExceptions) ExceptionBuilder.builder()
                             .className(BadApiRequestExceptions.class)
                             .description("Null Primary Email prohibited")
                             .methodName(methodName).build(BAD_API_EXEC);
-                //first name
+                //null first name
                 if (StringUtils.isBlank(newUser.getFirstName()))
                     throw (BadApiRequestExceptions) ExceptionBuilder.builder()
                             .className(BadApiRequestExceptions.class)
                             .description("Null First Name prohibited")
                             .methodName(methodName).build(BAD_API_EXEC);
 
-                //last name
+                //null last name
                 if (StringUtils.isBlank(newUser.getLastName()))
                     throw (BadApiRequestExceptions) ExceptionBuilder.builder()
                             .className(BadApiRequestExceptions.class)
                             .description("Null Last Name prohibited")
                             .methodName(methodName).build(BAD_API_EXEC);
-                // gender
+                //null gender
                 if (Objects.isNull(newUser.getGender()))
                     throw (BadApiRequestExceptions) ExceptionBuilder.builder()
                             .className(BadApiRequestExceptions.class)

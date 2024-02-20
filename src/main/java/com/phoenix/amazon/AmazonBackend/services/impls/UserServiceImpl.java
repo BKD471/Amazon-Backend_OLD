@@ -84,18 +84,21 @@ public class UserServiceImpl extends AbstractService implements IUserService {
 
         final Properties properties = new Properties();
         try {
+            // load the properties file
             properties.load(new FileInputStream(PATH_TO_IMAGE_PROPS));
         } catch (IOException e) {
             logger.error("Error in reading the props in {} UserServiceImpl", e.getMessage());
         }
+        // get the value from the keys of properties file
         this.userImagePath = properties.getProperty("user.profile.images.path");
     }
 
     private UserDto initializeUserId(final UserDto userDto) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions, IOException {
-        final String methodName = "initializeUserId";
-        validateNullField(userDto,"User object is null" ,
+        // validate null object
+        validateNullField(userDto, "User object is null",
                 "initializeUserId in UserService");
 
+        // trimming leading & lagging whitespaces if any
         final String userIdUUID = UUID.randomUUID().toString();
         final String secondaryEmail = StringUtils.isBlank(userDto.secondaryEmail()) ? userDto.secondaryEmail() : userDto.secondaryEmail().trim();
         final String about = StringUtils.isBlank(userDto.about()) ? userDto.about() : userDto.about().trim();
@@ -120,6 +123,9 @@ public class UserServiceImpl extends AbstractService implements IUserService {
                 .build();
     }
 
+    /***
+     *  Preparing response messages for delete
+     * ***/
     private String deleteResponseMessage(final String userId, final String userName, final String primaryEmail) {
         String field;
         String value;
@@ -137,6 +143,9 @@ public class UserServiceImpl extends AbstractService implements IUserService {
         return String.format("User with %s : %s is deleted successfully", field, value);
     }
 
+    /**
+     * This returns a pagebale object with pageNumber,pageSize,Sort
+     * ***/
     private Pageable getPageableObject(final int pageNumber, final int pageSize, final Sort sort) {
         return PageRequest.of(pageNumber - 1, pageSize, sort);
     }
@@ -149,12 +158,16 @@ public class UserServiceImpl extends AbstractService implements IUserService {
     @Override
     public UserDto createUserService(final UserDto userDto) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions, IOException {
         final String methodName = "createUser(UserDto) in UserServiceImpl";
+        // initialize user object with UUID as primary key & also to trim leading or lagging whitespaces if any
         UserDto userDtoWithId = initializeUserId(userDto);
         Users user = UserDtoToUsers(userDtoWithId);
+
+        // validate path for create user
         userValidationService.validateUser(Optional.of(user), Optional.empty(), methodName, CREATE_USER);
 
-        //adding the password to set of password
+        // adding the password to set of password
         user = constructUser(user, user, PASSWORD);
+        // save user
         Users savedUser = userRepository.save(user);
         return UsersToUsersDto(savedUser);
     }
@@ -170,47 +183,58 @@ public class UserServiceImpl extends AbstractService implements IUserService {
     @Override
     public UserDto updateUserServiceByUserIdOrUserNameOrPrimaryEmail(final UpdateUserDto user, final String userId, final String userName, final String primaryEmail) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
         final String methodName = "updateUserByUserIdOrUserName(UserDto,String) in UserServiceImpl";
-
         Users userDetails = UserUpdateDtoToUsers(user);
+        // Load user from DB
         Users fetchedUser = loadUserByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail, methodName);
 
         Predicate<String> isNotBlankField = StringUtils::isNotBlank;
         BiPredicate<String, String> checkFieldEquality = String::equalsIgnoreCase;
-
         Predicate<GENDER> isNotBlankFieldEnum = Objects::nonNull;
         BiPredicate<GENDER, GENDER> checkEqualEnumValues = Objects::equals;
+
+        // update userName
         if (isNotBlankField.test(userDetails.getUserName()) &&
                 !checkFieldEquality.test(userDetails.getUserName(), fetchedUser.getUserName())) {
+            // validation to update userName
             userValidationService.validateUser(Optional.of(userDetails), Optional.of(fetchedUser), methodName, UPDATE_USERNAME);
             fetchedUser = constructUser(fetchedUser, userDetails, USER_NAME);
         }
+        // update firstName
         if (isNotBlankField.test(userDetails.getFirstName()) &&
                 !checkFieldEquality.test(userDetails.getFirstName(), fetchedUser.getFirstName())) {
             fetchedUser = constructUser(fetchedUser, userDetails, FIRST_NAME);
         }
+        // update LastName
         if (isNotBlankField.test(userDetails.getLastName()) &&
                 !checkFieldEquality.test(userDetails.getLastName(), fetchedUser.getLastName())) {
             fetchedUser = constructUser(fetchedUser, userDetails, LAST_NAME);
         }
+        // update primaryEmail
         if (isNotBlankField.test(userDetails.getPrimaryEmail()) &&
                 !checkFieldEquality.test(userDetails.getPrimaryEmail(), fetchedUser.getPrimaryEmail())) {
+            // validate update primaryEmail
             userValidationService.validateUser(Optional.of(userDetails), Optional.of(fetchedUser), methodName, UPDATE_PRIMARY_EMAIL);
             fetchedUser = constructUser(fetchedUser, userDetails, PRIMARY_EMAIL);
         }
+        // update secondaryEmail
         if (isNotBlankField.test(userDetails.getSecondaryEmail()) &&
                 !checkFieldEquality.test(userDetails.getSecondaryEmail(), fetchedUser.getSecondaryEmail())) {
+            // validate update secondaryEmail
             userValidationService.validateUser(Optional.of(userDetails), Optional.of(fetchedUser), methodName, UPDATE_SECONDARY_EMAIL);
             fetchedUser = constructUser(fetchedUser, userDetails, SECONDARY_EMAIL);
         }
+        // update gender
         if (isNotBlankFieldEnum.test(userDetails.getGender()) &&
                 !checkEqualEnumValues.test(userDetails.getGender(), fetchedUser.getGender())) {
             fetchedUser = constructUser(fetchedUser, userDetails, GENDER);
         }
+        // update about
         if (isNotBlankField.test(userDetails.getAbout()) &&
                 !checkFieldEquality.test(userDetails.getAbout(), fetchedUser.getAbout())) {
             fetchedUser = constructUser(fetchedUser, userDetails, ABOUT);
         }
 
+        // save
         Users savedUser = userRepository.save(fetchedUser);
         return UsersToUsersDto(savedUser);
     }
@@ -224,9 +248,12 @@ public class UserServiceImpl extends AbstractService implements IUserService {
     @Override
     public ApiResponse deleteUserServiceByUserIdOrUserNameOrPrimaryEmail(final String userId, final String userName, final String primaryEmail) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions, IOException {
         final String methodName = "deleteUserByUserIdOrUserName(string) in UserServiceImpl";
+        // load user from db
         Users fetchedUser = loadUserByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail, methodName);
+        // validate delete user by P0 fields
         userValidationService.validateUser(Optional.empty(), Optional.of(fetchedUser), methodName, DELETE_USER_BY_USER_ID_OR_USER_NAME_OR_PRIMARY_EMAIL);
 
+        // delete profile image of user if he/she has
         if (!StringUtils.isBlank(fetchedUser.getProfileImage())) {
             final String pathToProfileIMage = userImagePath + File.separator + fetchedUser.getProfileImage();
             Files.deleteIfExists(Paths.get(pathToProfileIMage));
@@ -252,8 +279,11 @@ public class UserServiceImpl extends AbstractService implements IUserService {
     public PageableResponse<UserDto> getAllUsers(final int pageNumber, final int pageSize, final String sortBy, final String sortDir) throws UserNotFoundExceptions {
         final String methodName = "getALlUsers() in UserServiceImpl";
         final Sort sort = sortDir.equals("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        // get the pageable object
         final Pageable pageableObject = getPageableObject(pageNumber, pageSize, sort);
+        // get all user pages
         Page<Users> userPage = userRepository.findAll(pageableObject);
+        // validate user page is empty or not
         userValidationService.validateUserList(userPage.getContent(), methodName, GET_ALL_USERS);
         return getPageableResponse(userPage, USER_DTO);
     }
@@ -268,6 +298,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
     @Override
     public UserDto getUserServiceInformationByUserIdOrUserNameOrPrimaryEmail(final String userId, final String userName, final String primaryEmail) throws UserExceptions, UserNotFoundExceptions, BadApiRequestExceptions, IOException {
         final String methodName = "getUserInformationByEmailOrUserName(String) in UserServiceImpl";
+        // load user from db
         Users users = loadUserByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail, methodName);
         return UsersToUsersDto(users);
     }
@@ -285,28 +316,35 @@ public class UserServiceImpl extends AbstractService implements IUserService {
     @Override
     public PageableResponse<UserDto> searchUserByFieldAndValue(final USER_FIELDS field, final String value, final int pageNumber, final int pageSize, final USER_FIELDS sortBy, final String sortDir) throws UserNotFoundExceptions {
         final String methodName = "searchUserByFieldAndValue(field,String) in UserServiceImpl";
-
+        // get the user db column names
         final StringBuffer sortByColumn = getUserDbField(sortBy);
+        // sort in either ascending or descending
         final Sort sort = sortDir.equals("desc") ? Sort.by(sortByColumn.toString()).descending() : Sort.by(sortByColumn.toString()).ascending();
+        // get the pageable object
         final Pageable pageableObject = getPageableObject(pageNumber, pageSize, sort);
         Page<Users> usersPage = Page.empty();
         switch (field) {
+            // get user by primary email
             case PRIMARY_EMAIL -> {
                 usersPage = userRepository.searchUserByEmail(value, pageableObject).get();
                 userValidationService.validateUserList(usersPage.getContent(), methodName, SEARCH_USER_BY_PRIMARY_EMAIL);
             }
+            // get user by user name
             case USER_NAME -> {
                 usersPage = userRepository.searchUserByUserName(value, pageableObject).get();
                 userValidationService.validateUserList(usersPage.getContent(), methodName, SEARCH_ALL_USERS_BY_USER_NAME);
             }
+            // get all users by gender
             case GENDER -> {
                 usersPage = userRepository.searchUserByGender(value, pageableObject).get();
                 userValidationService.validateUserList(usersPage.getContent(), methodName, SEARCH_ALL_USERS_BY_GENDER);
             }
+            // get all users by first name
             case FIRST_NAME -> {
                 usersPage = userRepository.searchUserByFirstName(value, pageableObject).get();
                 userValidationService.validateUserList(usersPage.getContent(), methodName, SEARCH_ALL_USERS_BY_FIRST_NAME);
             }
+            // get all users by last name
             case LAST_NAME -> {
                 usersPage = userRepository.searchUserByLastName(value, pageableObject).get();
                 userValidationService.validateUserList(usersPage.getContent(), methodName, SEARCH_ALL_USERS_BY_LAST_NAME);
@@ -327,16 +365,20 @@ public class UserServiceImpl extends AbstractService implements IUserService {
     @Override
     public PageableResponse<UserDto> searchAllUsersByUserName(final String userNameWord, final int pageNumber, final int pageSize, final String sortBy, final String sortDir) throws UserNotFoundExceptions {
         final String methodName = "searchAllUsersByUserName(string) in UsersServiceImpl";
-
+        // sort in either ascending or descending
         final Sort sort = sortDir.equals("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        // get pageable object
         final Pageable pageableObject = getPageableObject(pageNumber, pageSize, sort);
+        // get page of all user by matching userName
         Page<Users> allUsersWithNearlyUserNamePage = userRepository.findAllByUserNameContaining(userNameWord, pageableObject).get();
+        // validate to know whether user page is empty or not
         userValidationService.validateUserList(allUsersWithNearlyUserNamePage.getContent(), methodName, SEARCH_ALL_USERS_BY_USER_NAME);
         return getPageableResponse(allUsersWithNearlyUserNamePage, USER_DTO);
     }
 
     /**
-     * @return String
+     * this service returning a password of more or equals to 16 characters with one uppercase,lowercase,special characters
+     * and numbers
      **/
     @Override
     public String generatePasswordService() {
@@ -383,18 +425,18 @@ public class UserServiceImpl extends AbstractService implements IUserService {
     @Override
     public void resetPasswordService(final PasswordUpdateDto passwordUpdateDto) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
         final String methodName = "resetPasswordService(primaryEmail) in UserServiceImpl";
-
         final String primaryEmail = passwordUpdateDto.primaryEmail();
+        // load user from db
         Users fetchedUser = loadUserByUserIdOrUserNameOrPrimaryEmail(primaryEmail, primaryEmail, primaryEmail, methodName);
-
         // check is the old password , the current password of user
         final String oldPassword = passwordUpdateDto.oldPassword();
         Users oldUser = new Users.builder().password(oldPassword).build();
+        // validate to check old and current password matching
         userValidationService.validateUser(Optional.of(oldUser), Optional.of(fetchedUser), methodName, VALIDATE_PASSWORD);
-
         //update password & save
         final String newPassword = passwordUpdateDto.newPassword();
         Users newUser = new Users.builder().password(newPassword).build();
+        // validate to check if new password had been used before
         userValidationService.validateUser(Optional.of(newUser), Optional.of(fetchedUser), methodName, UPDATE_PASSWORD);
         fetchedUser = constructUser(fetchedUser, newUser, PASSWORD);
         userRepository.save(fetchedUser);
