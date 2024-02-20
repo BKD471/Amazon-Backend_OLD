@@ -104,6 +104,7 @@ public class MappingHelpers{
                 .categoryId(category.getCategoryId())
                 .title(category.getTitle())
                 .description(category.getDescription())
+                .coverImage(category.getCoverImage())
                 .build();
     }
 }

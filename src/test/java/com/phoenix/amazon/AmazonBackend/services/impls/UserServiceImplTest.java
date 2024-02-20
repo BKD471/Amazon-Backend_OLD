@@ -82,11 +82,10 @@ public class UserServiceImplTest {
 
     @Mock
     private IUserValidationService userValidationServiceMock;
-
     @Mock
     private IUserRepository userRepositoryMock;
 
-    @Value("${path.services.user.image.properties}")
+    @Value("${path.services.image.properties}")
     private String PATH_TO_IMAGE_PROPS;
 
     @MockBean
@@ -113,13 +112,7 @@ public class UserServiceImplTest {
 
     @Test
     @DisplayName("Test Unhappy Path -- createUserService() with Null User")
-    public void testCreateUserUnhappyPathNullUser() throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
-        // When
-        doThrow(new BadApiRequestExceptions(BadApiRequestExceptions.class,
-                "Null Users prohibited"
-                , "testCreateUserUnhappyPathNullUser"))
-                .when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
-
+    public void testCreateUserUnhappyPathNullUser() throws  BadApiRequestExceptions {
         // Then
         assertThrows(BadApiRequestExceptions.class, () -> {
             userServiceMock.createUserService(null);

@@ -7,6 +7,7 @@ import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
 import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers;
 import com.phoenix.amazon.AmazonBackend.repository.IUserRepository;
 import com.phoenix.amazon.AmazonBackend.services.IImageService;
+import com.phoenix.amazon.AmazonBackend.services.validationservice.IImageValidationService;
 import com.phoenix.amazon.AmazonBackend.services.validationservice.IUserValidationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
@@ -45,11 +47,12 @@ import static org.mockito.Mockito.when;
 public class ImageServiceImplTest {
     @Mock
     private IUserValidationService userValidationServiceMock;
-
+    @Mock
+    private IImageValidationService imageValidationServiceMock;
     @Mock
     private IUserRepository userRepositoryMock;
 
-    @Value("${path.services.user.image.properties}")
+    @Value("${path.services.image.properties}")
     private String PATH_TO_IMAGE_PROPS;
 
     @MockBean
@@ -66,7 +69,7 @@ public class ImageServiceImplTest {
 
     @BeforeEach
     public void setUp() {
-        imageServiceMock = new ImageServiceImpl(userRepositoryMock, userValidationServiceMock, PATH_TO_IMAGE_PROPS);
+        imageServiceMock = new ImageServiceImpl(userRepositoryMock, userValidationServiceMock,imageValidationServiceMock ,PATH_TO_IMAGE_PROPS);
         uuid = mock(UUID.class);
     }
 
@@ -84,7 +87,7 @@ public class ImageServiceImplTest {
         when(userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(anyString(), anyString(), anyString()))
                 .thenReturn(Optional.of(users));
         doNothing().doNothing().when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
-        doNothing().when(userValidationServiceMock).validateNullField(anyString(), anyString(), anyString());
+        //doNothing().when(userValidationServiceMock).validateNullField(anyString(), anyString(), anyString());
 
         mockStatic(UUID.class);
         when(UUID.randomUUID()).thenReturn(uuid);
@@ -114,7 +117,7 @@ public class ImageServiceImplTest {
         when(userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(anyString(), anyString(), anyString()))
                 .thenReturn(Optional.of(users));
         doNothing().when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
-        doNothing().when(userValidationServiceMock).validateNullField(anyString(), anyString(), anyString());
+        //doNothing().when(userValidationServiceMock).validateNullField(anyString(), anyString(), anyString());
 
 
         // Then
@@ -141,7 +144,7 @@ public class ImageServiceImplTest {
                         "File Size must not be greater than 100kb",
                         "testUploadUserImageServiceByUserIdOrUserNameOrPrimaryEmailUnhappyPathFileSizeGreaterThan100Kb"))
                 .when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
-        doNothing().when(userValidationServiceMock).validateNullField(anyString(), anyString(), anyString());
+        //doNothing().when(userValidationServiceMock).validateNullField(anyString(), anyString(), anyString());
 
 
         // Then
@@ -180,7 +183,7 @@ public class ImageServiceImplTest {
                 anyString(), anyString(), any());
         when(userRepositoryMock.findByUserIdOrUserNameOrPrimaryEmail(anyString(), anyString(), anyString()))
                 .thenReturn(Optional.of(users));
-        doNothing().doThrow(new UserExceptions(UserExceptions.class, "You dont have profile image",
+        doThrow(new UserExceptions(UserExceptions.class, "You dont have profile image",
                         "testServeUserImageServiceByUserIdOrUserNameOrPrimaryEmailUnHappyPath"))
                 .when(userValidationServiceMock).validateUser(any(), any(), anyString(), any());
 

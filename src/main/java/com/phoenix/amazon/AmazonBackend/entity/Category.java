@@ -7,7 +7,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "category_db")
-public class Category {
+public class Category extends Audit{
     @Id
     private String categoryId;
     @Column(name = "cat_title")

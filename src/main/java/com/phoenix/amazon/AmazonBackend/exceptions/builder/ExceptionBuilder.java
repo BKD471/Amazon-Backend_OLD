@@ -1,6 +1,8 @@
 package com.phoenix.amazon.AmazonBackend.exceptions.builder;
 
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
+import com.phoenix.amazon.AmazonBackend.exceptions.CategoryExceptions;
+import com.phoenix.amazon.AmazonBackend.exceptions.CategoryNotFoundExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.ServicDownTimeException;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
@@ -66,6 +68,12 @@ public class ExceptionBuilder implements IClassNameBuilder, IDescriptionBuilder,
             }
             case SERVICE_DOWN_EXEC -> {
                 return new ServicDownTimeException(className, description, methodName);
+            }
+            case CATEGORY_NOT_FOUND_EXEC -> {
+                return new CategoryNotFoundExceptions(className,description,methodName);
+            }
+            case CATEGORY_EXEC -> {
+                return new CategoryExceptions(className,description,methodName);
             }
             default -> throw new RuntimeException("Invalid Exception Code");
         }

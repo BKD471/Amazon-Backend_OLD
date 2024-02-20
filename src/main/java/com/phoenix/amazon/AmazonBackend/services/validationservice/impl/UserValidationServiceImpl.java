@@ -36,27 +36,16 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.EXCEPT
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELD_VALIDATION;
 
-@Service
+@Service("UserValidationServicePrimary")
 public class UserValidationServiceImpl implements IUserValidationService {
-    private final String imagePath;
     private final IUserRepository userRepository;
-    Logger logger = LoggerFactory.getLogger(UserValidationServiceImpl.class);
-
-    UserValidationServiceImpl(IUserRepository userRepository,
-                              @Value("${path.services.user.image.properties}") final String PATH_TO_PROPS) {
+    UserValidationServiceImpl(IUserRepository userRepository) {
         this.userRepository = userRepository;
-
-        final Properties properties = new Properties();
-        try {
-            properties.load(new FileInputStream(PATH_TO_PROPS));
-        } catch (IOException e) {
-            logger.error("Error in reading the props in {} UserValidationService", e.getMessage());
-        }
-        this.imagePath = properties.getProperty("user.profile.images.path");
     }
 
     private void checkEmails(final Set<Users> usersSet, final String new_email, final String methodName, final String checkFor) throws UserExceptions {
-        // Check for previous existing
+        // Check for previous existing primary email in primary email
+        // and same for secondary email
         Predicate<Users> checkEmailExist = null;
         if (checkFor.equalsIgnoreCase("primary"))
             checkEmailExist = (Users user) -> new_email.equalsIgnoreCase(user.getPrimaryEmail());
@@ -72,7 +61,7 @@ public class UserValidationServiceImpl implements IUserValidationService {
         // for secondary check for existing in primary
         if (checkFor.equalsIgnoreCase("primary"))
             checkEmailExist = (Users user) -> new_email.equalsIgnoreCase(user.getSecondaryEmail());
-        if (checkFor.equalsIgnoreCase("secondary"))
+        else
             checkEmailExist = (Users user) -> new_email.equalsIgnoreCase(user.getPrimaryEmail());
 
         isEmailPresent = usersSet.stream().anyMatch(checkEmailExist);
@@ -109,43 +98,36 @@ public class UserValidationServiceImpl implements IUserValidationService {
         if (oldUsersOptional.isPresent()) oldUser = oldUsersOptional.get();
 
         switch (userValidation) {
-            case NULL_OBJECT -> {
-                if (newUsersOptional.isEmpty()) throw (BadApiRequestExceptions) ExceptionBuilder.builder()
-                        .className(BadApiRequestExceptions.class)
-                        .description("Null Users prohibited")
-                        .methodName(methodName).build(BAD_API_EXEC);
-            }
             case CREATE_USER -> {
                 // Null user check is already taken care
-
                 //null field check is done from annotation side, re implementing just for added safety
-                //username
+                //null username
                 if (StringUtils.isBlank(newUser.getUserName()))
                     throw (BadApiRequestExceptions) ExceptionBuilder.builder()
                             .className(BadApiRequestExceptions.class)
                             .description("Null User Name prohibited")
                             .methodName(methodName).build(BAD_API_EXEC);
 
-                //primary email
+                //null primary email
                 if (StringUtils.isBlank(newUser.getPrimaryEmail()))
                     throw (BadApiRequestExceptions) ExceptionBuilder.builder()
                             .className(BadApiRequestExceptions.class)
                             .description("Null Primary Email prohibited")
                             .methodName(methodName).build(BAD_API_EXEC);
-                //first name
+                //null first name
                 if (StringUtils.isBlank(newUser.getFirstName()))
                     throw (BadApiRequestExceptions) ExceptionBuilder.builder()
                             .className(BadApiRequestExceptions.class)
                             .description("Null First Name prohibited")
                             .methodName(methodName).build(BAD_API_EXEC);
 
-                //last name
+                //null last name
                 if (StringUtils.isBlank(newUser.getLastName()))
                     throw (BadApiRequestExceptions) ExceptionBuilder.builder()
                             .className(BadApiRequestExceptions.class)
                             .description("Null Last Name prohibited")
                             .methodName(methodName).build(BAD_API_EXEC);
-                // gender
+                //null gender
                 if (Objects.isNull(newUser.getGender()))
                     throw (BadApiRequestExceptions) ExceptionBuilder.builder()
                             .className(BadApiRequestExceptions.class)
@@ -207,24 +189,6 @@ public class UserValidationServiceImpl implements IUserValidationService {
                         .className(UserExceptions.class)
                         .description("You already had this password before")
                         .methodName(methodName).build(USER_EXEC);
-            }
-            case UPDATE_PROFILE_IMAGE -> {
-                final String pathToImage = imagePath + File.separator + newUser.getProfileImage();
-                File file = new File(pathToImage);
-                double fileSizeInKb = (double) (file.length() / 1024);
-
-                if (fileSizeInKb > 100.0d) {
-                    Files.delete(Paths.get(pathToImage));
-                    throw (BadApiRequestExceptions) ExceptionBuilder.builder().className(BadApiRequestExceptions.class)
-                            .description("File should not be greater than 100kb").methodName(methodName)
-                            .build(BAD_API_EXEC);
-                }
-            }
-            case GET_PROFILE_IMAGE -> {
-                if (StringUtils.isEmpty(oldUser.getProfileImage()))
-                    throw (UserExceptions) ExceptionBuilder.builder().className(UserExceptions.class)
-                            .description("You dont have any profile image yet").methodName(methodName)
-                            .build(USER_EXEC);
             }
             case DELETE_USER_BY_USER_ID_OR_USER_NAME_OR_PRIMARY_EMAIL -> {
                 if (oldUsersOptional.isEmpty()) throw (UserNotFoundExceptions) ExceptionBuilder.builder()
@@ -315,18 +279,5 @@ public class UserValidationServiceImpl implements IUserValidationService {
         }
     }
 
-    /**
-     * @param field              - field to test
-     * @param descriptionMessage - description
-     * @param methodName         - place of origin
-     * @throws BadApiRequestExceptions - list of exceptions being thrown
-     **/
-    @Override
-    public void validateNullField(final String field, final String descriptionMessage, final String methodName) throws BadApiRequestExceptions {
-        if (Objects.isNull(field) || StringUtils.isBlank(field))
-            throw (BadApiRequestExceptions) ExceptionBuilder.builder()
-                    .className(BadApiRequestExceptions.class)
-                    .description(descriptionMessage)
-                    .methodName(methodName).build(BAD_API_EXEC);
-    }
+
 }

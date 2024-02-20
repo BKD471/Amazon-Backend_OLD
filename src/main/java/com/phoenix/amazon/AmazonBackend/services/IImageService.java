@@ -19,6 +19,8 @@ public interface IImageService {
      **/
     String uploadUserImageServiceByUserIdOrUserNameOrPrimaryEmail(final MultipartFile image, final String userId, final String userName, final String primaryEmail) throws BadApiRequestExceptions, IOException, UserNotFoundExceptions, UserExceptions;
 
+    String uploadCoverImageByCategoryId(final MultipartFile image) throws BadApiRequestExceptions, IOException;
+
     /**
      * @param userId       - userId of user
      * @param userName     - username of user

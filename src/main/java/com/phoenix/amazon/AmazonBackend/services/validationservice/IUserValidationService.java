@@ -11,7 +11,6 @@ import java.util.Optional;
 
 import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
 import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION;
-
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELD_VALIDATION;
 
 public interface IUserValidationService {
@@ -42,12 +41,4 @@ public interface IUserValidationService {
      * @throws BadApiRequestExceptions - list of exceptions being thrown
      **/
     void validatePZeroUserFields(final String userId, final String userName, final String primaryEmail, final String methodName, final USER_FIELD_VALIDATION userFieldValidation) throws BadApiRequestExceptions;
-
-    /**
-     * @param field              - field to test
-     * @param descriptionMessage - description
-     * @param methodName         - place of origin
-     * @throws BadApiRequestExceptions - list of exceptions being thrown
-     **/
-    void validateNullField(final String field, final String descriptionMessage, final String methodName) throws BadApiRequestExceptions;
 }

@@ -1,5 +1,6 @@
 package com.phoenix.amazon.AmazonBackend.services;
 
+import com.phoenix.amazon.AmazonBackend.entity.Category;
 import com.phoenix.amazon.AmazonBackend.entity.PassWordSet;
 import com.phoenix.amazon.AmazonBackend.entity.Users;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
@@ -15,32 +16,27 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.CATEGORY_FIELDS;
+
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELDS;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_FIELD_VALIDATION.VALIDATE_USER_ID_OR_USER_NAME_OR_PRIMARY_EMAIL;
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.USER_VALIDATION.GET_USER_INFO_BY_USERID_USER_NAME_PRIMARY_EMAIL;
 
 
-public abstract class AbstractUserService {
+public abstract class AbstractService extends AbstractValidationService {
     private final IUserRepository userRepository;
     private final IUserValidationService userValidationService;
 
-    protected AbstractUserService(final IUserRepository userRepository, final IUserValidationService userValidationService) {
+    protected AbstractService(final IUserRepository userRepository, final IUserValidationService userValidationService) {
         this.userRepository = userRepository;
         this.userValidationService = userValidationService;
     }
 
-    /**
-     * Depending on type of request
-     * invoke dao impl of load user
-     * <p>
-     * LU1 - to load by userId, userName
-     * LU2 - to load by userName, email
-     */
-    protected enum UserLoadType {LU1, LU2}
-
     protected Users loadUserByUserIdOrUserNameOrPrimaryEmail(final String userId, final String userName, final String primaryEmail, final String methodName) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException {
+        // validate all non null PZeroFields
         userValidationService.validatePZeroUserFields(userId, userName, primaryEmail, methodName, VALIDATE_USER_ID_OR_USER_NAME_OR_PRIMARY_EMAIL);
         Optional<Users> users = userRepository.findByUserIdOrUserNameOrPrimaryEmail(userId, userName, primaryEmail);
+        // validate users exist or not
         userValidationService.validateUser(Optional.empty(), users, methodName, GET_USER_INFO_BY_USERID_USER_NAME_PRIMARY_EMAIL);
         return users.get();
     }
@@ -62,11 +58,37 @@ public abstract class AbstractUserService {
         return sortByColumn;
     }
 
+    protected Category constructCategory(final Category oldCategory, final Category newCategory, final CATEGORY_FIELDS categoryFields) {
+        switch (categoryFields) {
+            case TITLE -> {
+                return new Category.builder()
+                        .title(newCategory.getTitle())
+                        .categoryId(oldCategory.getCategoryId())
+                        .description(oldCategory.getDescription())
+                        .coverImage(oldCategory.getCoverImage())
+                        .build();
+            }
+            case DESCRIPTION -> {
+                return new Category.builder()
+                        .description(newCategory.getDescription())
+                        .categoryId(oldCategory.getCategoryId())
+                        .title(oldCategory.getTitle())
+                        .coverImage(oldCategory.getCoverImage())
+                        .build();
+            }
+            case COVER_IMAGE -> {
+                return new Category.builder()
+                        .coverImage(newCategory.getCoverImage())
+                        .title(oldCategory.getTitle())
+                        .description(oldCategory.getDescription()).build();
+            }
+        }
+        return oldCategory;
+    }
     /**
      * no setter in entity class to stop partial initialization
      * so we need constructUser
      **/
-
     /**
      * @param oldUser - old user object
      * @param newUser - new user object
