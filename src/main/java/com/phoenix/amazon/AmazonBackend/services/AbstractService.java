@@ -61,6 +61,7 @@ public abstract class AbstractService extends AbstractValidationService {
             case TITLE -> {
                 return new Category.builder()
                         .title(newCategory.getTitle())
+                        .categoryId(oldCategory.getCategoryId())
                         .description(oldCategory.getDescription())
                         .coverImage(oldCategory.getCoverImage())
                         .build();
@@ -68,6 +69,7 @@ public abstract class AbstractService extends AbstractValidationService {
             case DESCRIPTION -> {
                 return new Category.builder()
                         .description(newCategory.getDescription())
+                        .categoryId(oldCategory.getCategoryId())
                         .title(oldCategory.getTitle())
                         .coverImage(oldCategory.getCoverImage())
                         .build();

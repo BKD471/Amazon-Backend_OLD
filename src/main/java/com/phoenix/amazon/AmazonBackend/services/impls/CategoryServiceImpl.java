@@ -96,29 +96,28 @@ public class CategoryServiceImpl extends AbstractService implements ICategorySer
     @Override
     public CategoryDto updateCategoryServiceByCategoryId(final CategoryDto categoryDto,final MultipartFile coverImage,final String categoryId) throws BadApiRequestExceptions, CategoryNotFoundExceptions, CategoryExceptions, IOException {
         final String methodName="updateCategoryServiceByCategoryId(CategoryDto)";
-        validateNullField(categoryDto,"CategoryDto is null",methodName);
-
         Optional<Category> category=categoryRepository.findById(categoryId);
         categoryValidationService.validateCategory(category,"updateCategoryServiceByCategoryId",NOT_FOUND_CATEGORY);
         Category fetchedCategory=category.get();
 
         Category updatedCategory=fetchedCategory;
-        if(!StringUtils.isBlank(categoryDto.title())
-                && categoryDto.title().equals(fetchedCategory.getTitle())){
+        if(Objects.nonNull(categoryDto) && !StringUtils.isBlank(categoryDto.title())
+                && !categoryDto.title().equals(fetchedCategory.getTitle())){
              updatedCategory=constructCategory(fetchedCategory,CategoryDtoToCategory(categoryDto),TITLE);
              categoryValidationService.validateCategory(Optional.of(updatedCategory),methodName,UPDATE_TITLE);
         }
-        if(!StringUtils.isBlank(categoryDto.description())
-                && categoryDto.description().equals(fetchedCategory.getDescription())){
-               updatedCategory=constructCategory(fetchedCategory,CategoryDtoToCategory(categoryDto), DESCRIPTION);
+        if(Objects.nonNull(categoryDto) && !StringUtils.isBlank(categoryDto.description())
+                && !categoryDto.description().equals(fetchedCategory.getDescription())){
+               updatedCategory=constructCategory(updatedCategory,CategoryDtoToCategory(categoryDto), DESCRIPTION);
                categoryValidationService.validateCategory(Optional.of(updatedCategory),methodName,UPDATE_DESCRIPTION);
         }
-        if(Objects.isNull(coverImage)){
+        if(Objects.nonNull(coverImage)){
               final String imageName=imageService.uploadCoverImageByCategoryId(coverImage);
               Category processedCategory=new Category.builder().coverImage(imageName).build();
               updatedCategory=constructCategory(fetchedCategory,processedCategory,COVER_IMAGE);
         }
-        return categoryToCategoryDto(updatedCategory);
+        Category savedCategory=categoryRepository.save(updatedCategory);
+        return categoryToCategoryDto(savedCategory);
     }
 
     /**
