@@ -1,9 +1,11 @@
 package com.phoenix.amazon.AmazonBackend.helpers;
 
+import com.phoenix.amazon.AmazonBackend.dto.AddressDto;
 import com.phoenix.amazon.AmazonBackend.dto.CategoryDto;
 import com.phoenix.amazon.AmazonBackend.dto.ProductDto;
 import com.phoenix.amazon.AmazonBackend.dto.UpdateUserDto;
 import com.phoenix.amazon.AmazonBackend.dto.UserDto;
+import com.phoenix.amazon.AmazonBackend.entity.Address;
 import com.phoenix.amazon.AmazonBackend.entity.Category;
 import com.phoenix.amazon.AmazonBackend.entity.Product;
 import com.phoenix.amazon.AmazonBackend.entity.Users;
@@ -67,7 +69,7 @@ public class MappingHelpers{
                 .build();
     }
 
-    public static Product productDtoToProduct(ProductDto productDto){
+    public static Product productDtoToProduct(final ProductDto productDto){
         return new Product.builder()
                 .productId(productDto.productId())
                 .title(productDto.title())
@@ -79,7 +81,7 @@ public class MappingHelpers{
                 .build();
     }
 
-    public static ProductDto productToProductDto(Product product){
+    public static ProductDto productToProductDto(final Product product){
         return new ProductDto.builder()
                 .productId(product.getProductId())
                 .title(product.getTitle())
@@ -91,7 +93,7 @@ public class MappingHelpers{
                 .build();
     }
 
-    public static Category CategoryDtoToCategory(CategoryDto categoryDto){
+    public static Category CategoryDtoToCategory(final CategoryDto categoryDto){
         return new Category.builder()
                 .categoryId(categoryDto.categoryId())
                 .title(categoryDto.title())
@@ -99,12 +101,40 @@ public class MappingHelpers{
                 .build();
     }
 
-    public static CategoryDto categoryToCategoryDto(Category category){
+    public static CategoryDto categoryToCategoryDto(final Category category){
         return new CategoryDto.builder()
                 .categoryId(category.getCategoryId())
                 .title(category.getTitle())
                 .description(category.getDescription())
                 .coverImage(category.getCoverImage())
+                .build();
+    }
+
+    public static Address AddressDtoToAddress(final AddressDto addressDto){
+        return new Address.builder()
+                .addressId(addressDto.addressId())
+                .mobileNumber(addressDto.mobileNumber())
+                .addressLineNumberOne(addressDto.addressLineNumberOne())
+                .addressLineNumberTwo(addressDto.addressLineNumberTwo())
+                .pinCode(addressDto.pinCode())
+                .townOrCity(addressDto.townOrCity())
+                .district(addressDto.district())
+                .state(addressDto.state())
+                .country(addressDto.country())
+                .build();
+    }
+
+    public static AddressDto AddressToAddressDto(final Address address){
+        return new AddressDto.builder()
+                .addressId(address.getAddressId())
+                .mobileNumber(address.getMobileNumber())
+                .addressLineNumberOne(address.getAddressLineNumberOne())
+                .addressLineNumberTwo(address.getAddressLineNumberTwo())
+                .pinCode(address.getPinCode())
+                .townOrCity(address.getTownOrCity())
+                .district(address.getDistrict())
+                .state(address.getState())
+                .country(address.getCountry())
                 .build();
     }
 }

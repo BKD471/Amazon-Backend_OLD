@@ -1,49 +1,46 @@
 package com.phoenix.amazon.AmazonBackend.dto;
 
 
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.COUNTRY;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.STATE;
-
 public record AddressDto(String addressId,
                          String mobileNumber,
+                         String addressLineNumberOne,
+                         String addressLineNumberTwo,
                          String pinCode,
-                         String addressLine1,
-                         String addressLine2,
-                         String houseOrApartmentNumber,
                          String townOrCity,
-                         COUNTRY country,
-                         STATE state) {
+                         String district,
+                         String state,
+                         String country) {
 
     public AddressDto(String addressId,
                       String mobileNumber,
+                      String addressLineNumberOne,
+                      String addressLineNumberTwo,
                       String pinCode,
-                      String addressLine1,
-                      String addressLine2,
-                      String houseOrApartmentNumber,
                       String townOrCity,
-                      COUNTRY country,
-                      STATE state) {
+                      String district,
+                      String state,
+                      String country) {
         this.addressId = addressId;
         this.mobileNumber = mobileNumber;
+        this.addressLineNumberOne = addressLineNumberOne;
+        this.addressLineNumberTwo = addressLineNumberTwo;
         this.pinCode = pinCode;
-        this.addressLine1 = addressLine1;
-        this.addressLine2 = addressLine2;
-        this.houseOrApartmentNumber = houseOrApartmentNumber;
         this.townOrCity = townOrCity;
-        this.country = country;
-        this.state = state;
+        this.district=district;
+        this.state=state;
+        this.country=country;
     }
 
     public static final class builder {
         private String addressId;
         private String mobileNumber;
+        private String addressLineNumberOne;
+        private String addressLineNumberTwo;
         private String pinCode;
-        private String addressLine1;
-        private String addressLine2;
-        private String houseOrApartmentNumber;
         private String townOrCity;
-        private COUNTRY country;
-        private STATE state;
+        private String district;
+        private String state;
+        private String country;
 
         public builder() {
         }
@@ -58,23 +55,18 @@ public record AddressDto(String addressId,
             return this;
         }
 
+        public builder addressLineNumberOne(final String addressLineNumberOne) {
+            this.addressLineNumberOne = addressLineNumberOne;
+            return this;
+        }
+
+        public builder addressLineNumberTwo(final String addressLineNumberTwo) {
+            this.addressLineNumberTwo = addressLineNumberTwo;
+            return this;
+        }
+
         public builder pinCode(final String pinCode) {
             this.pinCode = pinCode;
-            return this;
-        }
-
-        public builder addressLine1(final String addressLine1) {
-            this.addressLine1 = addressLine1;
-            return this;
-        }
-
-        public builder addressLine2(final String addressLine2) {
-            this.addressLine2 = addressLine2;
-            return this;
-        }
-
-        public builder houseOrApartmentNumber(final String houseOrApartmentNumber) {
-            this.houseOrApartmentNumber = houseOrApartmentNumber;
             return this;
         }
 
@@ -83,13 +75,16 @@ public record AddressDto(String addressId,
             return this;
         }
 
-        public builder country(final COUNTRY country) {
-            this.country = country;
+        public builder district(final String district) {
+            this.district = district;
             return this;
         }
-
-        public builder state(final STATE state) {
+        public builder state(final String state) {
             this.state = state;
+            return this;
+        }
+        public builder country(final String country) {
+            this.country = country;
             return this;
         }
 
@@ -97,13 +92,13 @@ public record AddressDto(String addressId,
         public AddressDto build() {
             return new AddressDto(addressId,
                     mobileNumber,
+                    addressLineNumberOne,
+                    addressLineNumberTwo,
                     pinCode,
-                    addressLine1,
-                    addressLine2,
-                    houseOrApartmentNumber,
                     townOrCity,
-                    country,
-                    state);
+                    district,
+                    state,
+                    country);
         }
     }
 }

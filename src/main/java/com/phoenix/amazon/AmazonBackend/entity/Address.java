@@ -5,11 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.Id;
 import jakarta.persistence.Column;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.EnumType;
 
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.COUNTRY;
-import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.STATE;
 
 @Entity
 @Table(name = "user_address")
@@ -18,45 +14,57 @@ public class Address {
     private String addressId;
     @Column(name = "user_mobile", nullable = false, unique = true)
     private String mobileNumber;
+    @Column(name = "house_address_line_1", nullable = false)
+    private String addressLineNumberOne;
+    @Column(name = "house_address_line_2", nullable = false)
+    private String addressLineNumberTwo;
     @Column(name = "pin_code", nullable = false)
     private String pinCode;
-    @Column(name = "address1", nullable = false)
-    private String addressLine1;
-    private String addressLine2;
-    @Column(name = "house_apartment_no", nullable = false)
-    private String houseOrApartmentNumber;
-    @Column(name = "town", nullable = false)
+    @Column(name = "latitude", nullable = false)
+    private String latitude;
+    @Column(name = "longitude", nullable = false)
+    private String longitude;
+    @Column(name = "town_or_city", nullable = false)
     private String townOrCity;
-    @Enumerated(value = EnumType.STRING)
-    private COUNTRY country;
-    @Enumerated(value = EnumType.STRING)
-    private STATE state;
+    @Column(name = "district", nullable = false)
+    private String district;
+    @Column(name = "state", nullable = false)
+    private String state;
 
-    protected Address() {
+
+    @Column(name = "user_country", nullable = false)
+    private String country;
+
+
+    public Address() {
     }
 
     public Address(builder builder) {
         this.addressId = builder.addressId;
         this.mobileNumber = builder.mobileNumber;
+        this.addressLineNumberOne = builder.addressLineNumberOne;
+        this.addressLineNumberTwo = builder.addressLineNumberTwo;
         this.pinCode = builder.pinCode;
-        this.addressLine1 = builder.addressLine1;
-        this.addressLine2 = builder.addressLine2;
-        this.houseOrApartmentNumber = builder.houseOrApartmentNumber;
+        this.latitude = builder.latitude;
+        this.longitude = builder.longitude;
         this.townOrCity = builder.townOrCity;
-        this.country = builder.country;
+        this.district = builder.district;
         this.state = builder.state;
+        this.country = builder.country;
     }
 
     public static final class builder {
         private String addressId;
         private String mobileNumber;
+        private String addressLineNumberOne;
+        private String addressLineNumberTwo;
         private String pinCode;
-        private String addressLine1;
-        private String addressLine2;
-        private String houseOrApartmentNumber;
+        private String latitude;
+        private String longitude;
         private String townOrCity;
-        private COUNTRY country;
-        private STATE state;
+        private String district;
+        private String state;
+        private String country;
 
         public builder() {
         }
@@ -71,23 +79,28 @@ public class Address {
             return this;
         }
 
+        public builder addressLineNumberOne(final String addressLineNumberOne) {
+            this.addressLineNumberOne = addressLineNumberOne;
+            return this;
+        }
+
+        public builder addressLineNumberTwo(final String addressLineNumberTwo) {
+            this.addressLineNumberTwo = addressLineNumberTwo;
+            return this;
+        }
+
         public builder pinCode(final String pinCode) {
             this.pinCode = pinCode;
             return this;
         }
 
-        public builder addressLine1(final String addressLine1) {
-            this.addressLine1 = addressLine1;
+        public builder latitude(final String latitude) {
+            this.latitude = latitude;
             return this;
         }
 
-        public builder addressLine2(final String addressLine2) {
-            this.addressLine2 = addressLine2;
-            return this;
-        }
-
-        public builder houseOrApartmentNumber(final String houseOrApartmentNumber) {
-            this.houseOrApartmentNumber = houseOrApartmentNumber;
+        public builder longitude(final String longitude) {
+            this.longitude = longitude;
             return this;
         }
 
@@ -96,18 +109,67 @@ public class Address {
             return this;
         }
 
-        public builder country(final COUNTRY country) {
-            this.country = country;
+        public builder district(final String district) {
+            this.district = district;
             return this;
         }
 
-        public builder state(final STATE state) {
+        public builder state(final String state) {
             this.state = state;
+            return this;
+        }
+
+        public builder country(final String country) {
+            this.country = country;
             return this;
         }
 
         public Address build() {
             return new Address(this);
         }
+    }
+
+    public String getAddressId() {
+        return addressId;
+    }
+
+    public String getMobileNumber() {
+        return mobileNumber;
+    }
+
+    public String getAddressLineNumberOne() {
+        return addressLineNumberOne;
+    }
+
+    public String getAddressLineNumberTwo() {
+        return addressLineNumberTwo;
+    }
+
+    public String getPinCode() {
+        return pinCode;
+    }
+
+    public String getLatitude() {
+        return latitude;
+    }
+
+    public String getLongitude() {
+        return longitude;
+    }
+
+    public String getTownOrCity() {
+        return townOrCity;
+    }
+
+    public String getDistrict() {
+        return district;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public String getCountry() {
+        return country;
     }
 }
