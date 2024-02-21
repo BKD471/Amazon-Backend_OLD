@@ -1,10 +1,13 @@
 package com.phoenix.amazon.AmazonBackend.dto;
 
 
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.AddressType;
+
 public record AddressDto(String addressId,
                          String mobileNumber,
                          String addressLineNumberOne,
                          String addressLineNumberTwo,
+                         AddressType addressType,
                          String pinCode,
                          String townOrCity,
                          String district,
@@ -15,6 +18,7 @@ public record AddressDto(String addressId,
                       String mobileNumber,
                       String addressLineNumberOne,
                       String addressLineNumberTwo,
+                      AddressType addressType,
                       String pinCode,
                       String townOrCity,
                       String district,
@@ -24,11 +28,12 @@ public record AddressDto(String addressId,
         this.mobileNumber = mobileNumber;
         this.addressLineNumberOne = addressLineNumberOne;
         this.addressLineNumberTwo = addressLineNumberTwo;
+        this.addressType = addressType;
         this.pinCode = pinCode;
         this.townOrCity = townOrCity;
-        this.district=district;
-        this.state=state;
-        this.country=country;
+        this.district = district;
+        this.state = state;
+        this.country = country;
     }
 
     public static final class builder {
@@ -36,6 +41,7 @@ public record AddressDto(String addressId,
         private String mobileNumber;
         private String addressLineNumberOne;
         private String addressLineNumberTwo;
+        private AddressType addressType;
         private String pinCode;
         private String townOrCity;
         private String district;
@@ -65,6 +71,11 @@ public record AddressDto(String addressId,
             return this;
         }
 
+        public builder addressType(final AddressType addressType) {
+            this.addressType = addressType;
+            return this;
+        }
+
         public builder pinCode(final String pinCode) {
             this.pinCode = pinCode;
             return this;
@@ -79,10 +90,12 @@ public record AddressDto(String addressId,
             this.district = district;
             return this;
         }
+
         public builder state(final String state) {
             this.state = state;
             return this;
         }
+
         public builder country(final String country) {
             this.country = country;
             return this;
@@ -94,6 +107,7 @@ public record AddressDto(String addressId,
                     mobileNumber,
                     addressLineNumberOne,
                     addressLineNumberTwo,
+                    addressType,
                     pinCode,
                     townOrCity,
                     district,

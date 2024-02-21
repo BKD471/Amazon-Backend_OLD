@@ -59,4 +59,8 @@ public class AllConstantHelpers {
     public enum DestinationDtoType {
         USER_DTO,CATEGORY_DTO
     }
+
+    public enum AddressType{
+        HOME,BUSINESS
+    }
 }

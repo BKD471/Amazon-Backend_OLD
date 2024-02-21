@@ -6,6 +6,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Id;
 import jakarta.persistence.Column;
 
+import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.AddressType;
 
 @Entity
 @Table(name = "user_address")
@@ -18,6 +19,9 @@ public class Address {
     private String addressLineNumberOne;
     @Column(name = "house_address_line_2", nullable = false)
     private String addressLineNumberTwo;
+
+    @Column(name = "address_type",nullable = false)
+    private AddressType addressType;
     @Column(name = "pin_code", nullable = false)
     private String pinCode;
     @Column(name = "latitude", nullable = false)
@@ -44,6 +48,7 @@ public class Address {
         this.mobileNumber = builder.mobileNumber;
         this.addressLineNumberOne = builder.addressLineNumberOne;
         this.addressLineNumberTwo = builder.addressLineNumberTwo;
+        this.addressType=builder.addressType;
         this.pinCode = builder.pinCode;
         this.latitude = builder.latitude;
         this.longitude = builder.longitude;
@@ -58,6 +63,7 @@ public class Address {
         private String mobileNumber;
         private String addressLineNumberOne;
         private String addressLineNumberTwo;
+        private AddressType addressType;
         private String pinCode;
         private String latitude;
         private String longitude;
@@ -86,6 +92,11 @@ public class Address {
 
         public builder addressLineNumberTwo(final String addressLineNumberTwo) {
             this.addressLineNumberTwo = addressLineNumberTwo;
+            return this;
+        }
+
+        public builder addressType(final AddressType addressType){
+            this.addressType=addressType;
             return this;
         }
 
