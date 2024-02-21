@@ -1,5 +1,4 @@
-package com.phoenix.amazon.AmazonBackend.dto;
-
+package com.phoenix.amazon.AmazonBackend.dto.requestDtos;
 
 import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.AddressType;
 

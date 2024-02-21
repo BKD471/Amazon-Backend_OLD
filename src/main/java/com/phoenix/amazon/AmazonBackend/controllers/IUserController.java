@@ -1,12 +1,12 @@
 package com.phoenix.amazon.AmazonBackend.controllers;
 
-import com.phoenix.amazon.AmazonBackend.dto.ApiResponse;
-import com.phoenix.amazon.AmazonBackend.dto.ImageResponseMessages;
-import com.phoenix.amazon.AmazonBackend.dto.PageableResponse;
-import com.phoenix.amazon.AmazonBackend.dto.PasswordResponseMessages;
-import com.phoenix.amazon.AmazonBackend.dto.PasswordUpdateDto;
-import com.phoenix.amazon.AmazonBackend.dto.UpdateUserDto;
-import com.phoenix.amazon.AmazonBackend.dto.UserDto;
+import com.phoenix.amazon.AmazonBackend.dto.responseDtos.ApiResponse;
+import com.phoenix.amazon.AmazonBackend.dto.responseDtos.ImageResponseMessages;
+import com.phoenix.amazon.AmazonBackend.dto.responseDtos.PageableResponse;
+import com.phoenix.amazon.AmazonBackend.dto.responseDtos.PasswordResponseMessages;
+import com.phoenix.amazon.AmazonBackend.dto.requestDtos.PasswordUpdateDto;
+import com.phoenix.amazon.AmazonBackend.dto.requestDtos.UpdateUserDto;
+import com.phoenix.amazon.AmazonBackend.dto.requestDtos.UserDto;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;

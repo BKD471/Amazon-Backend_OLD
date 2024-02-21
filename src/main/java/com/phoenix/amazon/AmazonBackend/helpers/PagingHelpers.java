@@ -1,6 +1,6 @@
 package com.phoenix.amazon.AmazonBackend.helpers;
 
-import com.phoenix.amazon.AmazonBackend.dto.PageableResponse;
+import com.phoenix.amazon.AmazonBackend.dto.responseDtos.PageableResponse;
 import com.phoenix.amazon.AmazonBackend.entity.Category;
 import com.phoenix.amazon.AmazonBackend.entity.Users;
 import org.springframework.data.domain.Page;

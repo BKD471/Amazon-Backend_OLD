@@ -1,6 +1,6 @@
 package com.phoenix.amazon.AmazonBackend.exceptions;
 
-import com.phoenix.amazon.AmazonBackend.dto.ErrorDetails;
+import com.phoenix.amazon.AmazonBackend.dto.responseDtos.ErrorDetails;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;

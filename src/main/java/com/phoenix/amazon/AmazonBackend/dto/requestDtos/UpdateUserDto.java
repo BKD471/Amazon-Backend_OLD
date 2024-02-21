@@ -1,4 +1,4 @@
-package com.phoenix.amazon.AmazonBackend.dto;
+package com.phoenix.amazon.AmazonBackend.dto.requestDtos;
 
 import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.NullOrEmail;
 import com.phoenix.amazon.AmazonBackend.dto.fieldvalidator.ValidEmail;

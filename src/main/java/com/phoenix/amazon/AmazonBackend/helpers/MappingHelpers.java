@@ -1,10 +1,10 @@
 package com.phoenix.amazon.AmazonBackend.helpers;
 
-import com.phoenix.amazon.AmazonBackend.dto.AddressDto;
-import com.phoenix.amazon.AmazonBackend.dto.CategoryDto;
-import com.phoenix.amazon.AmazonBackend.dto.ProductDto;
-import com.phoenix.amazon.AmazonBackend.dto.UpdateUserDto;
-import com.phoenix.amazon.AmazonBackend.dto.UserDto;
+import com.phoenix.amazon.AmazonBackend.dto.requestDtos.AddressDto;
+import com.phoenix.amazon.AmazonBackend.dto.requestDtos.CategoryDto;
+import com.phoenix.amazon.AmazonBackend.dto.requestDtos.ProductDto;
+import com.phoenix.amazon.AmazonBackend.dto.requestDtos.UpdateUserDto;
+import com.phoenix.amazon.AmazonBackend.dto.requestDtos.UserDto;
 import com.phoenix.amazon.AmazonBackend.entity.Address;
 import com.phoenix.amazon.AmazonBackend.entity.Category;
 import com.phoenix.amazon.AmazonBackend.entity.Product;
