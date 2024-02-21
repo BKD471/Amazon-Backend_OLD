@@ -1,17 +1,17 @@
-package com.phoenix.amazon.AmazonBackend.dto;
+package com.phoenix.amazon.AmazonBackend.dto.responseDtos;
 
 import org.springframework.http.HttpStatus;
 
-public record PasswordResponseMessages(String password, String message, boolean success, HttpStatus status) {
-    public PasswordResponseMessages(String password, String message, boolean success, HttpStatus status) {
-        this.password = password;
+public record ImageResponseMessages(String imageName, String message, boolean success, HttpStatus status) {
+    public ImageResponseMessages(String imageName, String message, boolean success, HttpStatus status) {
+        this.imageName = imageName;
         this.message = message;
         this.success = success;
         this.status = status;
     }
 
     public static final class Builder {
-        private String password;
+        private String imageName;
         private String message;
         private boolean success;
         private HttpStatus status;
@@ -19,8 +19,8 @@ public record PasswordResponseMessages(String password, String message, boolean 
         public Builder() {
         }
 
-        public Builder password(final String password) {
-            this.password = password;
+        public Builder imageName(final String imageName) {
+            this.imageName = imageName;
             return this;
         }
 
@@ -41,8 +41,8 @@ public record PasswordResponseMessages(String password, String message, boolean 
             return this;
         }
 
-        public PasswordResponseMessages build() {
-            return new PasswordResponseMessages(password, message, success, status);
+        public ImageResponseMessages build() {
+            return new ImageResponseMessages(imageName, message, success, status);
         }
     }
 }

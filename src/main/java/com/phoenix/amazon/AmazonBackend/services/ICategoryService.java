@@ -1,8 +1,8 @@
 package com.phoenix.amazon.AmazonBackend.services;
 
-import com.phoenix.amazon.AmazonBackend.dto.ApiResponse;
-import com.phoenix.amazon.AmazonBackend.dto.CategoryDto;
-import com.phoenix.amazon.AmazonBackend.dto.PageableResponse;
+import com.phoenix.amazon.AmazonBackend.dto.requestDtos.CategoryDto;
+import com.phoenix.amazon.AmazonBackend.dto.responseDtos.ApiResponse;
+import com.phoenix.amazon.AmazonBackend.dto.responseDtos.PageableResponse;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.CategoryExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.CategoryNotFoundExceptions;

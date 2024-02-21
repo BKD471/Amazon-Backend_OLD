@@ -1,4 +1,4 @@
-package com.phoenix.amazon.AmazonBackend.dto;
+package com.phoenix.amazon.AmazonBackend.dto.responseDtos;
 
 import java.util.List;
 
