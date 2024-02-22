@@ -26,8 +26,8 @@ import static com.phoenix.amazon.AmazonBackend.helpers.AllConstantHelpers.IMAGE_
 public class ImageValidationServiceImpl implements IImageValidationService {
     private final String userImagePath;
     private final String categoryImagePath;
-    private final double USER_IMAGE_MAX_SIZE_IN_KB = 100.0d;
-    private final double CATEGORY_IMAGE_MAX_SIZE_IN_KB = 500.0d;
+    private final double USER_PROFILE_IMAGE_MAX_SIZE_IN_KB;
+    private final double CATEGORY_COVER_IMAGE_MAX_SIZE_IN_KB;
     private final double BYTE_TO_KB_CONVERSION_FACTOR = 0.0009765625d;
     Logger logger = LoggerFactory.getLogger(ImageValidationServiceImpl.class);
 
@@ -40,6 +40,8 @@ public class ImageValidationServiceImpl implements IImageValidationService {
         }
         this.userImagePath = properties.getProperty("user.profile.images.path");
         this.categoryImagePath = properties.getProperty("category.images.path");
+        this.USER_PROFILE_IMAGE_MAX_SIZE_IN_KB = Double.parseDouble(properties.getProperty("user.profile.image.max.size.kb"));
+        this.CATEGORY_COVER_IMAGE_MAX_SIZE_IN_KB = Double.parseDouble(properties.getProperty("category.cover.image.max.size.kb"));
     }
 
     private void checkImageUploadThreshold(final String imageDir, final String imageName, final double threshold, final String methodName) throws IOException, BadApiRequestExceptions {
@@ -57,10 +59,12 @@ public class ImageValidationServiceImpl implements IImageValidationService {
     }
 
     /**
-     * @param newUser
-     * @param oldUser
-     * @param imageValidation
-     */
+     * @param newUser         - new user object
+     * @param oldUser         - old user object
+     * @param methodName      - origin of request
+     * @param imageValidation - image validation request type
+     * @throws IOException,UserExceptions,BadApiRequestExceptions - list of exceptions being thrown
+     ***/
     @Override
     public void validateUserImage(final Users newUser, final Users oldUser, final String methodName, final IMAGE_VALIDATION imageValidation) throws IOException, UserExceptions, BadApiRequestExceptions {
         switch (imageValidation) {
@@ -72,14 +76,21 @@ public class ImageValidationServiceImpl implements IImageValidationService {
 
             }
             case UPDATE_PROFILE_IMAGE ->
-                    checkImageUploadThreshold(userImagePath, newUser.getProfileImage(), USER_IMAGE_MAX_SIZE_IN_KB, methodName);
+                    checkImageUploadThreshold(userImagePath, newUser.getProfileImage(), USER_PROFILE_IMAGE_MAX_SIZE_IN_KB, methodName);
         }
     }
 
+    /**
+     * @param imageName       - name iof image
+     * @param methodName      - origin of request
+     * @param imageValidation - image validation request type
+     * @throws IOException,BadApiRequestExceptions - list of exceptions being thrown
+     ***/
+    @Override
     public void validateCategoryImage(String imageName, final String methodName, IMAGE_VALIDATION imageValidation) throws IOException, BadApiRequestExceptions {
         switch (imageValidation) {
             case UPLOAD_CATEGORY_IMAGE ->
-                    checkImageUploadThreshold(categoryImagePath, imageName, CATEGORY_IMAGE_MAX_SIZE_IN_KB, methodName);
+                    checkImageUploadThreshold(categoryImagePath, imageName, CATEGORY_COVER_IMAGE_MAX_SIZE_IN_KB, methodName);
         }
     }
 }

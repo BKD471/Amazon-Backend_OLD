@@ -64,14 +64,16 @@ public class CategoryServiceImpl extends AbstractService implements ICategorySer
 
 
     /**
-     * @param categoryDto
-     * @return
-     */
+     * @param categoryDto - category object
+     * @param coverImage  - category cover image
+     * @return CategoryDto
+     * @throws BadApiRequestExceptions,IOException,CategoryNotFoundExceptions,CategoryExceptions - list of exceptions being thrown
+     ***/
     @Override
     public CategoryDto createCategoryService(final CategoryDto categoryDto, final MultipartFile coverImage) throws BadApiRequestExceptions, IOException, CategoryNotFoundExceptions, CategoryExceptions {
-        final String methodName="createCategoryService(CategoryDto,MultipartFile)";
+        final String methodName = "createCategoryService(CategoryDto,MultipartFile)";
         // validate null object
-        validateNullField(categoryDto,"Category object passed is null",methodName);
+        validateNullField(categoryDto, "Category object passed is null", methodName);
         Category category = CategoryDtoToCategory(categoryDto);
 
         // validation for duplicate title & description length
@@ -94,63 +96,72 @@ public class CategoryServiceImpl extends AbstractService implements ICategorySer
     }
 
     /**
-     * @param categoryDto
-     * @param categoryId
-     * @return
-     */
+     * @param categoryDto - category object
+     * @param coverImage  - category cover image
+     * @param categoryId  - categoryId of category
+     * @return CategoryDto
+     * @throws BadApiRequestExceptions,IOException,CategoryNotFoundExceptions,CategoryExceptions - list of exceptions being thrown
+     ***/
     @Override
-    public CategoryDto updateCategoryServiceByCategoryId(final CategoryDto categoryDto,final MultipartFile coverImage,final String categoryId) throws BadApiRequestExceptions, CategoryNotFoundExceptions, CategoryExceptions, IOException {
-        final String methodName="updateCategoryServiceByCategoryId(CategoryDto)";
-        Optional<Category> category=categoryRepository.findById(categoryId);
+    public CategoryDto updateCategoryServiceByCategoryId(final CategoryDto categoryDto, final MultipartFile coverImage, final String categoryId) throws BadApiRequestExceptions, CategoryNotFoundExceptions, CategoryExceptions, IOException {
+        final String methodName = "updateCategoryServiceByCategoryId(CategoryDto)";
+        Optional<Category> category = categoryRepository.findById(categoryId);
 
         // validate is category exist
-        categoryValidationService.validateCategory(category,"updateCategoryServiceByCategoryId",NOT_FOUND_CATEGORY);
-        Category fetchedCategory=category.get();
+        categoryValidationService.validateCategory(category, "updateCategoryServiceByCategoryId", NOT_FOUND_CATEGORY);
+        Category fetchedCategory = category.get();
 
-        Category updatedCategory=fetchedCategory;
+        Category updatedCategory = fetchedCategory;
 
         // update title if any
-        if(Objects.nonNull(categoryDto) && !StringUtils.isBlank(categoryDto.title())
-                && !categoryDto.title().equals(fetchedCategory.getTitle())){
-             updatedCategory=constructCategory(fetchedCategory,CategoryDtoToCategory(categoryDto),TITLE);
-             categoryValidationService.validateCategory(Optional.of(updatedCategory),methodName,UPDATE_TITLE);
+        if (Objects.nonNull(categoryDto) && !StringUtils.isBlank(categoryDto.title())
+                && !categoryDto.title().equals(fetchedCategory.getTitle())) {
+            updatedCategory = constructCategory(fetchedCategory, CategoryDtoToCategory(categoryDto), TITLE);
+            categoryValidationService.validateCategory(Optional.of(updatedCategory), methodName, UPDATE_TITLE);
         }
         // update description if any
-        if(Objects.nonNull(categoryDto) && !StringUtils.isBlank(categoryDto.description())
-                && !categoryDto.description().equals(fetchedCategory.getDescription())){
-               updatedCategory=constructCategory(updatedCategory,CategoryDtoToCategory(categoryDto), DESCRIPTION);
-               categoryValidationService.validateCategory(Optional.of(updatedCategory),methodName,UPDATE_DESCRIPTION);
+        if (Objects.nonNull(categoryDto) && !StringUtils.isBlank(categoryDto.description())
+                && !categoryDto.description().equals(fetchedCategory.getDescription())) {
+            updatedCategory = constructCategory(updatedCategory, CategoryDtoToCategory(categoryDto), DESCRIPTION);
+            categoryValidationService.validateCategory(Optional.of(updatedCategory), methodName, UPDATE_DESCRIPTION);
         }
         // update coverImage if any
-        if(Objects.nonNull(coverImage)){
-              final String imageName=imageService.uploadCoverImageByCategoryId(coverImage);
-              Category processedCategory=new Category.builder().coverImage(imageName).build();
-              updatedCategory=constructCategory(fetchedCategory,processedCategory,COVER_IMAGE);
+        if (Objects.nonNull(coverImage)) {
+            final String imageName = imageService.uploadCoverImageByCategoryId(coverImage);
+            Category processedCategory = new Category.builder().coverImage(imageName).build();
+            updatedCategory = constructCategory(fetchedCategory, processedCategory, COVER_IMAGE);
         }
-        Category savedCategory=categoryRepository.save(updatedCategory);
+        Category savedCategory = categoryRepository.save(updatedCategory);
         return categoryToCategoryDto(savedCategory);
     }
 
     /**
-     * @param categoryId
-     */
+     * @param categoryId - categoryId of category
+     * @return ApiResponse
+     * @throws CategoryNotFoundExceptions,CategoryExceptions - list of exceptions being thrown
+     ***/
     @Override
     public ApiResponse deleteCategoryServiceByCategoryId(final String categoryId) throws CategoryNotFoundExceptions, CategoryExceptions {
         //check for existing categoryId
-        Optional<Category> category=categoryRepository.findById(categoryId);
+        Optional<Category> category = categoryRepository.findById(categoryId);
         categoryValidationService.validateCategory(category,
-                "deleteCategoryServiceByCategoryId",NOT_FOUND_CATEGORY);
+                "deleteCategoryServiceByCategoryId", NOT_FOUND_CATEGORY);
         // delete
         categoryRepository.deleteById(categoryId);
         return new ApiResponse.builder()
-                .message(String.format("Deleted category with categoryId: %s",categoryId))
+                .message(String.format("Deleted category with categoryId: %s", categoryId))
                 .success(true)
                 .status(HttpStatus.ACCEPTED).build();
     }
 
     /**
-     * @return
-     */
+     * @param pageNumber - index of page
+     * @param pageSize   - size of page
+     * @param sortBy     - sort by column
+     * @param sortDir    - sorting direction
+     * @return PageableResponse<CategoryDto>
+     * @throws CategoryNotFoundExceptions,CategoryExceptions - list of exceptions being thrown
+     ***/
     @Override
     public PageableResponse<CategoryDto> getAllCategoryService(final int pageNumber, final int pageSize, final String sortBy, final String sortDir) throws CategoryNotFoundExceptions, CategoryExceptions {
         final String methodName = "getAllCategoryService() in CategoryServiceImpl";
@@ -160,21 +171,22 @@ public class CategoryServiceImpl extends AbstractService implements ICategorySer
         // fetch all categories
         Page<Category> userPage = categoryRepository.findAll(pageableObject);
         // validate if not categories exist in DB.
-        if(userPage.getContent().isEmpty()) categoryValidationService.validateCategory(Optional.empty()
-                ,methodName,NOT_FOUND_CATEGORY);
+        if (userPage.getContent().isEmpty()) categoryValidationService.validateCategory(Optional.empty()
+                , methodName, NOT_FOUND_CATEGORY);
         return getPageableResponse(userPage, CATEGORY_DTO);
     }
 
     /**
-     * @param categoryId
-     * @return
-     */
+     * @param categoryId - categoryId of category
+     * @return CategoryDto
+     * @throws CategoryNotFoundExceptions,CategoryExceptions - list of exceptions being thrown
+     ***/
     @Override
     public CategoryDto getCategoryServiceByCategoryId(final String categoryId) throws CategoryNotFoundExceptions, CategoryExceptions {
-        Optional<Category> category=categoryRepository.findById(categoryId);
+        Optional<Category> category = categoryRepository.findById(categoryId);
         // validate if categories found in DB.
         categoryValidationService.validateCategory(category,
-                "getCategoryServiceByCategoryId",NOT_FOUND_CATEGORY);
+                "getCategoryServiceByCategoryId", NOT_FOUND_CATEGORY);
         return categoryToCategoryDto(category.get());
     }
 }

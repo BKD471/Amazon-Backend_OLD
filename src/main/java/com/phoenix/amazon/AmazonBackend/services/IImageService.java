@@ -14,11 +14,16 @@ public interface IImageService {
      * @param userId       - userId of user
      * @param userName     - username of user
      * @param primaryEmail - primary email of user
-     * @return string
+     * @return String
      * @throws BadApiRequestExceptions,IOException,UserNotFoundExceptions,UserExceptions - list of exception being thrown
      **/
     String uploadUserImageServiceByUserIdOrUserNameOrPrimaryEmail(final MultipartFile image, final String userId, final String userName, final String primaryEmail) throws BadApiRequestExceptions, IOException, UserNotFoundExceptions, UserExceptions;
 
+    /**
+     * @param image - profile image of user
+     * @return String
+     * @throws BadApiRequestExceptions,IOException - list of exceptions being thrown
+     ***/
     String uploadCoverImageByCategoryId(final MultipartFile image) throws BadApiRequestExceptions, IOException;
 
     /**
