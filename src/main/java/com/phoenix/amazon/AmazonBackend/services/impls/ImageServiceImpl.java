@@ -57,7 +57,7 @@ public class ImageServiceImpl extends AbstractService implements IImageService {
         }
         // get the values from keys of properties file
         this.userImagePath = properties.getProperty("user.profile.images.path");
-        this.categoryImagePath = properties.getProperty("category.images.path");
+        this.categoryImagePath = properties.getProperty("category.cover.images.path");
     }
 
     private String processImageUpload(final MultipartFile image, final String imagePath, final String methodName) throws BadApiRequestExceptions, IOException {
@@ -116,9 +116,14 @@ public class ImageServiceImpl extends AbstractService implements IImageService {
         return fileNameWithExtension;
     }
 
+    /**
+     * @param image - profile image of user
+     * @return String
+     * @throws BadApiRequestExceptions,IOException - list of exceptions being thrown
+     ***/
     @Override
     public String uploadCoverImageByCategoryId(final MultipartFile image) throws BadApiRequestExceptions, IOException {
-        final String methodName = "uploadUserImageServiceByUserIdOrUserNameOrPrimaryEmail(MultipartFile) in ImageServiceImpl";
+        final String methodName = "uploadCoverImageByCategoryId(MultipartFile) in ImageServiceImpl";
         // upload category image & get its name
         final String fileNameWithExtension = processImageUpload(image, categoryImagePath, methodName);
         // validate cover image of category to know whether its in permissible size limit

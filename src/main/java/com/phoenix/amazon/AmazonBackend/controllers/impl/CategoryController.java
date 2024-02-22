@@ -7,8 +7,6 @@ import com.phoenix.amazon.AmazonBackend.dto.responseDtos.PageableResponse;
 import com.phoenix.amazon.AmazonBackend.exceptions.BadApiRequestExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.CategoryExceptions;
 import com.phoenix.amazon.AmazonBackend.exceptions.CategoryNotFoundExceptions;
-import com.phoenix.amazon.AmazonBackend.exceptions.UserExceptions;
-import com.phoenix.amazon.AmazonBackend.exceptions.UserNotFoundExceptions;
 import com.phoenix.amazon.AmazonBackend.services.ICategoryService;
 
 import org.springframework.http.HttpStatus;
@@ -26,6 +24,12 @@ public class CategoryController implements ICategoryController {
         this.categoryService = categoryService;
     }
 
+    /**
+     * @param categoryDto - category request object
+     * @param coverImage  - coverImage of category
+     * @return CategoryDto
+     * @throws BadApiRequestExceptions,IOException,CategoryNotFoundExceptions,CategoryExceptions - list of exceptions being thrown
+     **/
     @Override
     public ResponseEntity<CategoryDto> createCategory(final CategoryDto categoryDto, final MultipartFile coverImage) throws BadApiRequestExceptions, IOException, CategoryNotFoundExceptions, CategoryExceptions {
         CategoryDto categoryDto1 = categoryService.createCategoryService(categoryDto, coverImage);
@@ -33,15 +37,10 @@ public class CategoryController implements ICategoryController {
     }
 
     /**
-     * @param categoryId
-     * @return
-     * @throws UserNotFoundExceptions
-     * @throws UserExceptions
-     * @throws BadApiRequestExceptions
-     * @throws IOException
-     * @throws CategoryNotFoundExceptions
-     * @throws CategoryExceptions
-     */
+     * @param categoryId - categoryId of category
+     * @return ApiResponse
+     * @throws CategoryNotFoundExceptions,CategoryExceptions - list of exceptions being thrown
+     **/
     @Override
     public ResponseEntity<ApiResponse> deleteCategory(String categoryId) throws CategoryNotFoundExceptions, CategoryExceptions {
         ApiResponse deletedCategoryResponse = categoryService.deleteCategoryServiceByCategoryId(categoryId);
@@ -49,34 +48,26 @@ public class CategoryController implements ICategoryController {
     }
 
     /**
-     * @param categoryDto
-     * @param coverImage
-     * @param categoryId
-     * @return
-     * @throws UserNotFoundExceptions
-     * @throws UserExceptions
-     * @throws BadApiRequestExceptions
-     * @throws IOException
-     * @throws CategoryNotFoundExceptions
-     * @throws CategoryExceptions
-     */
+     * @param categoryDto - category request object
+     * @param coverImage  - cover image of category
+     * @param categoryId  - id of category
+     * @return CategoryDto
+     * @throws BadApiRequestExceptions,IOException,CategoryNotFoundExceptions,CategoryExceptions - list of exceptions being thrown
+     **/
     @Override
-    public ResponseEntity<CategoryDto> updateCategory(CategoryDto categoryDto, MultipartFile coverImage, String categoryId) throws UserNotFoundExceptions, UserExceptions, BadApiRequestExceptions, IOException, CategoryNotFoundExceptions, CategoryExceptions {
+    public ResponseEntity<CategoryDto> updateCategory(CategoryDto categoryDto, MultipartFile coverImage, String categoryId) throws BadApiRequestExceptions, IOException, CategoryNotFoundExceptions, CategoryExceptions {
         CategoryDto updatedCategory = categoryService.updateCategoryServiceByCategoryId(categoryDto, coverImage, categoryId);
         return new ResponseEntity<>(updatedCategory, HttpStatus.ACCEPTED);
     }
 
     /**
-     * @param pageNumber
-     * @param pageSize
-     * @param sortBy
-     * @param sortDir
-     * @return
-     * @throws UserNotFoundExceptions
-     * @throws UserExceptions
-     * @throws BadApiRequestExceptions
-     * @throws IOException
-     */
+     * @param pageNumber - index of current page
+     * @param pageSize   - size of page
+     * @param sortBy     - sort column
+     * @param sortDir    - sort direction
+     * @return PageableResponse<CategoryDto>
+     * @throws CategoryNotFoundExceptions,CategoryExceptions - list of exceptions being thrown
+     **/
     @Override
     public ResponseEntity<PageableResponse<CategoryDto>> getAllCategories(int pageNumber, int pageSize, String sortBy, String sortDir) throws CategoryNotFoundExceptions, CategoryExceptions {
         PageableResponse<CategoryDto> categoryDtoSet = categoryService.getAllCategoryService(pageNumber, pageSize, sortBy, sortDir);
@@ -84,15 +75,10 @@ public class CategoryController implements ICategoryController {
     }
 
     /**
-     * @param categoryId
-     * @return
-     * @throws UserNotFoundExceptions
-     * @throws UserExceptions
-     * @throws BadApiRequestExceptions
-     * @throws IOException
-     * @throws CategoryNotFoundExceptions
-     * @throws CategoryExceptions
-     */
+     * @param categoryId - categoryId of category
+     * @return CategoryDto
+     * @throws CategoryNotFoundExceptions,CategoryExceptions - list of exceptions being thrown
+     **/
     @Override
     public ResponseEntity<CategoryDto> getCategory(String categoryId) throws CategoryNotFoundExceptions, CategoryExceptions {
         CategoryDto categoryDto = categoryService.getCategoryServiceByCategoryId(categoryId);
