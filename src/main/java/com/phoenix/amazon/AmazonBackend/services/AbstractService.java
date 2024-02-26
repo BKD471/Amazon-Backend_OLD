@@ -42,8 +42,8 @@ public abstract class AbstractService extends AbstractValidationService {
         return users.get();
     }
 
-    protected StringBuffer getUserDbField(USER_FIELDS sortBy) {
-        StringBuffer sortByColumn = new StringBuffer();
+    protected StringBuilder getUserDbField(USER_FIELDS sortBy) {
+        StringBuilder sortByColumn = new StringBuilder();
         switch (sortBy) {
             case USER_NAME -> sortByColumn.append("user_name");
             case FIRST_NAME -> sortByColumn.append("first_name");

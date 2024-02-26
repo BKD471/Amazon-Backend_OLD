@@ -368,7 +368,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
     public PageableResponse<UserDto> searchUserByFieldAndValue(final USER_FIELDS field, final String value, final int pageNumber, final int pageSize, final USER_FIELDS sortBy, final String sortDir) throws UserNotFoundExceptions {
         final String methodName = "searchUserByFieldAndValue(field,String) in UserServiceImpl";
         // get the user db column names
-        final StringBuffer sortByColumn = getUserDbField(sortBy);
+        final StringBuilder sortByColumn = getUserDbField(sortBy);
         // sort in either ascending or descending
         final Sort sort = sortDir.equals("desc") ? Sort.by(sortByColumn.toString()).descending() : Sort.by(sortByColumn.toString()).ascending();
         // get the pageable object
@@ -438,7 +438,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
         final String specialCase = "!@#$%^&*()-_+/<>?=|";
         final String numbers = "0123456789";
 
-        StringBuffer password = new StringBuffer();
+        StringBuilder password = new StringBuilder();
         int capacity = 4, randomId = -1;
         for (int i = 0; i < 16; i++) {
             int k = i % capacity;
